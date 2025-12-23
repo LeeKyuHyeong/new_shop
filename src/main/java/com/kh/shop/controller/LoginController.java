@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
@@ -18,6 +19,8 @@ import java.util.Optional;
 
 @Controller
 public class LoginController {
+
+    boolean debug = true;
 
     @Autowired
     private UserService userService;
@@ -37,8 +40,15 @@ public class LoginController {
 
         if (user.isPresent()) {
             session.setAttribute("loggedInUser", userId);
+            session.setAttribute("userRole", user.get().getUserRole());
             session.setAttribute("loginTime", System.currentTimeMillis());
-            return "redirect:/index";
+
+            // 역할에 따라 분기
+            if ("ADMIN".equals(user.get().getUserRole())) {
+                return "redirect:/admin";
+            } else {
+                return "redirect:/index";
+            }
         } else {
             redirectAttributes.addFlashAttribute("loginError", "아이디 또는 비밀번호를 확인하세요");
             return "redirect:/login";
@@ -56,6 +66,7 @@ public class LoginController {
         return "signup";
     }
 
+    @ResponseBody
     @PostMapping("/signup")
     public Map<String, Object> signup(@RequestParam String userId,
                          @RequestParam String userPassword,
