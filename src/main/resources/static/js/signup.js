@@ -78,28 +78,28 @@ document.getElementById('confirmPassword').addEventListener('keyup', function() 
 document.getElementById('signupForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    const password = document.getElementById('userPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-
-    if (password.length < 8) {
-        showAlert('비밀번호는 8자 이상이어야 합니다', 'error');
-        return;
-    }
-
-    if (password !== confirmPassword) {
-        showAlert('비밀번호가 일치하지 않습니다', 'error');
-        return;
-    }
-
-    if (!isUserIdChecked) {
-        showAlert('아이디 중복확인을 진행해주세요', 'error');
-        return;
-    }
-
-    if (!isEmailChecked) {
-        showAlert('이메일 중복확인을 진행해주세요', 'error');
-        return;
-    }
+//    const password = document.getElementById('userPassword').value;
+//    const confirmPassword = document.getElementById('confirmPassword').value;
+//
+//    if (password.length < 8) {
+//        showAlert('비밀번호는 8자 이상이어야 합니다', 'error');
+//        return;
+//    }
+//
+//    if (password !== confirmPassword) {
+//        showAlert('비밀번호가 일치하지 않습니다', 'error');
+//        return;
+//    }
+//
+//    if (!isUserIdChecked) {
+//        showAlert('아이디 중복확인을 진행해주세요', 'error');
+//        return;
+//    }
+//
+//    if (!isEmailChecked) {
+//        showAlert('이메일 중복확인을 진행해주세요', 'error');
+//        return;
+//    }
 
     const formData = new FormData(this);
 
