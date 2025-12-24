@@ -10,9 +10,6 @@
 </head>
 <body>
     <div class="signup-container">
-        <div class="theme-toggle">
-            <button id="themeBtn" onclick="toggleTheme()">🌙</button>
-        </div>
 
         <div class="signup-box">
             <div class="signup-header">

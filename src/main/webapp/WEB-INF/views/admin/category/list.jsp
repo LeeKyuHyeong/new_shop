@@ -11,24 +11,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin-category.css">
 </head>
 <body>
-    <div class="theme-toggle">
-        <button id="themeBtn" onclick="toggleTheme()">🌙</button>
-    </div>
 
     <div class="admin-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>KH SHOP Admin</h2>
-            </div>
-
-            <nav class="sidebar-menu">
-                <a href="${pageContext.request.contextPath}/admin" class="menu-item">대시보드</a>
-                <a href="${pageContext.request.contextPath}/admin/category" class="menu-item active">카테고리 관리</a>
-                <a href="${pageContext.request.contextPath}/admin/product" class="menu-item">상품 관리</a>
-                <a href="${pageContext.request.contextPath}/admin/order" class="menu-item">주문 관리</a>
-                <a href="${pageContext.request.contextPath}/logout" class="menu-item logout">로그아웃</a>
-            </nav>
-        </aside>
+        <jsp:include page="/WEB-INF/views/admin/common/sidebar.jsp"/>
 
         <main class="main-content">
             <header class="top-bar">
