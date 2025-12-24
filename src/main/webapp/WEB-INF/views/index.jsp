@@ -8,9 +8,6 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/index.css">
 </head>
 <body>
-    <div class="theme-toggle">
-        <button id="themeBtn" onclick="toggleTheme()">🌙</button>
-    </div>
 
     <nav class="navbar">
         <div class="nav-container">

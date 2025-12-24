@@ -2,8 +2,13 @@ package com.kh.shop.controller;
 
 import com.kh.shop.entity.Category;
 import com.kh.shop.entity.Product;
+import com.kh.shop.entity.Slide;
+import com.kh.shop.entity.User;
 import com.kh.shop.service.CategoryService;
 import com.kh.shop.service.ProductService;
+import com.kh.shop.service.SlideService;
+import com.kh.shop.service.SiteSettingService;
+import com.kh.shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +29,15 @@ public class AdminController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private SlideService slideService;
+
+    @Autowired
+    private SiteSettingService siteSettingService;
+
+    @Autowired
+    private UserService userService;
 
     private boolean isAdmin(HttpSession session) {
         Object loggedInUser = session.getAttribute("loggedInUser");
@@ -131,5 +145,86 @@ public class AdminController {
             return "admin/product/detail";
         }
         return "redirect:/admin/product";
+    }
+
+    // ==================== 슬라이드 관리 ====================
+
+    @GetMapping("/slide")
+    public String slideList(HttpSession session, Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
+        List<Slide> slides = slideService.getAllSlides();
+        model.addAttribute("slides", slides);
+        return "admin/slide/list";
+    }
+
+    @GetMapping("/slide/create")
+    public String slideCreatePage(HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+        return "admin/slide/form";
+    }
+
+    @GetMapping("/slide/edit/{slideId}")
+    public String slideEditPage(@PathVariable Long slideId, HttpSession session, Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
+        Optional<Slide> slide = slideService.getSlideById(slideId);
+        if (slide.isPresent()) {
+            model.addAttribute("slide", slide.get());
+            return "admin/slide/form";
+        }
+        return "redirect:/admin/slide";
+    }
+
+    // ==================== 사이트 설정 ====================
+
+    @GetMapping("/setting")
+    public String settingPage(HttpSession session, Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
+        // 초기 설정이 없으면 생성
+        siteSettingService.initDefaultSettings();
+
+        String siteName = siteSettingService.getSettingValue(SiteSettingService.KEY_SITE_NAME, "KH SHOP");
+        int slideDuration = siteSettingService.getSlideDuration();
+
+        model.addAttribute("siteName", siteName);
+        model.addAttribute("slideDuration", slideDuration);
+        return "admin/setting/index";
+    }
+
+    // ==================== 사용자 관리 ====================
+
+    @GetMapping("/user")
+    public String userList(HttpSession session, Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
+        List<User> users = userService.getAllUsers();
+        model.addAttribute("users", users);
+        return "admin/user/list";
+    }
+
+    @GetMapping("/user/detail/{userId}")
+    public String userDetailPage(@PathVariable String userId, HttpSession session, Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
+        Optional<User> user = userService.getUserByUserId(userId);
+        if (user.isPresent()) {
+            model.addAttribute("user", user.get());
+            return "admin/user/detail";
+        }
+        return "redirect:/admin/user";
     }
 }

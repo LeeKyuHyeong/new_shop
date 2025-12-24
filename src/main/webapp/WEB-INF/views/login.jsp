@@ -9,9 +9,6 @@
 </head>
 <body>
     <div class="login-container">
-        <div class="theme-toggle">
-            <button id="themeBtn" onclick="toggleTheme()">🌙</button>
-        </div>
 
         <div class="login-box">
             <div class="login-header">
