@@ -28,4 +28,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // 상품명 중복 체크
     Optional<Product> findByProductNameAndUseYn(String productName, String useYn);
+
+    // 신상품 조회 (최근 등록순)
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn ORDER BY p.createdDate DESC")
+    List<Product> findNewProducts(@Param("useYn") String useYn);
+
+    // 베스트 상품 조회 (productOrder 높은순)
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn ORDER BY p.productOrder DESC")
+    List<Product> findBestProducts(@Param("useYn") String useYn);
+
+    // 할인 상품 조회 (할인율 있는 상품)
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND p.productDiscount > 0 ORDER BY p.productDiscount DESC")
+    List<Product> findDiscountProducts(@Param("useYn") String useYn);
 }
