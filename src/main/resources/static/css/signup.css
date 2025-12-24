@@ -244,3 +244,58 @@ body.dark-mode .signup-box {
         font-size: 12px;
     }
 }
+
+@media (max-width: 400px) {
+    .signup-container {
+        padding: 15px;
+    }
+
+    .signup-box {
+        padding: 25px 15px;
+    }
+
+    .signup-header {
+        margin-bottom: 25px;
+    }
+
+    .signup-header h1 {
+        font-size: 22px;
+    }
+
+    .signup-header p {
+        font-size: 13px;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-group label {
+        font-size: 13px;
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    .input-with-btn {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .btn-check {
+        width: 100%;
+        padding: 8px;
+    }
+
+    .btn-signup {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .login-link {
+        font-size: 13px;
+    }
+}

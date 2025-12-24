@@ -17,14 +17,14 @@ public class IndexController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping({"/", "/index"})
-    public String index(HttpSession session, Model model) {
-        Object loggedInUser = session.getAttribute("loggedInUser");
-
-        List<Category> categories = categoryService.getAllCategories();
-        model.addAttribute("categories", categories);
-        model.addAttribute("loggedInUser", loggedInUser);
-
-        return "client/index";
-    }
+//    @GetMapping({"/", "/index"})
+//    public String index(HttpSession session, Model model) {
+//        Object loggedInUser = session.getAttribute("loggedInUser");
+//
+//        List<Category> categories = categoryService.getAllCategories();
+//        model.addAttribute("categories", categories);
+//        model.addAttribute("loggedInUser", loggedInUser);
+//
+//        return "client/main";
+//    }
 }

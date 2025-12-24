@@ -147,7 +147,7 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
         if (data.success) {
             showAlert(data.message, 'success');
             setTimeout(() => {
-                window.location.href = contextPath + '/admin/product/list';
+                window.location.href = contextPath + '/admin/product';
             }, 500);
         } else {
             showAlert(data.message, 'error');

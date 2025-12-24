@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -48,6 +49,30 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Optional<Product> getProductById(Long productId) {
         return productRepository.findByIdWithImages(productId);
+    }
+
+    // 신상품 조회 (최신 10개)
+    @Transactional(readOnly = true)
+    public List<Product> getNewProducts(int limit) {
+        return productRepository.findNewProducts("Y").stream()
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    // 베스트 상품 조회 (상위 10개)
+    @Transactional(readOnly = true)
+    public List<Product> getBestProducts(int limit) {
+        return productRepository.findBestProducts("Y").stream()
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    // 할인 상품 조회 (상위 10개)
+    @Transactional(readOnly = true)
+    public List<Product> getDiscountProducts(int limit) {
+        return productRepository.findDiscountProducts("Y").stream()
+                .limit(limit)
+                .collect(Collectors.toList());
     }
 
     // 상품 등록

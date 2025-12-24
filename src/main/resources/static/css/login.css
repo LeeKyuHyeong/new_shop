@@ -183,3 +183,40 @@ body.dark-mode .login-box {
         width: 100%;
     }
 }
+
+@media (max-width: 400px) {
+    .login-container {
+        padding: 15px;
+    }
+
+    .login-box {
+        padding: 25px 15px;
+    }
+
+    .login-header {
+        margin-bottom: 25px;
+    }
+
+    .login-header h1 {
+        font-size: 22px;
+    }
+
+    .login-header p {
+        font-size: 13px;
+    }
+
+    .form-group input {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .btn-login {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .btn-secondary {
+        padding: 8px;
+        font-size: 13px;
+    }
+}

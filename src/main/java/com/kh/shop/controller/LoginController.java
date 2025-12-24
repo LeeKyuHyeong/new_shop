@@ -1,9 +1,12 @@
 package com.kh.shop.controller;
 
+import com.kh.shop.entity.Category;
 import com.kh.shop.entity.User;
+import com.kh.shop.service.CategoryService;
 import com.kh.shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +17,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,9 +29,15 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private CategoryService categoryService;
+
     @GetMapping("/login")
-    public String loginPage() {
-        return "login";
+    public String loginPage(Model model) {
+        // 상단 메뉴용 카테고리 조회
+        List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
+        model.addAttribute("parentCategories", parentCategories);
+        return "client/login";
     }
 
     @PostMapping("/login")
@@ -43,12 +53,13 @@ public class LoginController {
             session.setAttribute("userRole", user.get().getUserRole());
             session.setAttribute("loginTime", System.currentTimeMillis());
 
-            // 역할에 따라 분기
-            if ("ADMIN".equals(user.get().getUserRole())) {
-                return "redirect:/admin";
-            } else {
-                return "redirect:/index";
-            }
+            // 역할에 따라 분기 (관리자는 따로 '관리자' 버튼으로 이동)
+//            if ("ADMIN".equals(user.get().getUserRole())) {
+//                return "redirect:/admin";
+//            } else {
+//
+//            }
+            return "redirect:/";
         } else {
             redirectAttributes.addFlashAttribute("loginError", "아이디 또는 비밀번호를 확인하세요");
             return "redirect:/login";
@@ -58,24 +69,27 @@ public class LoginController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/login";
+        return "redirect:/";
     }
 
     @GetMapping("/signup")
-    public String signupPage() {
-        return "signup";
+    public String signupPage(Model model) {
+        // 상단 메뉴용 카테고리 조회
+        List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
+        model.addAttribute("parentCategories", parentCategories);
+        return "client/signup";
     }
 
     @ResponseBody
     @PostMapping("/signup")
     public Map<String, Object> signup(@RequestParam String userId,
-                         @RequestParam String userPassword,
-                         @RequestParam String confirmPassword,
-                         @RequestParam String userName,
-                         @RequestParam String email,
-                         @RequestParam(required = false) String gender,
-                         @RequestParam(required = false) String birth,
-                         RedirectAttributes redirectAttributes) {
+                                      @RequestParam String userPassword,
+                                      @RequestParam String confirmPassword,
+                                      @RequestParam String userName,
+                                      @RequestParam String email,
+                                      @RequestParam(required = false) String gender,
+                                      @RequestParam(required = false) String birth,
+                                      RedirectAttributes redirectAttributes) {
 
         Map<String, Object> response = new HashMap<>();
 

@@ -5,11 +5,12 @@
     border-radius: 8px;
     overflow: hidden;
     overflow-x: auto;
+    width: 100%;
 }
 
 .data-table {
     width: 100%;
-    min-width: 900px;
+    min-width: 700px;
     border-collapse: collapse;
 }
 
@@ -87,6 +88,7 @@
     border-radius: 8px;
     padding: 30px;
     max-width: 700px;
+    width: 100%;
 }
 
 .detail-section {
@@ -127,12 +129,15 @@
     font-size: 14px;
     color: var(--text-primary);
     font-weight: 500;
+    word-break: break-word;
 }
 
 .action-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .current-status {
@@ -145,12 +150,14 @@
 .action-buttons {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .password-reset-form {
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .password-input {
@@ -161,6 +168,7 @@
     color: var(--text-primary);
     font-size: 14px;
     width: 200px;
+    max-width: 100%;
 }
 
 .password-input:focus {
@@ -179,8 +187,12 @@
 
 .form-buttons {
     margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
+/* 태블릿 */
 @media (max-width: 768px) {
     .info-grid {
         grid-template-columns: 1fr;
@@ -189,15 +201,117 @@
     .action-row {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
     }
 
     .password-reset-form {
-        flex-direction: column;
         width: 100%;
     }
 
     .password-input {
+        flex: 1;
+    }
+
+    .data-table {
+        min-width: 600px;
+    }
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+    .detail-container {
+        padding: 20px;
+    }
+
+    .detail-section {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+    }
+
+    .detail-section h3 {
+        font-size: 15px;
+        margin-bottom: 15px;
+    }
+
+    .info-grid {
+        gap: 12px;
+    }
+
+    .info-label {
+        font-size: 11px;
+    }
+
+    .info-value {
+        font-size: 13px;
+    }
+
+    .action-buttons {
         width: 100%;
+    }
+
+    .action-buttons .btn {
+        flex: 1;
+        text-align: center;
+    }
+
+    .password-reset-form {
+        flex-direction: column;
+    }
+
+    .password-input {
+        width: 100%;
+    }
+
+    .form-buttons {
+        flex-direction: column;
+    }
+
+    .form-buttons .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .data-table {
+        min-width: 500px;
+        font-size: 12px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 8px;
+    }
+
+    .empty-message {
+        padding: 30px 15px;
+        font-size: 14px;
+    }
+}
+
+/* 초소형 모바일 */
+@media (max-width: 360px) {
+    .detail-container {
+        padding: 15px;
+    }
+
+    .detail-section h3 {
+        font-size: 14px;
+    }
+
+    .info-value {
+        font-size: 12px;
+    }
+
+    .data-table {
+        min-width: 450px;
+        font-size: 11px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 6px;
+    }
+
+    .badge {
+        padding: 3px 8px;
+        font-size: 10px;
     }
 }

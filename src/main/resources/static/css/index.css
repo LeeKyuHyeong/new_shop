@@ -148,3 +148,69 @@ body {
         font-size: 16px;
     }
 }
+
+@media (max-width: 480px) {
+    .nav-container {
+        padding: 0 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .logo {
+        font-size: 18px;
+    }
+
+    .nav-menu {
+        gap: 12px;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .nav-link {
+        font-size: 13px;
+    }
+
+    .container {
+        padding: 30px 15px;
+    }
+
+    .welcome-section {
+        padding: 40px 15px;
+    }
+
+    .welcome-section h1 {
+        font-size: 24px;
+    }
+
+    .welcome-section p {
+        font-size: 14px;
+    }
+
+    .theme-toggle {
+        top: 12px;
+        right: 12px;
+    }
+
+    #themeBtn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 360px) {
+    .logo {
+        font-size: 16px;
+    }
+
+    .nav-link {
+        font-size: 12px;
+    }
+
+    .welcome-section h1 {
+        font-size: 22px;
+    }
+
+    .welcome-section p {
+        font-size: 13px;
+    }
+}

@@ -38,6 +38,77 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
+.theme-toggle-item {
+    margin-top: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* 미세한 테두리로 구분감 제공 */
+}
+
+/* 다크모드 시 변수 활용 */
+body.dark-mode .theme-toggle-item {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 모바일 햄버거 메뉴 버튼 */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    width: 45px;
+    height: 45px;
+    background-color: var(--sidebar-bg);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.mobile-menu-btn span {
+    display: block;
+    width: 24px;
+    height: 3px;
+    background-color: white;
+    border-radius: 2px;
+    transition: all 0.3s;
+}
+
+/* 햄버거 → X 애니메이션 */
+.mobile-menu-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(4px, 6px);
+}
+
+.mobile-menu-btn.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(4px, -6px);
+}
+
+/* 오버레이 */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+}
+
 .theme-toggle {
     position: fixed;
     top: 20px;
@@ -76,6 +147,8 @@ body {
     width: 250px;
     height: 100vh;
     overflow-y: auto;
+    z-index: 100;
+    transition: transform 0.3s ease;
 }
 
 .sidebar-header {
@@ -110,7 +183,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    height: 90%;
+    height: calc(100% - 100px);
 }
 
 .menu-item {
@@ -119,6 +192,7 @@ body {
     text-decoration: none;
     border-radius: 4px;
     transition: background-color 0.3s;
+    font-size: 14px;
 }
 
 .menu-item:hover {
@@ -142,6 +216,8 @@ body {
     margin-left: 250px;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    width: calc(100vw - 250px);
 }
 
 .top-bar {
@@ -153,23 +229,26 @@ body {
     align-items: center;
     position: sticky;
     top: 0;
-    z-index: 100;
-    width: 1580px;
+    z-index: 50;
+    width: 100%;
 }
 
 .top-bar h1 {
     font-size: 24px;
+    white-space: nowrap;
 }
 
 .user-info {
     font-size: 14px;
     color: var(--text-secondary);
+    white-space: nowrap;
 }
 
 .content {
     padding: 30px;
     flex: 1;
-    width: 600px;
+    min-width: 0;
+    width: 100%;
 }
 
 .alert-container {
@@ -254,7 +333,7 @@ body {
     background-color: var(--bg-primary);
     border-radius: 8px;
     border: 1px solid var(--border-color);
-    width: 400px;
+    max-width: 500px;
 }
 
 .welcome-section h2 {
@@ -265,43 +344,194 @@ body {
     color: var(--text-secondary);
 }
 
+/* ========================================
+   태블릿/모바일 (768px 이하) - 토글 사이드바
+   ======================================== */
 @media (max-width: 768px) {
+    /* 햄버거 버튼 표시 */
+
+    .mobile-menu-btn {
+        display: flex;
+        top: 10px;
+        left: 10px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .mobile-menu-btn span {
+        width: 20px;
+        height: 2px;
+    }
+
+    /* 오버레이 활성화 가능 */
+    .sidebar-overlay {
+        display: block;
+        pointer-events: none;
+    }
+
+    .sidebar-overlay.active {
+        pointer-events: auto;
+    }
+
     .admin-container {
         grid-template-columns: 1fr;
     }
 
+    /* 사이드바 기본 숨김 (왼쪽으로 밀어냄) */
     .sidebar {
-        width: 765px;
-        height: 210px;
-        position: relative;
-        /*margin-bottom: 20px;*/
+        transform: translateX(-100%);
+        width: 280px;
+    }
+
+    /* 사이드바 열림 상태 */
+    .sidebar.open {
+        transform: translateX(0);
     }
 
     .sidebar-header {
-        margin-bottom: 0;
-        padding-bottom: 0;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+
+    .sidebar-header h2 {
+        margin-left: 90px;
+    }
+
+    .sidebar-menu {
+        flex-direction: column;
+        height: auto;
+        gap: 8px;
+    }
+
+    .menu-item {
+        text-align: left;
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+
+    .menu-item.logout {
+        margin-top: 20px;
     }
 
     .main-content {
         margin-left: 0;
+        width: 100%;
     }
 
-    .sidebar-menu {
-        flex-direction: row;
-        flex-wrap: wrap;
-        height: 0;
+    .top-bar {
+        padding: 15px;
+        padding-left: 70px; /* 햄버거 버튼 공간 */
     }
 
-    .menu-item {
-        flex: 1 1 45%;
+    .top-bar h1 {
+        font-size: 18px;
+    }
+
+    .content {
+        padding: 20px;
     }
 
     .theme-toggle {
-        top: 10px;
-        right: 30px;
+        display: none;
+    }
+}
+
+/* 모바일 (480px 이하) */
+@media (max-width: 480px) {
+    .mobile-menu-btn {
+        top: 5px;
+        left: 5px;
+        width: 40px;
+        height: 40px;
     }
 
-    #themeBtn {
-        padding: 0;
+    .mobile-menu-btn span {
+        width: 20px;
+        height: 2px;
+    }
+
+    .sidebar {
+        width: 260px;
+    }
+
+    .sidebar-header h2 {
+        font-size: 16px;
+        margin-left: 90px;
+    }
+
+    .menu-item {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .top-bar {
+        padding: 12px;
+        padding-left: 60px;
+    }
+
+    .top-bar h1 {
+        font-size: 16px;
+    }
+
+    .user-info {
+        font-size: 12px;
+    }
+
+    .content {
+        padding: 15px;
+    }
+
+    .btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .btn-small {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+
+    .welcome-section {
+        padding: 40px 15px;
+    }
+
+    .welcome-section h2 {
+        font-size: 20px;
+    }
+}
+
+/* 초소형 모바일 (360px 이하) */
+@media (max-width: 360px) {
+    .mobile-menu-btn {
+        top: 10px;
+        left: 10px;
+        width: 36px;
+        height: 36px;
+        padding: 8px;
+    }
+
+    .sidebar {
+        width: 240px;
+    }
+
+    .sidebar-header h2 {
+        font-size: 14px;
+    }
+
+    .menu-item {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+
+    .top-bar {
+        padding-left: 55px;
+    }
+
+    .top-bar h1 {
+        font-size: 14px;
+    }
+
+    .content {
+        padding: 12px;
     }
 }

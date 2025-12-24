@@ -12,7 +12,7 @@
 
         <div class="login-box">
             <div class="login-header">
-                <h1>KH SHOP</h1>
+                <h1 class="logo">KH SHOP</h1>
                 <p>로그인</p>
             </div>
 
