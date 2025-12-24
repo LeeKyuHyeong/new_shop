@@ -4,8 +4,10 @@ import com.kh.shop.entity.User;
 import com.kh.shop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,5 +44,58 @@ public class UserService {
             return user;
         }
         return Optional.empty();
+    }
+
+    // ==================== 관리자용 메서드 ====================
+
+    // 전체 사용자 조회
+    public List<User> getAllUsers() {
+        return userRepository.findAllByOrderByCreatedDateDesc();
+    }
+
+    // 활성 사용자만 조회
+    public List<User> getActiveUsers() {
+        return userRepository.findByUseYnOrderByCreatedDateDesc("Y");
+    }
+
+    // 사용자 상세 조회
+    public Optional<User> getUserByUserId(String userId) {
+        return userRepository.findByUserId(userId);
+    }
+
+    // 권한 변경
+    @Transactional
+    public User updateUserRole(String userId, String newRole) {
+        Optional<User> userOpt = userRepository.findByUserId(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setUserRole(newRole);
+            return userRepository.save(user);
+        }
+        return null;
+    }
+
+    // 사용자 상태 변경 (활성/비활성)
+    @Transactional
+    public User updateUserStatus(String userId, String useYn) {
+        Optional<User> userOpt = userRepository.findByUserId(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setUseYn(useYn);
+            return userRepository.save(user);
+        }
+        return null;
+    }
+
+    // 비밀번호 초기화
+    @Transactional
+    public User resetPassword(String userId, String newPassword) {
+        Optional<User> userOpt = userRepository.findByUserId(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setUserPassword(newPassword);
+            return userRepository.save(user);
+        }
+        return null;
     }
 }
