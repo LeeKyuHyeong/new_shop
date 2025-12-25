@@ -39,7 +39,7 @@
                         <c:when test="${not empty products}">
                             <div class="product-grid">
                                 <c:forEach var="product" items="${products}">
-                                    <div class="product-card">
+                                    <div class="product-card" onclick="location.href='${pageContext.request.contextPath}/product/${product.productId}'">
                                         <div class="product-image <c:if test="${empty product.thumbnailUrl}">no-image</c:if>">
                                             <c:choose>
                                                 <c:when test="${not empty product.thumbnailUrl}">
@@ -89,7 +89,9 @@
                     <c:when test="${not empty slides}">
                         <div class="slide-container" data-duration="${slideDuration}">
                             <c:forEach var="slide" items="${slides}" varStatus="status">
-                                <div class="slide <c:if test="${status.first}">active</c:if>">
+                                <div class="slide <c:if test="${status.first}">active</c:if>"
+                                     <c:if test="${not empty slide.linkUrl}">onclick="location.href='${slide.linkUrl}'" style="cursor:pointer"</c:if>
+                                     data-link="${slide.linkUrl}">
                                     <img src="${pageContext.request.contextPath}${slide.imageUrl}" alt="${slide.slideTitle}">
                                     <div class="slide-content">
                                         <div class="slide-title">${slide.slideTitle}</div>
@@ -131,7 +133,7 @@
                         </div>
                         <div class="product-grid">
                             <c:forEach var="product" items="${newProducts}">
-                                <div class="product-card">
+                                <div class="product-card" onclick="location.href='${pageContext.request.contextPath}/product/${product.productId}'">
                                     <div class="product-image <c:if test="${empty product.thumbnailUrl}">no-image</c:if>">
                                         <c:choose>
                                             <c:when test="${not empty product.thumbnailUrl}">
@@ -178,7 +180,7 @@
                         </div>
                         <div class="product-grid">
                             <c:forEach var="product" items="${bestProducts}">
-                                <div class="product-card">
+                                <div class="product-card" onclick="location.href='${pageContext.request.contextPath}/product/${product.productId}'">
                                     <div class="product-image <c:if test="${empty product.thumbnailUrl}">no-image</c:if>">
                                         <c:choose>
                                             <c:when test="${not empty product.thumbnailUrl}">
@@ -225,7 +227,7 @@
                         </div>
                         <div class="product-grid">
                             <c:forEach var="product" items="${discountProducts}">
-                                <div class="product-card">
+                                <div class="product-card" onclick="location.href='${pageContext.request.contextPath}/product/${product.productId}'">
                                     <div class="product-image <c:if test="${empty product.thumbnailUrl}">no-image</c:if>">
                                         <c:choose>
                                             <c:when test="${not empty product.thumbnailUrl}">

@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin/category")
-public class AdminApiController {
+public class CategoryApiController {
 
     @Autowired
     private CategoryService categoryService;

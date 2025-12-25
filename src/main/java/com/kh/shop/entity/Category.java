@@ -27,6 +27,7 @@ public class Category {
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     @Builder.Default
+    @OrderBy("categoryOrder ASC")
     private List<Category> children = new ArrayList<>();
 
     @Column(name = "category_name", nullable = false, length = 100)
@@ -71,4 +72,5 @@ public class Category {
     public Integer getParentId(int categoryId) {
         return this.parent != null ? this.parent.getCategoryId() : null;
     }
+
 }

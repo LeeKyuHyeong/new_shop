@@ -75,6 +75,16 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    // 관련 상품 조회 (같은 카테고리의 다른 상품)
+    @Transactional(readOnly = true)
+    public List<Product> getRelatedProducts(Integer categoryId, Long excludeProductId, int limit) {
+        return productRepository.findByCategoryCategoryIdAndUseYnOrderByProductOrderAsc(categoryId, "Y")
+                .stream()
+                .filter(p -> !p.getProductId().equals(excludeProductId))
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
     // 상품 등록
     @Transactional
     public Product createProduct(String productName, Integer productPrice, Integer productDiscount,

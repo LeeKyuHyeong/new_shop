@@ -99,4 +99,37 @@ public class ClientController {
 
         return "client/main";
     }
+
+    @GetMapping("/product/{productId}")
+    public String productDetail(@PathVariable Long productId, Model model) {
+        // 상품 조회
+        Product product = productService.getProductById(productId).orElse(null);
+
+        if (product == null) {
+            return "redirect:/";
+        }
+
+        // 상위 카테고리와 하위 카테고리 조회 (메뉴용)
+        List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
+        model.addAttribute("parentCategories", parentCategories);
+
+        model.addAttribute("product", product);
+
+        // 카테고리 정보 전달 (메뉴 active 표시용)
+        if (product.getCategory() != null) {
+            model.addAttribute("selectedCategoryId", product.getCategory().getCategoryId());
+            if (product.getCategory().getParent() != null) {
+                model.addAttribute("selectedParentId", product.getCategory().getParent().getCategoryId());
+            }
+        }
+
+        // 관련 상품 조회 (같은 카테고리의 다른 상품)
+        if (product.getCategory() != null) {
+            List<Product> relatedProducts = productService.getRelatedProducts(
+                    product.getCategory().getCategoryId(), productId, 4);
+            model.addAttribute("relatedProducts", relatedProducts);
+        }
+
+        return "client/product-detail";
+    }
 }
