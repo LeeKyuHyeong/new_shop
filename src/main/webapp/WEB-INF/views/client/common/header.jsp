@@ -9,7 +9,7 @@
             <c:choose>
                 <c:when test="${not empty sessionScope.loggedInUser}">
                     <span class="header-btn">${sessionScope.loggedInUser}님</span>
-                    <a href="${pageContext.request.contextPath}/mypage/orders" class="header-btn">주문내역</a>
+                    <a href="${pageContext.request.contextPath}/mypage" class="header-btn">마이페이지</a>
                     <a href="${pageContext.request.contextPath}/cart" class="header-btn cart-btn">
                         🛒 장바구니
                         <span class="cart-count" id="cartCount">0</span>
@@ -28,10 +28,6 @@
                     <a href="${pageContext.request.contextPath}/signup" class="header-btn primary">회원가입</a>
                 </c:otherwise>
             </c:choose>
-            <div class="menu-item theme-toggle-item" onclick="toggleTheme()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                <span id="themeText">다크 모드</span>
-                <span id="themeIcon">🌙</span>
-            </div>
         </div>
     </div>
 
@@ -61,7 +57,8 @@
     </nav>
 </header>
 
-<script src="${pageContext.request.contextPath}/js/theme.js"></script>
+<script>window.contextPath = '${pageContext.request.contextPath}';</script>
+<script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
 
 <!-- 장바구니 카운트 로드 -->
 <script>

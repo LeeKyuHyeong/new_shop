@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>주문서 작성 - KH Shop</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client-main.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/main.css">
     <style>
         .checkout-container {
             max-width: 1000px;

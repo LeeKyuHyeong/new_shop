@@ -8,8 +8,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>상품 관리 - KH Shop</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin-product.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/admin.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/product.css">
 </head>
 <body>
 
@@ -115,7 +115,7 @@
     <script>
         const contextPath = '${pageContext.request.contextPath}';
     </script>
-    <script src="${pageContext.request.contextPath}/js/theme.js"></script>
-    <script src="${pageContext.request.contextPath}/js/admin-product.js"></script>
+    <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
+    <script src="${pageContext.request.contextPath}/js/admin/product.js"></script>
 </body>
 </html>
