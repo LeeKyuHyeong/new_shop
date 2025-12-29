@@ -8,8 +8,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>슬라이드 관리 - KH Shop</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/admin.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/slide.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin-slide.css">
 </head>
 <body>
 
@@ -117,7 +117,7 @@
         const contextPath = '${pageContext.request.contextPath}';
         const isEdit = ${not empty slide};
     </script>
-    <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
-    <script src="${pageContext.request.contextPath}/js/admin/slide-form.js"></script>
+    <script src="${pageContext.request.contextPath}/js/theme.js"></script>
+    <script src="${pageContext.request.contextPath}/js/admin-slide-form.js"></script>
 </body>
 </html>

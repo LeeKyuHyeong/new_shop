@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### api key ###
+# Secret 설정 파일
+application-secret.properties

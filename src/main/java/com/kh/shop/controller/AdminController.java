@@ -1,4 +1,4 @@
-package com.kh.shop.controller.admin;
+package com.kh.shop.controller;
 
 import com.kh.shop.entity.Category;
 import com.kh.shop.entity.Product;

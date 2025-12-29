@@ -7,9 +7,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>주문 내역 - KH Shop</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/main.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/mypage.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client-main.css">
     <style>
+        .orders-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
         .order-list {
             display: flex;
             flex-direction: column;
@@ -17,7 +26,7 @@
         }
         .order-card {
             background: white;
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             overflow: hidden;
         }
@@ -26,15 +35,15 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
         }
         .order-date {
             font-weight: 600;
         }
         .order-number {
             font-family: monospace;
-            color: #7f8c8d;
+            color: var(--text-secondary);
             font-size: 14px;
         }
         .order-status {
@@ -64,7 +73,7 @@
             cursor: pointer;
         }
         .order-item:hover .item-name {
-            color: #3498db;
+            color: var(--btn-primary-bg);
         }
         .item-image {
             width: 80px;
@@ -96,7 +105,7 @@
         }
         .item-quantity {
             font-size: 14px;
-            color: #7f8c8d;
+            color: var(--text-secondary);
         }
         .item-price {
             font-weight: 600;
@@ -108,8 +117,8 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px;
-            border-top: 1px solid #e9ecef;
-            background: #f8f9fa;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-secondary);
         }
         .order-total {
             font-size: 18px;
@@ -121,7 +130,7 @@
         }
         .btn-detail {
             padding: 10px 20px;
-            background: #3498db;
+            background: var(--btn-primary-bg);
             color: white;
             border: none;
             border-radius: 6px;
@@ -148,64 +157,19 @@
             padding: 60px 20px;
             background: white;
             border-radius: 12px;
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--border-color);
         }
         .empty-orders p {
-            color: #7f8c8d;
+            color: var(--text-secondary);
             margin-bottom: 20px;
         }
         .btn-shop {
             display: inline-block;
             padding: 12px 24px;
-            background: #3498db;
+            background: var(--btn-primary-bg);
             color: white;
             text-decoration: none;
             border-radius: 8px;
-        }
-        
-        /* 다크 모드 */
-        body.dark-mode .order-card {
-            background: #2c3e50;
-            border-color: #34495e;
-        }
-        body.dark-mode .order-header {
-            background: #34495e;
-            border-bottom-color: #2c3e50;
-        }
-        body.dark-mode .order-date {
-            color: #ecf0f1;
-        }
-        body.dark-mode .order-number {
-            color: #95a5a6;
-        }
-        body.dark-mode .order-body {
-            background: #2c3e50;
-        }
-        body.dark-mode .item-name {
-            color: #ecf0f1;
-        }
-        body.dark-mode .item-quantity {
-            color: #95a5a6;
-        }
-        body.dark-mode .item-price {
-            color: #ecf0f1;
-        }
-        body.dark-mode .order-footer {
-            background: #34495e;
-            border-top-color: #2c3e50;
-        }
-        body.dark-mode .order-total {
-            color: #ecf0f1;
-        }
-        body.dark-mode .empty-orders {
-            background: #2c3e50;
-            border-color: #34495e;
-        }
-        body.dark-mode .empty-orders p {
-            color: #95a5a6;
-        }
-        body.dark-mode .item-image.no-image {
-            background: #34495e;
         }
         
         @media (max-width: 600px) {
@@ -228,17 +192,8 @@
 <body>
     <%@ include file="common/header.jsp" %>
 
-    <div class="mypage-container">
-        <div class="mypage-sidebar">
-            <h3>마이페이지</h3>
-            <nav class="mypage-nav">
-                <a href="${pageContext.request.contextPath}/mypage/orders" class="active">주문내역</a>
-                <a href="${pageContext.request.contextPath}/mypage/setting">개인설정</a>
-            </nav>
-        </div>
-
-        <div class="mypage-content">
-            <h2 class="mypage-title">주문 내역</h2>
+    <div class="orders-container">
+        <h1 class="page-title">주문 내역</h1>
 
         <c:choose>
             <c:when test="${not empty orders}">
@@ -311,7 +266,6 @@
                 </div>
             </c:otherwise>
         </c:choose>
-        </div>
     </div>
 
     <footer class="footer">

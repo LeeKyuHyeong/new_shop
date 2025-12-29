@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${product.productName} - KH Shop</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/main.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client-main.css">
     <style>
         .product-detail {
             display: flex;

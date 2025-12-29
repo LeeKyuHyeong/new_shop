@@ -59,6 +59,6 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
+    <script src="${pageContext.request.contextPath}/js/theme.js"></script>
 </body>
 </html>

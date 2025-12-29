@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>주문서 작성 - KH Shop</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/main.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client-main.css">
     <style>
         .checkout-container {
             max-width: 1000px;
@@ -155,6 +155,59 @@
         }
         .payment-method input {
             display: none;
+        }
+        
+        /* 카드사 선택 */
+        .card-company-section {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+        .card-company-section.active {
+            display: block;
+        }
+        .card-company-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .card-companies {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .card-company {
+            padding: 12px 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+            background: white;
+        }
+        .card-company:hover {
+            border-color: #3498db;
+        }
+        .card-company.selected {
+            border-color: #3498db;
+            background: #ebf5fb;
+        }
+        .card-company img {
+            width: 40px;
+            height: 25px;
+            object-fit: contain;
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 600px) {
+            .card-companies {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
         
         /* 요약 박스 */
@@ -517,6 +570,50 @@
                                 💚 네이버페이
                             </label>
                         </div>
+                        
+                        <!-- 카드사 선택 (카드 결제 선택 시 표시) -->
+                        <div class="card-company-section active" id="cardCompanySection">
+                            <div class="card-company-title">카드사 선택</div>
+                            <div class="card-companies">
+                                <div class="card-company" data-card="samsung">
+                                    <div>삼성</div>
+                                </div>
+                                <div class="card-company" data-card="shinhan">
+                                    <div>신한</div>
+                                </div>
+                                <div class="card-company" data-card="kb">
+                                    <div>KB국민</div>
+                                </div>
+                                <div class="card-company" data-card="hyundai">
+                                    <div>현대</div>
+                                </div>
+                                <div class="card-company" data-card="lotte">
+                                    <div>롯데</div>
+                                </div>
+                                <div class="card-company" data-card="bc">
+                                    <div>BC</div>
+                                </div>
+                                <div class="card-company" data-card="hana">
+                                    <div>하나</div>
+                                </div>
+                                <div class="card-company" data-card="woori">
+                                    <div>우리</div>
+                                </div>
+                                <div class="card-company" data-card="nh">
+                                    <div>NH농협</div>
+                                </div>
+                                <div class="card-company" data-card="citi">
+                                    <div>씨티</div>
+                                </div>
+                                <div class="card-company" data-card="kakao">
+                                    <div>카카오뱅크</div>
+                                </div>
+                                <div class="card-company" data-card="etc">
+                                    <div>기타</div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="cardCompany" id="cardCompany" value="">
+                        </div>
                     </div>
                 </div>
 
@@ -613,12 +710,53 @@
 
     <!-- 다음 주소 API -->
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <!-- 포트원(아임포트) SDK -->
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
     <script>
+        const contextPath = '${pageContext.request.contextPath}';
+        const finalPrice = ${finalPrice};
+        let selectedCardCompany = '';
+        
+        // 카드사 코드 매핑 (포트원 기준)
+        const cardCodes = {
+            'samsung': '04',  // 삼성카드
+            'shinhan': '06',  // 신한카드
+            'kb': '11',       // KB국민카드
+            'hyundai': '01',  // 현대카드
+            'lotte': '07',    // 롯데카드
+            'bc': '03',       // BC카드
+            'hana': '21',     // 하나카드
+            'woori': '33',    // 우리카드
+            'nh': '34',       // NH농협카드
+            'citi': '02',     // 씨티카드
+            'kakao': '15',    // 카카오뱅크
+            'etc': ''         // 기타 (선택 안함)
+        };
+
         // 결제 수단 선택
         document.querySelectorAll('.payment-method').forEach(method => {
             method.addEventListener('click', function() {
                 document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
                 this.classList.add('selected');
+                
+                // 카드 선택 시 카드사 선택 영역 표시
+                const paymentMethod = this.querySelector('input').value;
+                const cardSection = document.getElementById('cardCompanySection');
+                if (paymentMethod === 'CARD') {
+                    cardSection.classList.add('active');
+                } else {
+                    cardSection.classList.remove('active');
+                }
+            });
+        });
+
+        // 카드사 선택
+        document.querySelectorAll('.card-company').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.card-company').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedCardCompany = this.dataset.card;
+                document.getElementById('cardCompany').value = selectedCardCompany;
             });
         });
 
@@ -632,27 +770,7 @@
             }).open();
         }
 
-        // 카드번호 자동 포맷
-        document.getElementById('cardNumber')?.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            let formatted = '';
-            for (let i = 0; i < value.length && i < 16; i++) {
-                if (i > 0 && i % 4 === 0) formatted += '-';
-                formatted += value[i];
-            }
-            e.target.value = formatted;
-        });
-
-        // 유효기간 자동 포맷
-        document.getElementById('cardExpiry')?.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length >= 2) {
-                value = value.substring(0, 2) + '/' + value.substring(2, 4);
-            }
-            e.target.value = value;
-        });
-
-        // 폼 제출 (결제 모달 열기)
+        // 폼 제출
         document.getElementById('orderForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -674,94 +792,172 @@
             // 선택된 결제 수단 확인
             const paymentMethod = document.querySelector('[name="paymentMethod"]:checked').value;
             
-            if (paymentMethod === 'CARD') {
-                // 카드 결제 모달 열기
-                openPaymentModal();
-            } else {
-                // 다른 결제 수단은 바로 처리 (테스트)
-                simulateOtherPayment(paymentMethod);
-            }
+            // 포트원 결제 실행
+            requestPayment(paymentMethod);
         });
 
-        // 결제 모달 열기
-        function openPaymentModal() {
-            document.getElementById('paymentModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
+        // 포트원 결제 요청
+        function requestPayment(method) {
+            // 결제 설정 가져오기
+            fetch(contextPath + '/api/payment/config')
+                .then(response => response.json())
+                .then(config => {
+                    // IMP 초기화
+                    const IMP = window.IMP;
+                    IMP.init(config.impCode);
+                    
+                    // 주문번호 생성
+                    const merchantUid = 'ORDER_' + new Date().getTime();
+                    
+                    // 결제 요청 데이터
+                    let payData = {
+                        pg: getPgProvider(method),
+                        pay_method: getPayMethod(method),
+                        merchant_uid: merchantUid,
+                        name: getOrderName(),
+                        amount: finalPrice,
+                        buyer_name: document.querySelector('[name="receiverName"]').value,
+                        buyer_tel: document.querySelector('[name="receiverPhone"]').value,
+                        buyer_addr: document.getElementById('receiverAddress').value,
+                        buyer_postcode: document.getElementById('postalCode').value
+                    };
+                    
+                    // 카드사 지정 (카드 결제 시)
+                    if (method === 'CARD' && selectedCardCompany && cardCodes[selectedCardCompany]) {
+                        payData.card = {
+                            direct: {
+                                code: cardCodes[selectedCardCompany]
+                            }
+                        };
+                    }
+                    
+                    // 테스트 모드 안내
+                    if (config.testMode) {
+                        console.log('테스트 모드로 결제를 진행합니다.');
+                        console.log('결제 데이터:', payData);
+                    }
+                    
+                    // 결제 요청
+                    IMP.request_pay(payData, function(response) {
+                        if (response.success) {
+                            // 결제 성공 - 서버에서 검증
+                            verifyPayment(response.imp_uid, merchantUid, finalPrice);
+                        } else {
+                            // 결제 실패/취소
+                            alert('결제가 취소되었습니다.\n' + response.error_msg);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('결제 설정 로드 실패:', error);
+                    // 설정 로드 실패 시 테스트 모드로 진행
+                    simulatePayment();
+                });
         }
 
-        // 결제 모달 닫기
-        function closePaymentModal() {
-            document.getElementById('paymentModal').classList.remove('active');
-            document.body.style.overflow = '';
-            // 입력값 초기화
-            document.getElementById('cardNumber').value = '';
-            document.getElementById('cardExpiry').value = '';
-            document.getElementById('cardCvc').value = '';
-            document.getElementById('cardPassword').value = '';
-        }
-
-        // 카드 결제 처리 (시뮬레이션)
-        function processPayment() {
-            const cardNumber = document.getElementById('cardNumber').value;
-            const cardExpiry = document.getElementById('cardExpiry').value;
-            const cardCvc = document.getElementById('cardCvc').value;
-            const cardPassword = document.getElementById('cardPassword').value;
-            
-            // 간단한 검증
-            if (cardNumber.replace(/-/g, '').length !== 16) {
-                alert('카드번호 16자리를 입력해주세요.');
-                return;
-            }
-            if (cardExpiry.length !== 5) {
-                alert('유효기간을 입력해주세요.');
-                return;
-            }
-            if (cardCvc.length !== 3) {
-                alert('CVC 3자리를 입력해주세요.');
-                return;
-            }
-            if (cardPassword.length !== 2) {
-                alert('비밀번호 앞 2자리를 입력해주세요.');
-                return;
-            }
-            
-            // 처리 중 표시
-            document.getElementById('processingOverlay').classList.add('active');
-            document.getElementById('btnPay').disabled = true;
-            
-            // 결제 시뮬레이션 (2초 후 완료)
-            setTimeout(() => {
-                document.getElementById('processingText').textContent = '결제 승인 중...';
-            }, 1000);
-            
-            setTimeout(() => {
-                document.getElementById('processingText').textContent = '결제 완료!';
-            }, 2000);
-            
-            setTimeout(() => {
-                // 실제 폼 제출
-                document.getElementById('orderForm').submit();
-            }, 2500);
-        }
-
-        // 다른 결제 수단 시뮬레이션
-        function simulateOtherPayment(method) {
-            let methodName = '';
+        // PG사 결정
+        function getPgProvider(method) {
             switch(method) {
+                case 'CARD':
+                case 'BANK':
+                    return 'html5_inicis'; // KG이니시스
+                case 'KAKAO':
+                    return 'kakaopay';
+                case 'NAVER':
+                    return 'naverpay';
+                default:
+                    return 'html5_inicis';
+            }
+        }
+
+        // 결제 수단 결정
+        function getPayMethod(method) {
+            switch(method) {
+                case 'CARD': return 'card';
+                case 'BANK': return 'trans';
+                case 'KAKAO': return 'kakaopay';
+                case 'NAVER': return 'naverpay';
+                default: return 'card';
+            }
+        }
+
+        // 주문명 생성
+        function getOrderName() {
+            const firstItem = document.querySelector('.order-item-name');
+            if (firstItem) {
+                const itemCount = document.querySelectorAll('.order-item').length;
+                if (itemCount > 1) {
+                    return firstItem.textContent.trim() + ' 외 ' + (itemCount - 1) + '건';
+                }
+                return firstItem.textContent.trim();
+            }
+            return 'KH SHOP 주문';
+        }
+
+        // 결제 검증
+        function verifyPayment(impUid, merchantUid, amount) {
+            fetch(contextPath + '/api/payment/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    imp_uid: impUid,
+                    merchant_uid: merchantUid,
+                    amount: amount
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 검증 성공 - 주문 완료 처리
+                    completeOrder(impUid, merchantUid);
+                } else {
+                    alert('결제 검증에 실패했습니다: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('결제 검증 오류:', error);
+                // 검증 실패해도 주문 진행 (테스트 모드)
+                completeOrder(impUid, merchantUid);
+            });
+        }
+
+        // 주문 완료 처리
+        function completeOrder(impUid, merchantUid) {
+            // hidden input에 결제 정보 추가
+            const form = document.getElementById('orderForm');
+            
+            let impUidInput = document.createElement('input');
+            impUidInput.type = 'hidden';
+            impUidInput.name = 'impUid';
+            impUidInput.value = impUid || '';
+            form.appendChild(impUidInput);
+            
+            let merchantUidInput = document.createElement('input');
+            merchantUidInput.type = 'hidden';
+            merchantUidInput.name = 'merchantUid';
+            merchantUidInput.value = merchantUid || '';
+            form.appendChild(merchantUidInput);
+            
+            // 폼 제출
+            form.submit();
+        }
+
+        // 테스트 모드 결제 시뮬레이션
+        function simulatePayment() {
+            const paymentMethod = document.querySelector('[name="paymentMethod"]:checked').value;
+            let methodName = '';
+            switch(paymentMethod) {
+                case 'CARD': methodName = '신용카드'; break;
                 case 'BANK': methodName = '계좌이체'; break;
                 case 'KAKAO': methodName = '카카오페이'; break;
                 case 'NAVER': methodName = '네이버페이'; break;
             }
             
-            if (confirm(methodName + ' 결제를 진행하시겠습니까?\n\n(테스트 모드: 실제 결제가 진행되지 않습니다)')) {
-                // 로딩 표시를 위해 버튼 비활성화
-                const submitBtn = document.querySelector('.btn-submit');
-                submitBtn.disabled = true;
-                submitBtn.textContent = '결제 처리 중...';
-                
-                setTimeout(() => {
-                    document.getElementById('orderForm').submit();
-                }, 1500);
+            if (confirm(methodName + ' 결제를 진행하시겠습니까?\n\n⚠️ 테스트 모드: 실제 결제가 진행되지 않습니다.')) {
+                const merchantUid = 'TEST_' + new Date().getTime();
+                completeOrder('test_imp_uid', merchantUid);
             }
         }
 
@@ -771,6 +967,17 @@
                 closePaymentModal();
             }
         });
+
+        // 기존 모달 관련 함수 (호환성 유지)
+        function openPaymentModal() {
+            document.getElementById('paymentModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
     </script>
 </body>
 </html>

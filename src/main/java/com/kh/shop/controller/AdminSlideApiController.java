@@ -1,4 +1,4 @@
-package com.kh.shop.controller.admin;
+package com.kh.shop.controller;
 
 import com.kh.shop.entity.Slide;
 import com.kh.shop.service.SlideService;

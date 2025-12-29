@@ -7,8 +7,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>주문 관리 - KH Shop</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/admin.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/category.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin-category.css">
     <style>
         .filter-bar {
             display: flex;
@@ -177,6 +177,6 @@
             });
         }
     </script>
-    <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
+    <script src="${pageContext.request.contextPath}/js/theme.js"></script>
 </body>
 </html>
