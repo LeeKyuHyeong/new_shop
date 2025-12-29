@@ -1,7 +1,9 @@
 package com.kh.shop.service;
 
 import com.kh.shop.entity.User;
+import com.kh.shop.entity.UserSetting;
 import com.kh.shop.repository.UserRepository;
+import com.kh.shop.repository.UserSettingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserSettingRepository userSettingRepository;
+
     public boolean isDuplicateUserId(String userId) {
         return userRepository.findByUserId(userId).isPresent();
     }
@@ -24,6 +29,7 @@ public class UserService {
         return userRepository.findByEmail(email).isPresent();
     }
 
+    @Transactional
     public User registerUser(String userId, String userPassword, String userName,
                              String email, String gender, LocalDate birth) {
         User user = User.builder()
@@ -35,7 +41,24 @@ public class UserService {
                 .birth(birth)
                 .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        // UserSetting 자동 생성
+        createUserSetting(savedUser);
+
+        return savedUser;
+    }
+
+    // UserSetting 생성 메서드
+    private void createUserSetting(User user) {
+        UserSetting setting = UserSetting.builder()
+                .user(user)
+                .theme("LIGHT")
+                .language("KO")
+                .notificationYn("Y")
+                .emailReceiveYn("Y")
+                .build();
+        userSettingRepository.save(setting);
     }
 
     public Optional<User> loginUser(String userId, String userPassword) {

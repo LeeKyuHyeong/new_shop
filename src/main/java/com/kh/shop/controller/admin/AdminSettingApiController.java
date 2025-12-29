@@ -1,4 +1,4 @@
-package com.kh.shop.controller;
+package com.kh.shop.controller.admin;
 
 import com.kh.shop.service.SiteSettingService;
 import org.springframework.beans.factory.annotation.Autowired;

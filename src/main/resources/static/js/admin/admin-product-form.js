@@ -108,7 +108,16 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
     formData.append('productPrice', productPrice);
     formData.append('productDiscount', document.getElementById('productDiscount').value || 0);
     formData.append('productStock', document.getElementById('productStock').value || 0);
-    formData.append('productDescription', document.getElementById('productDescription').value || '');
+
+    // Summernote 에디터에서 내용 가져오기
+    let description = '';
+    if (typeof $ !== 'undefined' && $('#productDescription').summernote) {
+        description = $('#productDescription').summernote('code');
+    } else {
+        const descEl = document.getElementById('productDescription');
+        description = descEl ? (descEl.value || descEl.innerHTML || '') : '';
+    }
+    formData.append('productDescription', description);
     formData.append('productOrder', document.getElementById('productOrder').value || 0);
 
     const categoryId = document.getElementById('categoryId').value;

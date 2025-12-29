@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kh.shop.config.SocialLoginConfig;
 import com.kh.shop.entity.SocialAccount;
 import com.kh.shop.entity.User;
+import com.kh.shop.entity.UserSetting;
 import com.kh.shop.repository.SocialAccountRepository;
 import com.kh.shop.repository.UserRepository;
+import com.kh.shop.repository.UserSettingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,9 @@ public class SocialLoginService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserSettingRepository userSettingRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -310,7 +315,17 @@ public class SocialLoginService {
 
         user = userRepository.save(user);
 
-        // 2. SocialAccount 연결
+        // 2. UserSetting 생성
+        UserSetting setting = UserSetting.builder()
+                .user(user)
+                .theme("LIGHT")
+                .language("KO")
+                .notificationYn("Y")
+                .emailReceiveYn("Y")
+                .build();
+        userSettingRepository.save(setting);
+
+        // 3. SocialAccount 연결
         SocialAccount socialAccount = SocialAccount.builder()
                 .user(user)
                 .provider(provider)

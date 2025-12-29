@@ -1,4 +1,4 @@
-package com.kh.shop.controller;
+package com.kh.shop.controller.client;
 
 import com.kh.shop.entity.Cart;
 import com.kh.shop.entity.Order;

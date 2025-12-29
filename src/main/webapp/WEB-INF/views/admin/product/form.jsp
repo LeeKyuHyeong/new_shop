@@ -8,8 +8,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>상품 관리 - KH Shop</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin-product.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/admin.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/product.css">
+    <!-- Summernote CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
+    <style>
+        .note-editor {
+            border: 1px solid #ddd !important;
+            border-radius: 8px !important;
+            overflow: hidden;
+        }
+        .note-editor .note-toolbar {
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+        .note-editor .note-editing-area {
+            background: white;
+        }
+        .note-editor .note-editable {
+            min-height: 300px;
+            padding: 20px;
+        }
+        body.dark-mode .note-editor {
+            border-color: #34495e !important;
+        }
+        body.dark-mode .note-editor .note-toolbar {
+            background: #34495e;
+            border-bottom-color: #2c3e50;
+        }
+        body.dark-mode .note-editor .note-editing-area,
+        body.dark-mode .note-editor .note-editable {
+            background: #2c3e50;
+            color: #ecf0f1;
+        }
+        body.dark-mode .note-btn {
+            background: #34495e;
+            border-color: #34495e;
+            color: #ecf0f1;
+        }
+        body.dark-mode .note-dropdown-menu {
+            background: #34495e;
+        }
+        body.dark-mode .note-dropdown-item:hover {
+            background: #2c3e50;
+        }
+    </style>
 </head>
 <body>
 
@@ -80,7 +123,8 @@
 
                         <div class="form-group">
                             <label for="productDescription">상품 설명</label>
-                            <textarea id="productDescription" name="productDescription" placeholder="상품 설명 입력" rows="5"><c:if test="${not empty product}">${product.productDescription}</c:if></textarea>
+                            <div id="productDescription"><c:if test="${not empty product}">${product.productDescription}</c:if></div>
+                            <input type="hidden" id="productDescriptionInput" name="productDescription">
                         </div>
 
                         <div class="form-group">
@@ -142,11 +186,70 @@
         </main>
     </div>
 
+    <!-- jQuery (Summernote 의존성) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Summernote JS -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/lang/summernote-ko-KR.min.js"></script>
+    
     <script>
         const contextPath = '${pageContext.request.contextPath}';
         const isEdit = ${not empty product};
+        
+        // Summernote 초기화
+        $(document).ready(function() {
+            $('#productDescription').summernote({
+                lang: 'ko-KR',
+                height: 400,
+                placeholder: '상품 설명을 입력하세요. 이미지도 추가할 수 있습니다.',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                fontNames: ['맑은 고딕', '굴림', '돋움', 'Noto Sans KR', 'Arial', 'Times New Roman'],
+                fontNamesIgnoreCheck: ['맑은 고딕', '굴림', '돋움', 'Noto Sans KR'],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        for (let i = 0; i < files.length; i++) {
+                            uploadImage(files[i]);
+                        }
+                    }
+                }
+            });
+        });
+        
+        // 이미지 업로드
+        function uploadImage(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            $.ajax({
+                url: contextPath + '/api/upload/editor-image',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        $('#productDescription').summernote('insertImage', contextPath + response.url);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert('이미지 업로드에 실패했습니다.');
+                }
+            });
+        }
     </script>
-    <script src="${pageContext.request.contextPath}/js/theme.js"></script>
-    <script src="${pageContext.request.contextPath}/js/admin-product-form.js"></script>
+    <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
+    <script src="${pageContext.request.contextPath}/js/admin/product-form.js"></script>
 </body>
 </html>

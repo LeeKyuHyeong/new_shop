@@ -1,4 +1,4 @@
-package com.kh.shop.controller;
+package com.kh.shop.controller.common;
 
 import com.kh.shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

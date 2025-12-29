@@ -7,193 +7,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>주문 내역 - KH Shop</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client-main.css">
-    <style>
-        .orders-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-        .page-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 30px;
-        }
-        .order-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .order-card {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-        }
-        .order-date {
-            font-weight: 600;
-        }
-        .order-number {
-            font-family: monospace;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        .order-status {
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        .status-pending { background: #fef3cd; color: #856404; }
-        .status-paid { background: #cce5ff; color: #004085; }
-        .status-preparing { background: #e2d5f1; color: #5e35b1; }
-        .status-shipping { background: #d4edda; color: #155724; }
-        .status-delivered { background: #d4edda; color: #155724; }
-        .status-cancelled { background: #f8d7da; color: #721c24; }
-        
-        .order-body {
-            padding: 20px;
-        }
-        .order-items {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .order-item {
-            display: flex;
-            gap: 15px;
-            cursor: pointer;
-        }
-        .order-item:hover .item-name {
-            color: var(--btn-primary-bg);
-        }
-        .item-image {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .item-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .item-image.no-image {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f8f9fa;
-            color: #999;
-            font-size: 11px;
-        }
-        .item-info {
-            flex: 1;
-        }
-        .item-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-            transition: color 0.3s;
-        }
-        .item-quantity {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-        .item-price {
-            font-weight: 600;
-            text-align: right;
-        }
-        
-        .order-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-top: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-        }
-        .order-total {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .order-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .btn-detail {
-            padding: 10px 20px;
-            background: var(--btn-primary-bg);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .btn-cancel {
-            padding: 10px 20px;
-            background: white;
-            color: #e74c3c;
-            border: 1px solid #e74c3c;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn-cancel:hover {
-            background: #e74c3c;
-            color: white;
-        }
-        
-        .empty-orders {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-        .empty-orders p {
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-        }
-        .btn-shop {
-            display: inline-block;
-            padding: 12px 24px;
-            background: var(--btn-primary-bg);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-        }
-        
-        @media (max-width: 600px) {
-            .order-header {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-            .order-footer {
-                flex-direction: column;
-                gap: 15px;
-                align-items: stretch;
-            }
-            .order-actions {
-                justify-content: center;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/main.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/mypage.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/my-orders.css">
 </head>
 <body>
     <%@ include file="common/header.jsp" %>
 
-    <div class="orders-container">
-        <h1 class="page-title">주문 내역</h1>
+    <div class="mypage-container">
+        <div class="mypage-sidebar">
+            <h3>마이페이지</h3>
+            <nav class="mypage-nav">
+                <a href="${pageContext.request.contextPath}/mypage/orders" class="active">주문내역</a>
+                <a href="${pageContext.request.contextPath}/mypage/setting">개인설정</a>
+            </nav>
+        </div>
+
+        <div class="mypage-content">
+            <h2 class="mypage-title">주문 내역</h2>
 
         <c:choose>
             <c:when test="${not empty orders}">
@@ -266,36 +97,14 @@
                 </div>
             </c:otherwise>
         </c:choose>
+        </div>
     </div>
 
     <footer class="footer">
         <p>&copy; 2024 KH SHOP. All rights reserved.</p>
     </footer>
 
-    <script>
-        const contextPath = '${pageContext.request.contextPath}';
-        
-        function cancelOrder(orderId) {
-            const reason = prompt('취소 사유를 입력하세요:');
-            if (reason === null) return;
-            
-            fetch(contextPath + '/mypage/order/cancel/' + orderId, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'cancelReason=' + encodeURIComponent(reason)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    location.reload();
-                } else {
-                    alert(data.message);
-                }
-            });
-        }
-    </script>
+    <script>const contextPath = '${pageContext.request.contextPath}';</script>
+    <script src="${pageContext.request.contextPath}/js/client/my-orders.js"></script>
 </body>
 </html>
