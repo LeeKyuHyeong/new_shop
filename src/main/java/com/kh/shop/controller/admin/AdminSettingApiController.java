@@ -24,6 +24,7 @@ public class AdminSettingApiController {
     public Map<String, Object> saveSettings(
             @RequestParam(required = false) String siteName,
             @RequestParam(required = false) String slideDuration,
+            @RequestParam(required = false) String popupDuration,
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
@@ -50,6 +51,18 @@ public class AdminSettingApiController {
                 }
                 siteSettingService.saveSetting(
                         SiteSettingService.KEY_SLIDE_DURATION, slideDuration, "슬라이드 지속시간(초)");
+            }
+
+            if (popupDuration != null) {
+                // 숫자 검증
+                int duration = Integer.parseInt(popupDuration);
+                if (duration < 1 || duration > 365) {
+                    response.put("success", false);
+                    response.put("message", "팝업 지속시간은 1~365일 사이로 입력하세요");
+                    return response;
+                }
+                siteSettingService.saveSetting(
+                        SiteSettingService.KEY_POPUP_DURATION, popupDuration, "팝업 지속시간(일)");
             }
 
             response.put("success", true);

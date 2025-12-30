@@ -44,6 +44,15 @@
                             </div>
                         </div>
 
+                        <div class="setting-section">
+                            <h3>팝업 설정</h3>
+                            <div class="form-group">
+                                <label for="popupDuration">팝업 지속시간 (일)</label>
+                                <input type="number" id="popupDuration" name="popupDuration" value="${popupDuration}" min="1" max="365" placeholder="1">
+                                <small class="form-hint">"오늘 하루 보지 않기" 체크 시 팝업이 숨겨지는 기간 (1~365일)</small>
+                            </div>
+                        </div>
+
                         <div class="form-buttons">
                             <button type="submit" class="btn btn-primary">저장</button>
                         </div>
@@ -61,6 +70,7 @@
 
             const siteName = document.getElementById('siteName').value.trim();
             const slideDuration = document.getElementById('slideDuration').value;
+            const popupDuration = document.getElementById('popupDuration').value;
 
             fetch(contextPath + '/api/admin/setting/save', {
                 method: 'POST',
@@ -69,7 +79,8 @@
                 },
                 body: new URLSearchParams({
                     siteName: siteName,
-                    slideDuration: slideDuration
+                    slideDuration: slideDuration,
+                    popupDuration: popupDuration
                 })
             })
             .then(response => response.json())

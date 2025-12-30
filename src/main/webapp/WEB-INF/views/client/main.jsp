@@ -269,6 +269,49 @@
         <p>&copy; 2024 KH SHOP. All rights reserved.</p>
     </footer>
 
+
+    <!-- 팝업 -->
+    <c:if test="${not empty popups}">
+        <c:forEach var="popup" items="${popups}">
+            <div class="popup-container" id="popup-${popup.popupId}" 
+                 style="width: ${popup.popupWidth}px; height: ${popup.popupHeight}px; 
+                        top: ${popup.popupTop}px; left: ${popup.popupLeft}px;">
+                <div class="popup-header">
+                    <h3>${popup.popupTitle}</h3>
+                    <button class="popup-close" onclick="closePopup(${popup.popupId})">×</button>
+                </div>
+                <div class="popup-body">
+                    <c:if test="${not empty popup.popupImageUrl}">
+                        <c:choose>
+                            <c:when test="${not empty popup.popupLink}">
+                                <a href="${popup.popupLink}" target="_blank">
+                                    <img src="${pageContext.request.contextPath}${popup.popupImageUrl}" alt="${popup.popupTitle}">
+                                </a>
+                            </c:when>
+                            <c:otherwise>
+                                <img src="${pageContext.request.contextPath}${popup.popupImageUrl}" alt="${popup.popupTitle}">
+                            </c:otherwise>
+                        </c:choose>
+                    </c:if>
+                    <c:if test="${not empty popup.popupContent}">
+                        <div class="popup-content">${popup.popupContent}</div>
+                    </c:if>
+                </div>
+                <div class="popup-footer">
+                    <label>
+                        <input type="checkbox" onclick="closePopupToday(${popup.popupId})"> 
+                        오늘 하루 보지 않기
+                    </label>
+                </div>
+            </div>
+        </c:forEach>
+    </c:if>
+
+    <script>
+        const popupDuration = ${popupDuration};
+    </script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/popup.css">
+    <script src="${pageContext.request.contextPath}/js/client/popup.js"></script>
     <script src="${pageContext.request.contextPath}/js/client/main.js"></script>
 </body>
 </html>

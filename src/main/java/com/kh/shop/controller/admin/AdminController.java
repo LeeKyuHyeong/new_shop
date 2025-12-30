@@ -196,8 +196,10 @@ public class AdminController {
 
         String siteName = siteSettingService.getSettingValue(SiteSettingService.KEY_SITE_NAME, "KH SHOP");
         int slideDuration = siteSettingService.getSlideDuration();
+        int popupDuration = siteSettingService.getPopupDuration();
 
         model.addAttribute("siteName", siteName);
+        model.addAttribute("popupDuration", popupDuration);
         model.addAttribute("slideDuration", slideDuration);
         return "admin/setting/index";
     }

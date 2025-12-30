@@ -89,7 +89,8 @@ public class ProductService {
     @Transactional
     public Product createProduct(String productName, Integer productPrice, Integer productDiscount,
                                  Integer productStock, String productDescription, Integer productOrder,
-                                 Integer categoryId, MultipartFile thumbnail, List<MultipartFile> detailImages) throws IOException {
+                                 Integer categoryId, String color, String size, MultipartFile thumbnail,
+                                 List<MultipartFile> detailImages) throws IOException {
 
         Category category = null;
         if (categoryId != null) {
@@ -111,6 +112,8 @@ public class ProductService {
                 .productOrder(productOrder)
                 .category(category)
                 .thumbnailUrl(thumbnailUrl)
+                .color(color)
+                .size(size)
                 .build();
 
         product = productRepository.save(product);
@@ -138,7 +141,7 @@ public class ProductService {
     @Transactional
     public Product updateProduct(Long productId, String productName, Integer productPrice, Integer productDiscount,
                                  Integer productStock, String productDescription, Integer productOrder,
-                                 Integer categoryId, MultipartFile thumbnail, List<MultipartFile> detailImages,
+                                 Integer categoryId, String color, String size, MultipartFile thumbnail, List<MultipartFile> detailImages,
                                  List<Long> deleteImageIds) throws IOException {
 
         Optional<Product> productOpt = productRepository.findById(productId);
@@ -160,6 +163,8 @@ public class ProductService {
         product.setProductDescription(productDescription);
         product.setProductOrder(productOrder);
         product.setCategory(category);
+        product.setColor(color);
+        product.setSize(size);
 
         // 썸네일 변경
         if (thumbnail != null && !thumbnail.isEmpty()) {

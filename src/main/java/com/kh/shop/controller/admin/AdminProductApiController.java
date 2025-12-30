@@ -34,6 +34,8 @@ public class AdminProductApiController {
             @RequestParam(required = false) String productDescription,
             @RequestParam(required = false, defaultValue = "0") Integer productOrder,
             @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) String size,
             @RequestParam(required = false) MultipartFile thumbnail,
             @RequestParam(required = false) List<MultipartFile> detailImages,
             HttpSession session) {
@@ -61,7 +63,7 @@ public class AdminProductApiController {
         try {
             Product product = productService.createProduct(
                     productName, productPrice, productDiscount, productStock,
-                    productDescription, productOrder, categoryId, thumbnail, detailImages);
+                    productDescription, productOrder, categoryId, color, size, thumbnail, detailImages);
             response.put("success", true);
             response.put("message", "상품이 등록되었습니다");
             response.put("productId", product.getProductId());
@@ -83,6 +85,8 @@ public class AdminProductApiController {
             @RequestParam(required = false) String productDescription,
             @RequestParam(required = false, defaultValue = "0") Integer productOrder,
             @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) String size,
             @RequestParam(required = false) MultipartFile thumbnail,
             @RequestParam(required = false) List<MultipartFile> detailImages,
             @RequestParam(required = false) List<Long> deleteImageIds,
@@ -112,7 +116,7 @@ public class AdminProductApiController {
         try {
             Product product = productService.updateProduct(
                     productId, productName, productPrice, productDiscount, productStock,
-                    productDescription, productOrder, categoryId, thumbnail, detailImages, deleteImageIds);
+                    productDescription, productOrder, categoryId, color, size, thumbnail, detailImages, deleteImageIds);
             response.put("success", true);
             response.put("message", "상품이 수정되었습니다");
             response.put("productId", product.getProductId());

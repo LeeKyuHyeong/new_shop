@@ -127,6 +127,8 @@ public class OrderService {
                     .itemPrice(product.getDiscountedPrice())
                     .totalPrice(product.getDiscountedPrice() * cart.getQuantity())
                     .thumbnailUrl(product.getThumbnailUrl())
+                    .color(product.getColor())
+                    .size(product.getSize())
                     .build();
 
             orderItemRepository.save(orderItem);
@@ -194,6 +196,8 @@ public class OrderService {
                 .itemPrice(product.getDiscountedPrice())
                 .totalPrice(product.getDiscountedPrice() * quantity)
                 .thumbnailUrl(product.getThumbnailUrl())
+                .color(product.getColor())
+                .size(product.getSize())
                 .build();
 
         orderItemRepository.save(orderItem);

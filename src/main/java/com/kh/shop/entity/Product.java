@@ -43,6 +43,12 @@ public class Product {
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl;
 
+    @Column(name = "color", length = 50)
+    private String color;
+
+    @Column(name = "size", length = 50)
+    private String size;
+
     @Column(name = "product_order")
     private Integer productOrder;
 

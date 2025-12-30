@@ -19,6 +19,7 @@ public class SiteSettingService {
     public static final String KEY_SLIDE_DURATION = "SLIDE_DURATION";
     public static final String KEY_SITE_NAME = "SITE_NAME";
     public static final String KEY_SITE_LOGO = "SITE_LOGO";
+    public static final String KEY_POPUP_DURATION = "POPUP_DURATION";
 
     // 전체 설정 조회
     public List<SiteSetting> getAllSettings() {
@@ -44,6 +45,16 @@ public class SiteSettingService {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             return 5;
+        }
+    }
+
+    // 팝업 지속시간 조회 (기본 1일)
+    public int getPopupDuration() {
+        String value = getSettingValue(KEY_POPUP_DURATION, "1");
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 1;
         }
     }
 
@@ -77,6 +88,9 @@ public class SiteSettingService {
         }
         if (!siteSettingRepository.existsById(KEY_SITE_NAME)) {
             saveSetting(KEY_SITE_NAME, "KH SHOP", "사이트명");
+            if (!siteSettingRepository.existsById(KEY_POPUP_DURATION)) {
+                saveSetting(KEY_POPUP_DURATION, "1", "팝업 지속시간(일) - 오늘하루보지않기");
+            }
         }
     }
 }
