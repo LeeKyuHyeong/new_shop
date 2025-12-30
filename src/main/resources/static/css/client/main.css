@@ -68,6 +68,30 @@ body {
 }
 
 /* 테마 토글 버튼 (헤더) */
+.theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.theme-toggle-btn:hover {
+    background: #f8f9fa;
+    border-color: #aaa;
+}
+
+.theme-toggle-btn .theme-text {
+    display: inline;
+}
+
+/* 테마 토글 아이템 (admin sidebar용) */
 .theme-toggle-item {
     padding: 8px 16px;
     border: 1px solid #ddd;
@@ -645,6 +669,20 @@ body {
         padding: 5px 8px;
     }
 
+    /* 테마 토글 버튼 - 텍스트 숨기고 아이콘만 */
+    .theme-toggle-btn {
+        padding: 5px 8px;
+    }
+
+    .theme-toggle-btn .theme-text {
+        display: none;
+    }
+
+    /* 유저 이름 숨김 */
+    .header-btn.user-name {
+        display: none;
+    }
+
     .category-menu {
         padding: 0 10px;
     }
@@ -1024,6 +1062,18 @@ body.dark-mode .no-products p {
 
 body.dark-mode .footer {
     background: #0f3460;
+}
+
+body.dark-mode .theme-toggle-btn {
+    background: #16213e;
+    border-color: #34495e;
+    color: #bdc3c7;
+}
+
+body.dark-mode .theme-toggle-btn:hover {
+    background: #34495e;
+    border-color: #3498db;
+    color: #ecf0f1;
 }
 
 body.dark-mode .theme-toggle-item {

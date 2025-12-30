@@ -1,14 +1,22 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<script>window.contextPath = '${pageContext.request.contextPath}';</script>
+
 <!-- 헤더 -->
 <header class="header">
     <div class="header-top">
         <a href="${pageContext.request.contextPath}/" class="logo">KH SHOP</a>
         <div class="header-right">
+            <!-- 테마 토글 버튼 (항상 표시 - 비로그인도 사용 가능) -->
+            <button type="button" class="header-btn theme-toggle-btn" onclick="toggleTheme()">
+                <span id="themeIcon">🌙</span>
+                <span id="themeText" class="theme-text">다크</span>
+            </button>
+            
             <c:choose>
                 <c:when test="${not empty sessionScope.loggedInUser}">
-                    <span class="header-btn">${sessionScope.loggedInUser}님</span>
+                    <span class="header-btn user-name">${sessionScope.loggedInUser}님</span>
                     <a href="${pageContext.request.contextPath}/mypage/orders" class="header-btn">마이페이지</a>
                     <a href="${pageContext.request.contextPath}/cart" class="header-btn cart-btn">
                         🛒 장바구니
@@ -57,7 +65,7 @@
     </nav>
 </header>
 
-<script src="${pageContext.request.contextPath}/js/theme.js"></script>
+<script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
 
 <!-- 장바구니 카운트 로드 -->
 <script>
