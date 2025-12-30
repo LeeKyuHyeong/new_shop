@@ -34,4 +34,4 @@ build/
 
 ### api key ###
 # Secret 설정 파일
-application-secret.properties
+application.properties
