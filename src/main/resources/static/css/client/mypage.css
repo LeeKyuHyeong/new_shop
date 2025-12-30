@@ -1,0 +1,654 @@
+/* ===========================================
+   마이페이지 공통 스타일
+   =========================================== */
+
+/* 컨테이너 */
+.mypage-container {
+    display: flex;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+    min-height: calc(100vh - 200px);
+}
+
+/* ===========================================
+   사이드바
+   =========================================== */
+.mypage-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+}
+
+.mypage-sidebar h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #3498db;
+}
+
+.mypage-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.mypage-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    color: #555;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.mypage-nav a:hover {
+    background: #f0f4f8;
+    color: #3498db;
+    transform: translateX(3px);
+}
+
+.mypage-nav a.active {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.mypage-nav a.active:hover {
+    transform: translateX(0);
+}
+
+/* ===========================================
+   메인 컨텐츠
+   =========================================== */
+.mypage-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.mypage-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* ===========================================
+   섹션
+   =========================================== */
+.mypage-section {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f0f0f0;
+}
+
+.section-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 22px;
+    padding-left: 12px;
+    border-left: 4px solid #3498db;
+}
+
+/* ===========================================
+   프로필 정보
+   =========================================== */
+.profile-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px 24px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.info-row:first-child {
+    padding-top: 0;
+}
+
+.info-label {
+    width: 120px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #7f8c8d;
+}
+
+.info-value {
+    flex: 1;
+    color: #2c3e50;
+    font-size: 15px;
+}
+
+/* ===========================================
+   설정 항목
+   =========================================== */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    transition: background 0.2s;
+}
+
+.setting-item:last-child {
+    margin-bottom: 0;
+}
+
+.setting-item:hover {
+    background: #f0f4f8;
+}
+
+.setting-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.setting-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: #2c3e50;
+}
+
+.setting-desc {
+    font-size: 13px;
+    color: #95a5a6;
+}
+
+.setting-control {
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   테마 토글 버튼
+   =========================================== */
+.theme-toggle-wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.theme-btn {
+    padding: 10px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+    border-color: #3498db;
+    color: #3498db;
+}
+
+.theme-btn.active {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-color: #3498db;
+    color: white;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+/* ===========================================
+   토글 스위치
+   =========================================== */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: all 0.3s ease;
+    border-radius: 28px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
+
+.toggle-switch:hover .toggle-slider {
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+/* ===========================================
+   비밀번호 폼
+   =========================================== */
+.password-form {
+    max-width: 400px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-group input::placeholder {
+    color: #aaa;
+}
+
+/* ===========================================
+   버튼
+   =========================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: white;
+    color: #555;
+    border: 2px solid #e0e0e0;
+}
+
+.btn-secondary:hover {
+    border-color: #3498db;
+    color: #3498db;
+}
+
+/* ===========================================
+   토스트 메시지
+   =========================================== */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #2c3e50;
+    color: white;
+    padding: 16px 32px;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    z-index: 10000;
+    opacity: 0;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast.error {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.toast.success {
+    background: linear-gradient(135deg, #27ae60, #219a52);
+}
+
+/* ===========================================
+   빈 상태
+   =========================================== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #95a5a6;
+}
+
+.empty-state .icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* ===========================================
+   반응형 - 태블릿
+   =========================================== */
+@media (max-width: 768px) {
+    .mypage-container {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px 16px;
+    }
+
+    .mypage-sidebar {
+        width: 100%;
+    }
+
+    .mypage-sidebar h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .mypage-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .mypage-nav a {
+        padding: 12px 18px;
+        font-size: 14px;
+    }
+
+    .mypage-nav a:hover {
+        transform: none;
+    }
+
+    .mypage-section {
+        padding: 22px;
+    }
+
+    .mypage-title {
+        font-size: 22px;
+        margin-bottom: 24px;
+    }
+
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 18px 20px;
+    }
+
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 12px 0;
+    }
+
+    .info-label {
+        width: auto;
+        font-size: 12px;
+    }
+
+    .info-value {
+        font-size: 14px;
+    }
+}
+
+/* ===========================================
+   반응형 - 모바일
+   =========================================== */
+@media (max-width: 480px) {
+    .mypage-container {
+        padding: 16px 12px;
+    }
+
+    .mypage-section {
+        padding: 18px 16px;
+        border-radius: 10px;
+    }
+
+    .mypage-title {
+        font-size: 20px;
+    }
+
+    .section-title {
+        font-size: 15px;
+        margin-bottom: 18px;
+    }
+
+    .profile-info {
+        padding: 16px;
+    }
+
+    .theme-toggle-wrapper {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .theme-btn {
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+    }
+
+    .password-form {
+        max-width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 14px;
+    }
+
+    .toast {
+        left: 16px;
+        right: 16px;
+        transform: translateX(0) translateY(100px);
+        width: auto;
+    }
+
+    .toast.show {
+        transform: translateX(0) translateY(0);
+    }
+}
+
+/* ===========================================
+   다크 모드
+   =========================================== */
+body.dark-mode .mypage-sidebar h3 {
+    color: #ecf0f1;
+    border-bottom-color: #3498db;
+}
+
+body.dark-mode .mypage-nav a {
+    color: #bdc3c7;
+}
+
+body.dark-mode .mypage-nav a:hover {
+    background: #34495e;
+    color: #3498db;
+}
+
+body.dark-mode .mypage-nav a.active {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+body.dark-mode .mypage-section {
+    background: #2c3e50;
+    border-color: #34495e;
+}
+
+body.dark-mode .mypage-title {
+    color: #ecf0f1;
+    border-bottom-color: #34495e;
+}
+
+body.dark-mode .section-title {
+    color: #ecf0f1;
+}
+
+body.dark-mode .profile-info {
+    background: #34495e;
+}
+
+body.dark-mode .info-row {
+    border-bottom-color: #3d566e;
+}
+
+body.dark-mode .info-label {
+    color: #95a5a6;
+}
+
+body.dark-mode .info-value {
+    color: #ecf0f1;
+}
+
+body.dark-mode .setting-item {
+    background: #34495e;
+}
+
+body.dark-mode .setting-item:hover {
+    background: #3d566e;
+}
+
+body.dark-mode .setting-name {
+    color: #ecf0f1;
+}
+
+body.dark-mode .setting-desc {
+    color: #7f8c8d;
+}
+
+body.dark-mode .theme-btn {
+    background: #2c3e50;
+    border-color: #3d566e;
+    color: #bdc3c7;
+}
+
+body.dark-mode .theme-btn:hover {
+    border-color: #3498db;
+    color: #3498db;
+}
+
+body.dark-mode .theme-btn.active {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-color: #3498db;
+    color: white;
+}
+
+body.dark-mode .toggle-slider {
+    background-color: #4a6785;
+}
+
+body.dark-mode .form-group label {
+    color: #ecf0f1;
+}
+
+body.dark-mode .form-group input {
+    background: #34495e;
+    border-color: #3d566e;
+    color: #ecf0f1;
+}
+
+body.dark-mode .form-group input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+body.dark-mode .form-group input::placeholder {
+    color: #7f8c8d;
+}
+
+body.dark-mode .btn-secondary {
+    background: #34495e;
+    border-color: #3d566e;
+    color: #bdc3c7;
+}
+
+body.dark-mode .btn-secondary:hover {
+    border-color: #3498db;
+    color: #3498db;
+}
+
+body.dark-mode .toast {
+    background: #1a252f;
+}
+
+body.dark-mode .empty-state {
+    color: #7f8c8d;
+}
