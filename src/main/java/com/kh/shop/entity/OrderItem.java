@@ -42,6 +42,12 @@ public class OrderItem {
 
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl;
+    @Column(name = "color", length = 50)
+    private String color;
+
+    @Column(name = "size", length = 50)
+    private String size;
+
 
     @Column(name = "use_yn", length = 1)
     private String useYn;

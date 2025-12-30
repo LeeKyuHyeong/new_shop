@@ -108,6 +108,8 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
     formData.append('productPrice', productPrice);
     formData.append('productDiscount', document.getElementById('productDiscount').value || 0);
     formData.append('productStock', document.getElementById('productStock').value || 0);
+    formData.append('color', document.getElementById('color').value.trim() || '');
+    formData.append('size', document.getElementById('size').value.trim() || '');
 
     // Summernote 에디터에서 내용 가져오기
     let description = '';

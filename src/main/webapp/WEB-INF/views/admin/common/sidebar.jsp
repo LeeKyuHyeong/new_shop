@@ -26,6 +26,7 @@
         <a href="${pageContext.request.contextPath}/admin/user" class="menu-item <c:if test="${activeMenu eq 'user'}">active</c:if>">사용자 관리</a>
         <a href="${pageContext.request.contextPath}/admin/order" class="menu-item <c:if test="${activeMenu eq 'order'}">active</c:if>">주문 관리</a>
         <a href="${pageContext.request.contextPath}/admin/review" class="menu-item <c:if test="${activeMenu eq 'review'}">active</c:if>">리뷰 관리</a>
+        <a href="${pageContext.request.contextPath}/admin/stats" class="menu-item <c:if test="${activeMenu eq 'stats'}">active</c:if>">통계 관리</a>
         <a href="${pageContext.request.contextPath}/admin/setting" class="menu-item <c:if test="${activeMenu eq 'setting'}">active</c:if>">사이트 설정</a>
 
         <div class="menu-item theme-toggle-item" onclick="toggleTheme()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
