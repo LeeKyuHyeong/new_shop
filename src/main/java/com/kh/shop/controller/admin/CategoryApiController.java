@@ -94,7 +94,7 @@ public class CategoryApiController {
         // 이름이 변경되었고, 같은 상위 카테고리 내에서 중복인 경우
         Category current = existingCategory.get();
         boolean nameChanged = !current.getCategoryName().equals(categoryName);
-        Integer currentParentId = current.getParentId(categoryId);
+        Integer currentParentId = current.getParentId();
         boolean parentChanged = (parentId == null && currentParentId != null) ||
                 (parentId != null && !parentId.equals(currentParentId));
 

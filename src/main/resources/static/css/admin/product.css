@@ -416,3 +416,48 @@
         height: 40px;
     }
 }
+
+/* ========================================
+   다크 모드
+   ======================================== */
+body.dark-mode .data-table td {
+    color: #ecf0f1;
+}
+
+body.dark-mode .product-name-link {
+    color: #ecf0f1;
+}
+
+body.dark-mode .product-name-link:hover {
+    color: #3498db;
+}
+
+body.dark-mode .price-cell {
+    color: #ecf0f1;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea,
+body.dark-mode .form-group select {
+    background-color: #2d2d2d;
+    border-color: #444444;
+    color: #ffffff;
+}
+
+body.dark-mode .form-group select option {
+    background-color: #2d2d2d;
+    color: #ffffff;
+}
+
+body.dark-mode .upload-placeholder {
+    border-color: #444444;
+}
+
+body.dark-mode .upload-placeholder:hover {
+    border-color: #3498db;
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .upload-placeholder p {
+    color: #b0b0b0;
+}

@@ -63,13 +63,13 @@ public class Category {
         this.updatedDate = LocalDateTime.now();
     }
 
-    // 상위 카테고리 여부
-    public boolean isParentCategory(int categoryId) {
-        return getParentId(categoryId) == null;
+    // 상위 카테고리 여부 (최상위 카테고리인지)
+    public boolean isRootCategory() {
+        return this.parent == null;
     }
 
     // 상위 카테고리 ID 반환 (JSP에서 사용)
-    public Integer getParentId(int categoryId) {
+    public Integer getParentId() {
         return this.parent != null ? this.parent.getCategoryId() : null;
     }
 

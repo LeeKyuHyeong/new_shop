@@ -142,3 +142,21 @@ body.dark-mode .btn-secondary:hover {
         font-size: 60px;
     }
 }
+/* ========================================
+   다크 모드 - 텍스트 색상 추가
+   ======================================== */
+body.dark-mode .complete-title {
+    color: #ecf0f1;
+}
+
+body.dark-mode .complete-message {
+    color: #95a5a6;
+}
+
+body.dark-mode .info-label {
+    color: #95a5a6;
+}
+
+body.dark-mode .info-value {
+    color: #ecf0f1;
+}

@@ -119,6 +119,24 @@
             padding: 60px;
             color: var(--text-secondary);
         }
+
+        /* 다크 모드 */
+        body.dark-mode .review-card {
+            background: #1a1a1a;
+            border-color: #444444;
+        }
+        body.dark-mode .product-name {
+            color: #ecf0f1;
+        }
+        body.dark-mode .review-text {
+            color: #b0b0b0;
+        }
+        body.dark-mode .user-name {
+            color: #ecf0f1;
+        }
+        body.dark-mode .review-date {
+            color: #808080;
+        }
     </style>
 </head>
 <body>
@@ -164,7 +182,7 @@
                                         <tr>
                                             <td>${review.reviewId}</td>
                                             <td>
-                                                <a href="${pageContext.request.contextPath}/admin/product/detail/${review.product.productId}">
+                                                <a href="${pageContext.request.contextPath}/admin/product/${review.product.productId}">
                                                     ${review.product.productName}
                                                 </a>
                                             </td>

@@ -185,6 +185,34 @@
                 margin-top: 10px;
             }
         }
+
+        /* 다크 모드 */
+        body.dark-mode .detail-card {
+            background: #1a1a1a;
+            border-color: #444444;
+        }
+        body.dark-mode .card-title {
+            color: #ffffff;
+        }
+        body.dark-mode .info-value {
+            color: #ffffff;
+        }
+        body.dark-mode .item-name {
+            color: #ffffff;
+        }
+        body.dark-mode .item-total {
+            color: #ffffff;
+        }
+        body.dark-mode .order-item {
+            background: #2d2d2d;
+        }
+        body.dark-mode .price-row {
+            color: #b0b0b0;
+        }
+        body.dark-mode .item-image.no-image {
+            background: #2d2d2d;
+            color: #808080;
+        }
     </style>
 </head>
 <body>

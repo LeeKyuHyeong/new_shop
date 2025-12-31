@@ -270,3 +270,26 @@
         padding: 6px;
     }
 }
+/* ========================================
+   다크 모드
+   ======================================== */
+body.dark-mode .data-table td {
+    color: #ecf0f1;
+}
+
+body.dark-mode .category-name {
+    color: #ecf0f1;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea,
+body.dark-mode .form-group select {
+    background-color: #2d2d2d;
+    border-color: #444444;
+    color: #ffffff;
+}
+
+body.dark-mode .form-group select option {
+    background-color: #2d2d2d;
+    color: #ffffff;
+}

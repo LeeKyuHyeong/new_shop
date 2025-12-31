@@ -194,15 +194,36 @@
         body.dark-mode .review-detail-card {
             background: #2c3e50;
         }
+        body.dark-mode .product-name,
+        body.dark-mode .product-name a {
+            color: #ecf0f1;
+        }
+        body.dark-mode .review-content {
+            color: #bdc3c7;
+        }
         body.dark-mode .admin-reply-section {
             background: #34495e;
+        }
+        body.dark-mode .admin-reply-section h4 {
+            color: #ecf0f1;
         }
         body.dark-mode .existing-reply {
             background: #2c3e50;
         }
+        body.dark-mode .reply-content {
+            color: #bdc3c7;
+        }
         body.dark-mode .reply-form textarea {
             background: #2c3e50;
-            border-color: #2c3e50;
+            border-color: #4a6278;
+            color: #ecf0f1;
+        }
+        body.dark-mode .reply-form textarea::placeholder {
+            color: #7f8c8d;
+        }
+        body.dark-mode .btn-secondary {
+            background: #34495e;
+            border-color: #4a6278;
             color: #ecf0f1;
         }
     </style>

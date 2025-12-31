@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class ClientController {
@@ -72,59 +73,52 @@ public class ClientController {
         return "client/main";
     }
 
+    // 카테고리별 상품 목록
     @GetMapping("/category/{categoryId}")
-    public String categoryProducts(@PathVariable Integer categoryId, Model model) {
-        // 선택된 카테고리 정보 조회
-        Category selectedCategory = categoryService.getCategoryById(categoryId).orElse(null);
-
-        if (selectedCategory == null) {
-            return "redirect:/";
-        }
-
-        // 상위 카테고리인 경우 첫 번째 하위 카테고리로 리다이렉트
-        if (selectedCategory.getParent() == null) {
-            List<Category> children = categoryService.getChildCategories(categoryId);
-            if (!children.isEmpty()) {
-                return "redirect:/category/" + children.get(0).getCategoryId();
-            }
-        }
-
-        // 상위 카테고리와 하위 카테고리 조회 (메뉴용)
+    public String categoryPage(@PathVariable Long categoryId, Model model) {
+        // 상위 카테고리와 하위 카테고리 조회 (헤더 메뉴용)
         List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
         model.addAttribute("parentCategories", parentCategories);
 
+        // 선택된 카테고리 정보
+        Optional<Category> categoryOpt = categoryService.getCategoryById(categoryId.intValue());
+        if (categoryOpt.isEmpty()) {
+            throw new IllegalArgumentException("존재하지 않는 카테고리입니다. (ID: " + categoryId + ")");
+        }
+
+        Category selectedCategory = categoryOpt.get();
         model.addAttribute("selectedCategory", selectedCategory);
         model.addAttribute("selectedCategoryId", categoryId);
 
-        // 부모 카테고리 ID 전달 (메뉴 active 표시용)
+        // 부모 카테고리 ID (하위 카테고리 선택 시 상위 메뉴 활성화용)
         if (selectedCategory.getParent() != null) {
             model.addAttribute("selectedParentId", selectedCategory.getParent().getCategoryId());
         }
 
-        // 해당 카테고리의 상품 조회
-        List<Product> products = productService.getProductsByCategory(categoryId);
+        // 해당 카테고리의 상품 목록 조회
+        List<Product> products = productService.getProductsByCategory(categoryId.intValue());
         model.addAttribute("products", products);
 
         return "client/main";
     }
 
-    // ... 나머지 메서드는 동일 ...
+    // 상품 상세 페이지
     @GetMapping("/product/{productId}")
     public String productDetail(@PathVariable Long productId, Model model) {
-        // 상품 조회
-        Product product = productService.getProductById(productId).orElse(null);
-
-        if (product == null) {
-            return "redirect:/";
-        }
-
-        // 상위 카테고리와 하위 카테고리 조회 (메뉴용)
+        // 상위 카테고리와 하위 카테고리 조회 (헤더 메뉴용)
         List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
         model.addAttribute("parentCategories", parentCategories);
 
+        // 상품 상세 정보
+        Optional<Product> productOpt = productService.getProductById(productId);
+        if (productOpt.isEmpty()) {
+            throw new IllegalArgumentException("존재하지 않는 상품입니다. (ID: " + productId + ")");
+        }
+
+        Product product = productOpt.get();
         model.addAttribute("product", product);
 
-        // 카테고리 정보 전달 (메뉴 active 표시용)
+        // 선택된 카테고리 정보 (브레드크럼용)
         if (product.getCategory() != null) {
             model.addAttribute("selectedCategoryId", product.getCategory().getCategoryId());
             if (product.getCategory().getParent() != null) {
@@ -132,10 +126,13 @@ public class ClientController {
             }
         }
 
-        // 관련 상품 조회 (같은 카테고리의 다른 상품)
+        // 관련 상품 (같은 카테고리의 다른 상품)
         if (product.getCategory() != null) {
             List<Product> relatedProducts = productService.getRelatedProducts(
-                    product.getCategory().getCategoryId(), productId, 4);
+                    product.getCategory().getCategoryId(),
+                    productId,
+                    4
+            );
             model.addAttribute("relatedProducts", relatedProducts);
         }
 

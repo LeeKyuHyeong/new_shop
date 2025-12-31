@@ -92,3 +92,38 @@
         top: 50px !important;
     }
 }
+/* ========================================
+   다크 모드
+   ======================================== */
+body.dark-mode .popup-container {
+    background: #16213e;
+    border-color: #34495e;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+body.dark-mode .popup-header {
+    background: #0f3460;
+    border-bottom-color: #34495e;
+}
+
+body.dark-mode .popup-header h3 {
+    color: #ecf0f1;
+}
+
+body.dark-mode .popup-close {
+    color: #bdc3c7;
+}
+
+body.dark-mode .popup-close:hover {
+    color: #ecf0f1;
+}
+
+body.dark-mode .popup-content {
+    color: #bdc3c7;
+}
+
+body.dark-mode .popup-footer {
+    background: #0f3460;
+    border-top-color: #34495e;
+    color: #95a5a6;
+}

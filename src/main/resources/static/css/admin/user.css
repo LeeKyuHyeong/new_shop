@@ -315,3 +315,51 @@
         font-size: 10px;
     }
 }
+
+/* ========================================
+   다크 모드
+   ======================================== */
+body.dark-mode .data-table td {
+    color: #ecf0f1;
+}
+
+body.dark-mode .user-name {
+    color: #ecf0f1;
+}
+
+body.dark-mode .user-email {
+    color: #b0b0b0;
+}
+
+body.dark-mode .detail-card {
+    background-color: #1a1a1a;
+    border-color: #444444;
+}
+
+body.dark-mode .detail-header {
+    border-bottom-color: #444444;
+}
+
+body.dark-mode .detail-header h3 {
+    color: #ffffff;
+}
+
+body.dark-mode .detail-row {
+    border-bottom-color: #444444;
+}
+
+body.dark-mode .detail-label {
+    color: #b0b0b0;
+}
+
+body.dark-mode .detail-value {
+    color: #ffffff;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea,
+body.dark-mode .form-group select {
+    background-color: #2d2d2d;
+    border-color: #444444;
+    color: #ffffff;
+}

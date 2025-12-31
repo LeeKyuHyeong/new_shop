@@ -250,3 +250,72 @@ body.dark-mode .empty-cart {
         margin-top: 15px;
     }
 }
+/* ========================================
+   다크 모드 - 완전한 스타일
+   ======================================== */
+body.dark-mode .page-title {
+    color: #ecf0f1;
+}
+
+body.dark-mode .cart-header {
+    background: #34495e;
+    border-color: #4a6278;
+}
+
+body.dark-mode .cart-header label {
+    color: #bdc3c7;
+}
+
+body.dark-mode .item-name {
+    color: #ecf0f1;
+}
+
+body.dark-mode .item-name:hover {
+    color: #3498db;
+}
+
+body.dark-mode .item-final-price {
+    color: #ecf0f1;
+}
+
+body.dark-mode .item-total {
+    color: #ecf0f1;
+}
+
+body.dark-mode .qty-btn {
+    background: #34495e;
+    border-color: #4a6278;
+    color: #ecf0f1;
+}
+
+body.dark-mode .qty-btn:hover {
+    background: #4a6278;
+}
+
+body.dark-mode .qty-input {
+    background: #34495e;
+    border-color: #4a6278;
+    color: #ecf0f1;
+}
+
+body.dark-mode .btn-delete {
+    background: #34495e;
+}
+
+body.dark-mode .summary-title {
+    color: #ecf0f1;
+    border-bottom-color: #34495e;
+}
+
+body.dark-mode .summary-row {
+    color: #bdc3c7;
+}
+
+body.dark-mode .summary-row.total {
+    color: #3498db;
+    border-top-color: #34495e;
+}
+
+body.dark-mode .empty-cart p {
+    color: #95a5a6;
+}

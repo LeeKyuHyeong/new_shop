@@ -49,6 +49,14 @@
         .status-cancelled { background: #e74c3c; color: white; }
         .status-refunded { background: #95a5a6; color: white; }
         .price-cell { text-align: right; }
+
+        /* 다크 모드 */
+        body.dark-mode .order-number {
+            color: #ecf0f1;
+        }
+        body.dark-mode .data-table td {
+            color: #ecf0f1;
+        }
     </style>
 </head>
 <body>

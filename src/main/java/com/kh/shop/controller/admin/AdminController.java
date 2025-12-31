@@ -83,14 +83,14 @@ public class AdminController {
         }
 
         Optional<Category> category = categoryService.getCategoryById(categoryId);
-        if (category.isPresent()) {
-            model.addAttribute("category", category.get());
-            // 상위 카테고리 목록 전달
-            List<Category> parentCategories = categoryService.getParentCategories();
-            model.addAttribute("parentCategories", parentCategories);
-            return "admin/category/form";
+        if (category.isEmpty()) {
+            throw new IllegalArgumentException("존재하지 않는 카테고리입니다. (ID: " + categoryId + ")");
         }
-        return "redirect:/admin/category";
+        model.addAttribute("category", category.get());
+        // 상위 카테고리 목록 전달
+        List<Category> parentCategories = categoryService.getParentCategories();
+        model.addAttribute("parentCategories", parentCategories);
+        return "admin/category/form";
     }
 
     // ==================== 상품 관리 ====================
@@ -125,13 +125,13 @@ public class AdminController {
         }
 
         Optional<Product> product = productService.getProductById(productId);
-        if (product.isPresent()) {
-            model.addAttribute("product", product.get());
-            List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
-            model.addAttribute("parentCategories", parentCategories);
-            return "admin/product/form";
+        if (product.isEmpty()) {
+            throw new IllegalArgumentException("존재하지 않는 상품입니다. (ID: " + productId + ")");
         }
-        return "redirect:/admin/product";
+        model.addAttribute("product", product.get());
+        List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
+        model.addAttribute("parentCategories", parentCategories);
+        return "admin/product/form";
     }
 
     @GetMapping("/product/detail/{productId}")
@@ -141,11 +141,11 @@ public class AdminController {
         }
 
         Optional<Product> product = productService.getProductById(productId);
-        if (product.isPresent()) {
-            model.addAttribute("product", product.get());
-            return "admin/product/detail";
+        if (product.isEmpty()) {
+            throw new IllegalArgumentException("존재하지 않는 상품입니다. (ID: " + productId + ")");
         }
-        return "redirect:/admin/product";
+        model.addAttribute("product", product.get());
+        return "admin/product/detail";
     }
 
     // ==================== 슬라이드 관리 ====================

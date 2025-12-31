@@ -268,3 +268,33 @@ body.dark-mode .btn-back {
         align-items: flex-start;
     }
 }
+/* ========================================
+   다크 모드 - 텍스트 색상 추가
+   ======================================== */
+body.dark-mode .page-title {
+    color: #ecf0f1;
+}
+
+body.dark-mode .section-title {
+    color: #ecf0f1;
+}
+
+body.dark-mode .info-value {
+    color: #ecf0f1;
+}
+
+body.dark-mode .item-name {
+    color: #ecf0f1;
+}
+
+body.dark-mode .item-total {
+    color: #ecf0f1;
+}
+
+body.dark-mode .price-row {
+    color: #bdc3c7;
+}
+
+body.dark-mode .btn-cancel {
+    background: #34495e;
+}
