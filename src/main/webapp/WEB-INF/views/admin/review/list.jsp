@@ -182,7 +182,7 @@
                                         <tr>
                                             <td>${review.reviewId}</td>
                                             <td>
-                                                <a href="${pageContext.request.contextPath}/admin/product/${review.product.productId}">
+                                                <a href="${pageContext.request.contextPath}/admin/product/detail/${review.product.productId}">
                                                     ${review.product.productName}
                                                 </a>
                                             </td>
