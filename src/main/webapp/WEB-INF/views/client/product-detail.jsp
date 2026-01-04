@@ -96,8 +96,45 @@
                     </div>
                 </div>
 
-                <!-- 수량 선택 -->
+                <!-- 옵션 선택 -->
                 <c:if test="${product.productStock > 0}">
+                    <!-- 색상 옵션 -->
+                    <c:if test="${not empty product.color}">
+                        <div class="option-section">
+                            <span class="option-label">색상 선택</span>
+                            <div class="option-list color-options" id="colorOptions">
+                                <c:forEach var="color" items="${product.color.split(',')}">
+                                    <c:set var="trimmedColor" value="${color.trim()}"/>
+                                    <c:if test="${not empty trimmedColor}">
+                                        <button type="button" class="option-btn" data-value="${trimmedColor}" onclick="selectOption('color', '${trimmedColor}', this)">
+                                            ${trimmedColor}
+                                        </button>
+                                    </c:if>
+                                </c:forEach>
+                            </div>
+                            <input type="hidden" id="selectedColor" value="">
+                        </div>
+                    </c:if>
+
+                    <!-- 사이즈 옵션 -->
+                    <c:if test="${not empty product.size}">
+                        <div class="option-section">
+                            <span class="option-label">사이즈 선택</span>
+                            <div class="option-list size-options" id="sizeOptions">
+                                <c:forEach var="size" items="${product.size.split(',')}">
+                                    <c:set var="trimmedSize" value="${size.trim()}"/>
+                                    <c:if test="${not empty trimmedSize}">
+                                        <button type="button" class="option-btn" data-value="${trimmedSize}" onclick="selectOption('size', '${trimmedSize}', this)">
+                                            ${trimmedSize}
+                                        </button>
+                                    </c:if>
+                                </c:forEach>
+                            </div>
+                            <input type="hidden" id="selectedSize" value="">
+                        </div>
+                    </c:if>
+
+                    <!-- 수량 선택 -->
                     <div class="quantity-section">
                         <span class="qty-label">수량</span>
                         <div class="quantity-control">
@@ -265,6 +302,10 @@
         const productId = ${product.productId};
         const productPrice = ${product.discountedPrice};
         const maxStock = ${product.productStock};
+        
+        // 옵션 필수 여부
+        const hasColorOption = ${not empty product.color};
+        const hasSizeOption = ${not empty product.size};
     </script>
     <script src="${pageContext.request.contextPath}/js/client/product-detail.js"></script>
     <script src="${pageContext.request.contextPath}/js/client/review.js"></script>

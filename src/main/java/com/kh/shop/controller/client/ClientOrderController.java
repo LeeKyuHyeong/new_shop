@@ -56,12 +56,14 @@ public class ClientOrderController {
         return "client/cart";
     }
 
-    // 장바구니 추가 (AJAX)
+    // 장바구니 추가 (AJAX) - 옵션 포함
     @PostMapping("/cart/add")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> addToCart(
             @RequestParam Long productId,
             @RequestParam(defaultValue = "1") Integer quantity,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) String size,
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
@@ -75,7 +77,7 @@ public class ClientOrderController {
         }
 
         try {
-            cartService.addToCart(userId, productId, quantity);
+            cartService.addToCart(userId, productId, quantity, color, size);
             long cartCount = cartService.getCartCount(userId);
             response.put("success", true);
             response.put("message", "장바구니에 추가되었습니다.");
@@ -192,10 +194,12 @@ public class ClientOrderController {
         return "client/checkout";
     }
 
-    // 바로 구매 페이지
+    // 바로 구매 페이지 - 옵션 포함
     @GetMapping("/order/direct")
     public String directOrder(@RequestParam Long productId,
                               @RequestParam(defaultValue = "1") Integer quantity,
+                              @RequestParam(required = false) String color,
+                              @RequestParam(required = false) String size,
                               Model model, HttpSession session) {
         String userId = (String) session.getAttribute("loggedInUser");
         if (userId == null) {
@@ -216,6 +220,8 @@ public class ClientOrderController {
 
         model.addAttribute("product", product);
         model.addAttribute("quantity", quantity);
+        model.addAttribute("selectedColor", color);
+        model.addAttribute("selectedSize", size);
         model.addAttribute("totalPrice", totalPrice);
         model.addAttribute("deliveryFee", deliveryFee);
         model.addAttribute("finalPrice", totalPrice + deliveryFee);
@@ -225,12 +231,14 @@ public class ClientOrderController {
         return "client/checkout";
     }
 
-    // 주문 처리
+    // 주문 처리 - 옵션 포함
     @PostMapping("/order/submit")
     public String submitOrder(
             @RequestParam(required = false) List<Long> cartIds,
             @RequestParam(required = false) Long productId,
             @RequestParam(required = false) Integer quantity,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) String size,
             @RequestParam String receiverName,
             @RequestParam String receiverPhone,
             @RequestParam String postalCode,
@@ -249,7 +257,7 @@ public class ClientOrderController {
             Order order;
             if (productId != null && quantity != null) {
                 // 바로 구매
-                order = orderService.createDirectOrder(userId, productId, quantity,
+                order = orderService.createDirectOrder(userId, productId, quantity, color, size,
                         receiverName, receiverPhone, postalCode, receiverAddress,
                         receiverAddressDetail, orderMemo, paymentMethod);
             } else {

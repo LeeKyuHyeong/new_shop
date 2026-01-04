@@ -172,6 +172,58 @@
     color: #721c24;
 }
 
+/* 옵션 선택 */
+.option-section {
+    padding: 15px 0;
+    border-top: 1px solid #eee;
+}
+
+.option-label {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.option-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.option-btn {
+    padding: 10px 20px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #2c3e50;
+    transition: all 0.2s;
+}
+
+.option-btn:hover {
+    border-color: #3498db;
+}
+
+.option-btn.selected {
+    border-color: #3498db;
+    background: #3498db;
+    color: white;
+}
+
+/* 색상 버튼 특수 스타일 (필요시) */
+.color-options .option-btn {
+    min-width: 80px;
+}
+
+/* 사이즈 버튼 특수 스타일 */
+.size-options .option-btn {
+    min-width: 50px;
+    text-align: center;
+}
+
 /* 수량 선택 */
 .quantity-section {
     display: flex;
@@ -333,6 +385,28 @@ body.dark-mode .info-row {
 body.dark-mode .info-value {
     color: #ecf0f1;
 }
+
+/* 옵션 섹션 다크모드 */
+body.dark-mode .option-section {
+    border-color: #34495e;
+}
+body.dark-mode .option-label {
+    color: #ecf0f1;
+}
+body.dark-mode .option-btn {
+    background: #34495e;
+    border-color: #4a6278;
+    color: #ecf0f1;
+}
+body.dark-mode .option-btn:hover {
+    border-color: #3498db;
+}
+body.dark-mode .option-btn.selected {
+    background: #3498db;
+    border-color: #3498db;
+    color: white;
+}
+
 body.dark-mode .quantity-section {
     border-color: #34495e;
 }
@@ -413,5 +487,15 @@ body.dark-mode .thumb-item {
     .thumb-item {
         width: 60px;
         height: 60px;
+    }
+
+    /* 옵션 버튼 모바일 */
+    .option-btn {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    .option-list {
+        gap: 8px;
     }
 }

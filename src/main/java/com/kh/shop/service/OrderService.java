@@ -62,7 +62,7 @@ public class OrderService {
         return orderRepository.findByOrderStatusAndUseYnOrderByCreatedDateDesc(status, "Y");
     }
 
-    // 주문 생성 (장바구니에서)
+    // 주문 생성 (장바구니에서) - Cart의 옵션 사용
     @Transactional
     public Order createOrderFromCart(String userId, List<Long> cartIds,
                                      String receiverName, String receiverPhone,
@@ -91,7 +91,7 @@ public class OrderService {
             discountAmount += (product.getProductPrice() - product.getDiscountedPrice()) * cart.getQuantity();
         }
 
-        int deliveryFee = totalPrice >= 50000 ? 0 : 3000;  // 5만원 이상 무료배송
+        int deliveryFee = totalPrice >= 50000 ? 0 : 3000;
         int finalPrice = totalPrice - discountAmount + deliveryFee;
 
         // 주문 생성
@@ -113,7 +113,7 @@ public class OrderService {
 
         order = orderRepository.save(order);
 
-        // 주문 상품 생성 및 재고 차감
+        // 주문 상품 생성 및 재고 차감 - Cart의 옵션 정보 사용
         for (Cart cart : cartItems) {
             Product product = cart.getProduct();
 
@@ -127,8 +127,8 @@ public class OrderService {
                     .itemPrice(product.getDiscountedPrice())
                     .totalPrice(product.getDiscountedPrice() * cart.getQuantity())
                     .thumbnailUrl(product.getThumbnailUrl())
-                    .color(product.getColor())
-                    .size(product.getSize())
+                    .color(cart.getColor())  // Cart에서 옵션 가져오기
+                    .size(cart.getSize())    // Cart에서 옵션 가져오기
                     .build();
 
             orderItemRepository.save(orderItem);
@@ -145,9 +145,10 @@ public class OrderService {
         return order;
     }
 
-    // 바로 구매
+    // 바로 구매 - 옵션 파라미터 추가
     @Transactional
     public Order createDirectOrder(String userId, Long productId, Integer quantity,
+                                   String color, String size,
                                    String receiverName, String receiverPhone,
                                    String postalCode, String receiverAddress,
                                    String receiverAddressDetail, String orderMemo,
@@ -186,6 +187,10 @@ public class OrderService {
 
         order = orderRepository.save(order);
 
+        // 빈 문자열 처리
+        String normalizedColor = (color != null && !color.trim().isEmpty()) ? color.trim() : null;
+        String normalizedSize = (size != null && !size.trim().isEmpty()) ? size.trim() : null;
+
         OrderItem orderItem = OrderItem.builder()
                 .order(order)
                 .product(product)
@@ -196,8 +201,8 @@ public class OrderService {
                 .itemPrice(product.getDiscountedPrice())
                 .totalPrice(product.getDiscountedPrice() * quantity)
                 .thumbnailUrl(product.getThumbnailUrl())
-                .color(product.getColor())
-                .size(product.getSize())
+                .color(normalizedColor)
+                .size(normalizedSize)
                 .build();
 
         orderItemRepository.save(orderItem);
@@ -231,7 +236,6 @@ public class OrderService {
             case "CANCELLED":
                 order.setCancelledAt(LocalDateTime.now());
                 order.setPaymentStatus("CANCELLED");
-                // 재고 복구
                 restoreStock(order);
                 break;
         }
@@ -254,7 +258,6 @@ public class OrderService {
         order.setCancelledAt(LocalDateTime.now());
         order.setCancelReason(cancelReason);
 
-        // 재고 복구
         restoreStock(order);
 
         return orderRepository.save(order);

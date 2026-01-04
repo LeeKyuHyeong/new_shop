@@ -33,9 +33,9 @@ public class CartService {
         return cartRepository.findByUserWithProduct(user);
     }
 
-    // 장바구니 추가
+    // 장바구니 추가 (옵션 포함)
     @Transactional
-    public Cart addToCart(String userId, Long productId, Integer quantity) {
+    public Cart addToCart(String userId, Long productId, Integer quantity, String color, String size) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new RuntimeException("사용자를 찾을 수 없습니다."));
 
@@ -50,8 +50,16 @@ public class CartService {
             throw new RuntimeException("재고가 부족합니다.");
         }
 
-        // 이미 장바구니에 있는 상품인지 확인
-        Optional<Cart> existingCart = cartRepository.findByUserAndProductAndUseYn(user, product, "Y");
+        // 옵션 유효성 검증
+        validateProductOption(product, color, size);
+
+        // 빈 문자열을 null로 처리
+        String normalizedColor = (color != null && !color.trim().isEmpty()) ? color.trim() : null;
+        String normalizedSize = (size != null && !size.trim().isEmpty()) ? size.trim() : null;
+
+        // 이미 장바구니에 있는 상품인지 확인 (같은 옵션)
+        Optional<Cart> existingCart = cartRepository.findByUserAndProductAndOptionAndUseYn(
+                user, product, normalizedColor, normalizedSize, "Y");
 
         if (existingCart.isPresent()) {
             // 수량 추가
@@ -70,8 +78,51 @@ public class CartService {
                     .user(user)
                     .product(product)
                     .quantity(quantity)
+                    .color(normalizedColor)
+                    .size(normalizedSize)
                     .build();
             return cartRepository.save(cart);
+        }
+    }
+
+    // 옵션 유효성 검증
+    private void validateProductOption(Product product, String color, String size) {
+        // 상품에 색상 옵션이 있는데 선택 안 한 경우
+        if (product.getColor() != null && !product.getColor().isEmpty()) {
+            if (color == null || color.trim().isEmpty()) {
+                throw new RuntimeException("색상을 선택해주세요.");
+            }
+            // 유효한 색상인지 확인
+            String[] availableColors = product.getColor().split(",");
+            boolean validColor = false;
+            for (String c : availableColors) {
+                if (c.trim().equals(color.trim())) {
+                    validColor = true;
+                    break;
+                }
+            }
+            if (!validColor) {
+                throw new RuntimeException("유효하지 않은 색상입니다.");
+            }
+        }
+
+        // 상품에 사이즈 옵션이 있는데 선택 안 한 경우
+        if (product.getSize() != null && !product.getSize().isEmpty()) {
+            if (size == null || size.trim().isEmpty()) {
+                throw new RuntimeException("사이즈를 선택해주세요.");
+            }
+            // 유효한 사이즈인지 확인
+            String[] availableSizes = product.getSize().split(",");
+            boolean validSize = false;
+            for (String s : availableSizes) {
+                if (s.trim().equals(size.trim())) {
+                    validSize = true;
+                    break;
+                }
+            }
+            if (!validSize) {
+                throw new RuntimeException("유효하지 않은 사이즈입니다.");
+            }
         }
     }
 

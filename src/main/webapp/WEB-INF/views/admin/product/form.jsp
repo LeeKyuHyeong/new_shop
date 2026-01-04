@@ -52,6 +52,56 @@
         body.dark-mode .note-dropdown-item:hover {
             background: #2c3e50;
         }
+        
+        /* 옵션 입력 스타일 */
+        .option-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .option-section h3 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .option-hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .option-preview {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .option-tag {
+            display: inline-flex;
+            align-items: center;
+            background: #e9ecef;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .option-tag.color-tag {
+            background: #3498db;
+            color: white;
+        }
+        .option-tag.size-tag {
+            background: #9b59b6;
+            color: white;
+        }
+        body.dark-mode .option-section {
+            background: #34495e;
+        }
+        body.dark-mode .option-section h3 {
+            color: #ecf0f1;
+        }
+        body.dark-mode .option-tag {
+            background: #2c3e50;
+            color: #ecf0f1;
+        }
     </style>
 </head>
 <body>
@@ -118,6 +168,27 @@
                                 <label for="productStock">재고</label>
                                 <input type="number" id="productStock" name="productStock" placeholder="재고 수량" min="0"
                                     value="<c:if test="${not empty product}">${product.productStock}</c:if>">
+                            </div>
+                        </div>
+
+                        <!-- 옵션 섹션 -->
+                        <div class="option-section">
+                            <h3>🎨 상품 옵션 (선택사항)</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="color">색상</label>
+                                    <input type="text" id="color" name="color" placeholder="예: 빨강, 파랑, 검정"
+                                        value="<c:if test="${not empty product}">${product.color}</c:if>">
+                                    <p class="option-hint">콤마(,)로 구분하여 여러 색상 입력</p>
+                                    <div class="option-preview" id="colorPreview"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="size">사이즈</label>
+                                    <input type="text" id="size" name="size" placeholder="예: S, M, L, XL"
+                                        value="<c:if test="${not empty product}">${product.size}</c:if>">
+                                    <p class="option-hint">콤마(,)로 구분하여 여러 사이즈 입력</p>
+                                    <div class="option-preview" id="sizePreview"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -223,6 +294,10 @@
                     }
                 }
             });
+            
+            // 옵션 미리보기 초기화
+            updateOptionPreview('color');
+            updateOptionPreview('size');
         });
         
         // 이미지 업로드
@@ -248,6 +323,29 @@
                 }
             });
         }
+        
+        // 옵션 미리보기 업데이트
+        function updateOptionPreview(type) {
+            const input = document.getElementById(type);
+            const preview = document.getElementById(type + 'Preview');
+            const value = input.value.trim();
+            
+            if (!value) {
+                preview.innerHTML = '';
+                return;
+            }
+            
+            const options = value.split(',').map(s => s.trim()).filter(s => s);
+            const tagClass = type === 'color' ? 'color-tag' : 'size-tag';
+            
+            preview.innerHTML = options.map(opt => 
+                `<span class="option-tag ${tagClass}">${opt}</span>`
+            ).join('');
+        }
+        
+        // 옵션 입력 이벤트
+        document.getElementById('color').addEventListener('input', () => updateOptionPreview('color'));
+        document.getElementById('size').addEventListener('input', () => updateOptionPreview('size'));
     </script>
     <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
     <script src="${pageContext.request.contextPath}/js/admin/product-form.js"></script>

@@ -47,6 +47,12 @@
                                         <div class="item-name" onclick="location.href='${pageContext.request.contextPath}/product/${cart.product.productId}'">
                                             ${cart.product.productName}
                                         </div>
+                                        <!-- 옵션 표시 -->
+                                        <c:if test="${not empty cart.optionText}">
+                                            <div class="item-option">
+                                                옵션: ${cart.optionText}
+                                            </div>
+                                        </c:if>
                                         <div class="item-price">
                                             <c:if test="${cart.product.productDiscount > 0}">
                                                 <span class="item-original-price"><fmt:formatNumber value="${cart.product.productPrice}" pattern="#,###"/>원</span>

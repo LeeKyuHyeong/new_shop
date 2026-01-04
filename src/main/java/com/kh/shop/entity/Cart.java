@@ -25,6 +25,12 @@ public class Cart {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
+    @Column(name = "color", length = 50)
+    private String color;
+
+    @Column(name = "size", length = 50)
+    private String size;
+
     @Column(name = "use_yn", length = 1)
     private String useYn;
 
@@ -48,5 +54,18 @@ public class Cart {
     public Integer getTotalPrice() {
         if (product == null) return 0;
         return product.getDiscountedPrice() * quantity;
+    }
+
+    // 옵션 표시용
+    public String getOptionText() {
+        StringBuilder sb = new StringBuilder();
+        if (color != null && !color.isEmpty()) {
+            sb.append(color);
+        }
+        if (size != null && !size.isEmpty()) {
+            if (sb.length() > 0) sb.append(" / ");
+            sb.append(size);
+        }
+        return sb.toString();
     }
 }

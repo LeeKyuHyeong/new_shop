@@ -112,6 +112,14 @@
     font-weight: 600;
     margin-bottom: 5px;
 }
+
+/* 옵션 표시 스타일 */
+.order-item-option {
+    font-size: 13px;
+    color: #7f8c8d;
+    margin-bottom: 5px;
+}
+
 .order-item-price {
     font-size: 14px;
     color: var(--text-secondary);
@@ -278,6 +286,11 @@ body.dark-mode .card-company {
 body.dark-mode .card-company.selected {
     background: #2980b9;
     border-color: #3498db;
+}
+
+/* 옵션 표시 다크모드 */
+body.dark-mode .order-item-option {
+    color: #95a5a6;
 }
 
 @media (max-width: 768px) {

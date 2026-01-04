@@ -28,6 +28,8 @@
             <c:if test="${isDirect}">
                 <input type="hidden" name="productId" value="${product.productId}">
                 <input type="hidden" name="quantity" value="${quantity}">
+                <input type="hidden" name="color" value="${selectedColor}">
+                <input type="hidden" name="size" value="${selectedSize}">
             </c:if>
 
             <div class="checkout-content">
@@ -46,6 +48,15 @@
                                         </div>
                                         <div class="order-item-info">
                                             <div class="order-item-name">${product.productName}</div>
+                                            <!-- 옵션 표시 -->
+                                            <c:if test="${not empty selectedColor || not empty selectedSize}">
+                                                <div class="order-item-option">
+                                                    옵션: 
+                                                    <c:if test="${not empty selectedColor}">${selectedColor}</c:if>
+                                                    <c:if test="${not empty selectedColor && not empty selectedSize}"> / </c:if>
+                                                    <c:if test="${not empty selectedSize}">${selectedSize}</c:if>
+                                                </div>
+                                            </c:if>
                                             <div class="order-item-price">
                                                 <fmt:formatNumber value="${product.discountedPrice}" pattern="#,###"/>원 × ${quantity}개
                                             </div>
@@ -65,6 +76,10 @@
                                             </div>
                                             <div class="order-item-info">
                                                 <div class="order-item-name">${cart.product.productName}</div>
+                                                <!-- 옵션 표시 -->
+                                                <c:if test="${not empty cart.optionText}">
+                                                    <div class="order-item-option">옵션: ${cart.optionText}</div>
+                                                </c:if>
                                                 <div class="order-item-price">
                                                     <fmt:formatNumber value="${cart.product.discountedPrice}" pattern="#,###"/>원 × ${cart.quantity}개
                                                 </div>
