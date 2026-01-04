@@ -76,10 +76,6 @@ public class ClientController {
     // 카테고리별 상품 목록
     @GetMapping("/category/{categoryId}")
     public String categoryPage(@PathVariable Long categoryId, Model model) {
-        // 상위 카테고리와 하위 카테고리 조회 (헤더 메뉴용)
-        List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
-        model.addAttribute("parentCategories", parentCategories);
-
         // 선택된 카테고리 정보
         Optional<Category> categoryOpt = categoryService.getCategoryById(categoryId.intValue());
         if (categoryOpt.isEmpty()) {
@@ -87,6 +83,17 @@ public class ClientController {
         }
 
         Category selectedCategory = categoryOpt.get();
+
+        // 상위 카테고리인 경우 (parent가 null) 첫 번째 하위 카테고리로 리다이렉트
+        if (selectedCategory.getParent() == null && !selectedCategory.getChildren().isEmpty()) {
+            Category firstChild = selectedCategory.getChildren().get(0);
+            return "redirect:/category/" + firstChild.getCategoryId();
+        }
+
+        // 상위 카테고리와 하위 카테고리 조회 (헤더 메뉴용)
+        List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
+        model.addAttribute("parentCategories", parentCategories);
+
         model.addAttribute("selectedCategory", selectedCategory);
         model.addAttribute("selectedCategoryId", categoryId);
 

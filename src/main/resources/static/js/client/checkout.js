@@ -17,6 +17,13 @@ const cardCodes = {
     'kakao': '15'
 };
 
+// PG사 채널키 (포트원 콘솔에서 확인한 값)
+const channelKeys = {
+    'CARD': 'channel-key-88ebdcc0-cca6-45b6-af23-266b2bf69e89',  // KCP
+    'BANK': 'channel-key-88ebdcc0-cca6-45b6-af23-266b2bf69e89',  // KCP
+    'KAKAO': 'channel-key-ddadf9a7-9974-466c-995d-e3f01f88482f'  // 카카오페이
+};
+
 // 결제 수단 선택
 document.querySelectorAll('.payment-method').forEach(method => {
     method.addEventListener('click', function() {
@@ -94,9 +101,9 @@ function requestPayment(method) {
             // 주문번호 생성
             const merchantUid = 'ORDER_' + new Date().getTime();
 
-            // 결제 요청 데이터
+            // 결제 요청 데이터 (V2 방식 - channelKey 사용)
             let payData = {
-                pg: getPgProvider(method),
+                channelKey: getChannelKey(method),  // pg 대신 channelKey 사용
                 pay_method: getPayMethod(method),
                 merchant_uid: merchantUid,
                 name: getOrderName(),
@@ -140,19 +147,9 @@ function requestPayment(method) {
         });
 }
 
-// PG사 결정
-function getPgProvider(method) {
-    switch(method) {
-        case 'CARD':
-        case 'BANK':
-            return 'html5_inicis'; // KG이니시스
-        case 'KAKAO':
-            return 'kakaopay';
-        case 'NAVER':
-            return 'naverpay';
-        default:
-            return 'html5_inicis';
-    }
+// PG사 채널키 반환
+function getChannelKey(method) {
+    return channelKeys[method] || channelKeys['CARD'];
 }
 
 // 결제 수단 결정
