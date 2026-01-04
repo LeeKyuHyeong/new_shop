@@ -27,8 +27,9 @@
         <a href="${pageContext.request.contextPath}/admin/popup" class="menu-item <c:if test="${activeMenu eq 'popup'}">active</c:if>">팝업 관리</a>
         <a href="${pageContext.request.contextPath}/admin/order" class="menu-item <c:if test="${activeMenu eq 'order'}">active</c:if>">주문 관리</a>
         <a href="${pageContext.request.contextPath}/admin/review" class="menu-item <c:if test="${activeMenu eq 'review'}">active</c:if>">리뷰 관리</a>
-        <a href="${pageContext.request.contextPath}/admin/stats" class="menu-item <c:if test="${activeMenu eq 'stats'}">active</c:if>">통계 관리</a>
+        <a href="${pageContext.request.contextPath}/admin/profanity" class="menu-item <c:if test="${activeMenu eq 'profanity'}">active</c:if>">비속어 관리</a>
         <a href="${pageContext.request.contextPath}/admin/batch" class="menu-item <c:if test="${activeMenu eq 'batch'}">active</c:if>">배치 관리</a>
+        <a href="${pageContext.request.contextPath}/admin/stats" class="menu-item <c:if test="${activeMenu eq 'stats'}">active</c:if>">통계 관리</a>
         <a href="${pageContext.request.contextPath}/admin/setting" class="menu-item <c:if test="${activeMenu eq 'setting'}">active</c:if>">사이트 설정</a>
         
         <!-- 테마 토글 (user-setting 기반) -->

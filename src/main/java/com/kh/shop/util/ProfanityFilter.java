@@ -1,32 +1,32 @@
 package com.kh.shop.util;
 
+import com.kh.shop.entity.ProfanityWord;
+import com.kh.shop.repository.ProfanityWordRepository;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Component
 public class ProfanityFilter {
 
+    @Autowired
+    private ProfanityWordRepository profanityWordRepository;
+
     // 비속어 목록 (카테고리별)
-    private final Set<String> profanitySet = new HashSet<>();
+    private final Set<String> profanitySet = Collections.synchronizedSet(new HashSet<>());
 
     // 정규식 패턴 목록
     private final List<Pattern> profanityPatterns = new ArrayList<>();
-
-    // 초성 매핑
-    private static final Map<Character, Character> CHOSUNG_MAP = new HashMap<>();
 
     // 숫자/특수문자 → 한글 변환 맵
     private static final Map<Character, Character> CHAR_REPLACE_MAP = new HashMap<>();
 
     static {
-        // 초성 매핑 (가~힣 → ㄱ~ㅎ)
-        String[] chosung = {"ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"};
-        for (int i = 0; i < chosung.length; i++) {
-            CHOSUNG_MAP.put(chosung[i].charAt(0), chosung[i].charAt(0));
-        }
-
         // 숫자/특수문자 → 한글 변환
         CHAR_REPLACE_MAP.put('1', 'ㅣ');
         CHAR_REPLACE_MAP.put('2', '이');
@@ -44,115 +44,39 @@ public class ProfanityFilter {
         CHAR_REPLACE_MAP.put('&', '앤');
     }
 
-    public ProfanityFilter() {
-        initializeProfanityList();
+    @PostConstruct
+    public void init() {
+        loadFromDatabase();
         initializePatterns();
+        log.info("[비속어 필터] 초기화 완료 - 총 {}개 단어 로드", profanitySet.size());
     }
 
     /**
-     * 비속어 목록 초기화
+     * DB에서 비속어 로드
      */
-    private void initializeProfanityList() {
-        // ========== 욕설/비속어 ==========
+    public void loadFromDatabase() {
+        try {
+            List<ProfanityWord> words = profanityWordRepository.findByIsActiveTrue();
+            profanitySet.clear();
+            for (ProfanityWord word : words) {
+                profanitySet.add(word.getWord().toLowerCase());
+            }
+            log.info("[비속어 필터] DB에서 {}개 단어 로드", words.size());
+        } catch (Exception e) {
+            log.warn("[비속어 필터] DB 로드 실패, 기본 목록 사용: {}", e.getMessage());
+            initializeDefaultList();
+        }
+    }
+
+    /**
+     * 기본 비속어 목록 (DB 접근 실패 시)
+     */
+    private void initializeDefaultList() {
         addProfanities(
                 // 기본 욕설
-                "시발", "씨발", "씨팔", "씨벌", "씨부랄", "씨부럴", "씨불", "시팔", "시벌", "시부랄",
-                "시부럴", "시불", "씹", "씹할", "씹새", "씹세", "씹년", "씹놈",
-                "개새끼", "개새기", "개세끼", "개세기", "개색끼", "개색기", "개섀끼",
-                "개자식", "개차반", "개같은", "개년", "개놈", "개돼지",
-                "병신", "븅신", "빙신", "병딱", "병맛", "병먹",
-                "지랄", "지럴", "지롤", "짓랄",
-                "염병", "엠병", "얌병", "옘병",
-                "좆", "좃", "조까", "조깐", "조낸", "존나", "존내", "졸라", "존니", "좆나",
-                "미친", "미친놈", "미친년", "미치놈", "미치년", "미쳤",
-                "닥쳐", "닥치", "닥쵸", "닥초",
-                "꺼져", "꺼저", "꺼지",
-                "뒤져", "뒤저", "뒤지", "뒈져", "뒈저", "뒈지", "디져", "디저", "디지",
-                "죽어", "죽을", "죽여", "뒤질",
-
-                // 비하/멸시 표현
-                "찐따", "찐다", "진따", "진다", "찐찌버거",
-                "등신", "덩신", "던신",
-                "멍청", "멍청이", "멍청한",
-                "바보", "빠보", "바봉",
-                "얼간이", "얼간",
-                "멍텅", "멍퉁",
-                "또라이", "돌아이", "또라리", "돌아리",
-                "한남", "한녀", "김치녀", "김치남", "된장녀", "된장남",
-                "느금마", "느그엄마", "느금", "니미", "니엄마", "니애미", "니애비", "느개비",
-                "애미", "애비", "에미", "에비",
-                "노무", "노알라", "노무현",
-
-                // 성적 비하
-                "보지", "보짓", "봊이", "자지", "잦이", "잦지",
-                "섹스", "쎅스", "섹쓰", "쎅쓰",
-                "성교", "성관계", "성행위",
-                "강간", "강갂",
-                "창녀", "창년", "창놈",
-                "매춘", "매춘부",
-                "걸레", "걸래",
-                "화냥", "화냥년",
-
-                // 혐오 표현
-                "장애인", "애자", "앰생", "앰창",
-                "정신병", "정신병자", "정병",
-                "게이", "호모", "레즈",
-                "쪽바리", "짱깨", "짱개", "청국", "청궈", "흑형",
-
-                // 신체/외모 비하
-                "뚱땡이", "뚱뚱이", "돼지년", "돼지놈",
-                "대머리", "빡빡이",
-
-                // 기타 비속어
-                "엿먹", "엿머거", "엿이나",
-                "빠구리", "빠굴",
-                "후레자식", "후래자식", "후레아들",
-                "나쁜년", "나쁜놈",
-                "쓰레기", "쓰래기", "쓰렉",
-                "허접", "호구", "호갱",
-                "ㅗ", "ㅗㅗ"
-        );
-
-        // ========== 초성 욕설 ==========
-        addProfanities(
-                "ㅅㅂ", "ㅆㅂ", "ㅂㅅ", "ㅄ",
-                "ㅈㄹ", "ㅈㄴ", "ㅈㅣㄹ",
-                "ㄱㅅㄲ", "ㄱㅅㄱ", "ㄱㅅ",
-                "ㅁㅊ", "ㅁㅊㄴ", "ㅁㅊㄴㄴ",
-                "ㄷㅊ", "ㄲㅈ", "ㄷㅈ",
-                "ㄴㄱㅁ", "ㄴㅁ",
-                "ㅆㅍ", "ㅊㄴ", "ㅊㄴㄴ",
-                "ㅍㅌㅊ", "ㅂㄹ"
-        );
-
-        // ========== 영어 욕설 ==========
-        addProfanities(
-                "fuck", "shit", "damn", "bitch", "bastard", "asshole", "ass",
-                "dick", "cock", "pussy", "cunt", "whore", "slut",
-                "motherfucker", "fucker", "fucking", "fucked",
-                "bullshit", "dumbass", "jackass",
-                "wtf", "stfu", "gtfo", "lmfao",
-                "retard", "retarded", "idiot", "moron",
-                "faggot", "fag", "nigger", "nigga"
-        );
-
-        // ========== 변형 표현 ==========
-        addProfanities(
-                // 시발 변형
-                "시1발", "씨1발", "시8", "씨8", "시발점", "c발", "ㅅ1ㅂ",
-                "시bal", "씨bal", "sibal", "ssibal", "tlqkf",
-
-                // 병신 변형
-                "ㅂ1ㅅ1ㄴ", "병1신", "byungsin", "qudtls",
-
-                // 지랄 변형
-                "ㅈ1ㄹ", "지1랄", "jiral", "wlfkf",
-
-                // 개새끼 변형
-                "ㄱㅅㄲ", "개1새끼", "개색", "gaesaekki", "rotoRl",
-
-                // 좆 변형
-                "조1까", "좆1나", "zo까", "wh까"
+                "시발", "씨발", "씨팔", "병신", "지랄", "개새끼", "좆", "존나", "미친",
+                "닥쳐", "꺼져", "뒤져", "씹", "ㅅㅂ", "ㅆㅂ", "ㅂㅅ", "ㅄ", "ㅈㄹ",
+                "fuck", "shit", "bitch", "bastard", "asshole"
         );
     }
 
@@ -160,6 +84,7 @@ public class ProfanityFilter {
      * 정규식 패턴 초기화
      */
     private void initializePatterns() {
+        profanityPatterns.clear();
         // 공백/특수문자 삽입 패턴
         profanityPatterns.add(Pattern.compile("시[\\s\\W]*발", Pattern.CASE_INSENSITIVE));
         profanityPatterns.add(Pattern.compile("씨[\\s\\W]*발", Pattern.CASE_INSENSITIVE));
@@ -266,7 +191,9 @@ public class ProfanityFilter {
         // 1. 단순 매칭
         for (String profanity : profanitySet) {
             if (lowerText.contains(profanity) || normalized.contains(profanity)) {
-                detected.add(profanity);
+                if (!detected.contains(profanity)) {
+                    detected.add(profanity);
+                }
             }
         }
 
@@ -305,12 +232,12 @@ public class ProfanityFilter {
      */
     private String extractChosung(String text) {
         StringBuilder sb = new StringBuilder();
+        char[] chosungs = {'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'};
         for (char c : text.toCharArray()) {
             if (c >= '가' && c <= '힣') {
                 int chosungIndex = (c - '가') / (21 * 28);
-                char[] chosungs = {'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'};
                 sb.append(chosungs[chosungIndex]);
-            } else if (CHOSUNG_MAP.containsKey(c)) {
+            } else if (c >= 'ㄱ' && c <= 'ㅎ') {
                 sb.append(c);
             }
         }
@@ -318,7 +245,7 @@ public class ProfanityFilter {
     }
 
     /**
-     * 비속어 추가 (런타임)
+     * 메모리에 비속어 추가 (런타임)
      */
     public void addProfanity(String word) {
         if (word != null && !word.isEmpty()) {
@@ -327,12 +254,20 @@ public class ProfanityFilter {
     }
 
     /**
-     * 비속어 제거 (런타임)
+     * 메모리에서 비속어 제거 (런타임)
      */
     public void removeProfanity(String word) {
         if (word != null && !word.isEmpty()) {
             profanitySet.remove(word.toLowerCase());
         }
+    }
+
+    /**
+     * 캐시 갱신
+     */
+    public void refreshCache() {
+        loadFromDatabase();
+        log.info("[비속어 필터] 캐시 갱신 완료 - 총 {}개 단어", profanitySet.size());
     }
 
     /**
