@@ -130,10 +130,13 @@ function showAlert(message, type) {
     alert.textContent = message;
 
     if (!alertContainer) {
-        const container = document.createElement('div');
-        container.className = 'alert-container';
-        document.querySelector('.signup-box').insertBefore(container, document.querySelector('.signup-header').nextElementSibling);
-        container.appendChild(alert);
+        alertContainer = document.createElement('div');
+        alertContainer.className = 'alert-container';
+        // .signup-header가 없을 경우를 대비해 signup-box의 맨 앞에 삽입
+        const signupBox = document.querySelector('.signup-box');
+        if(signupBox) {
+            signupBox.prepend(alertContainer);
+        }
     } else {
         alertContainer.innerHTML = '';
         alertContainer.appendChild(alert);

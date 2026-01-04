@@ -1,8 +1,10 @@
 # 빌드 스테이지
-FROM gradle:8.5-jdk17 AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
-COPY . .
-RUN gradle build -x test --no-daemon
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn clean package -DskipTests
 
 # 실행 스테이지
 FROM eclipse-temurin:17-jre-alpine
@@ -12,11 +14,11 @@ WORKDIR /app
 RUN mkdir -p /app/uploads
 
 # JAR 복사
-COPY --from=build /app/build/libs/*.jar app.jar
+COPY --from=build /app/target/*.war app.war
 
 # 메모리 제한 설정 (서버 RAM 1G 고려)
 ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC"
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["java", "-jar", "app.war"]

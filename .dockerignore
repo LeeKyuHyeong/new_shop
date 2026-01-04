@@ -1,0 +1,11 @@
+  .git
+  .gitignore
+  .idea
+  *.iml
+  build/
+  out/
+  target/
+  *.log
+  *.tmp
+  node_modules/
+  .gradle/
