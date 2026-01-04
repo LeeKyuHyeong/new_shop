@@ -55,7 +55,7 @@ public class ProductBatchScheduler {
      * 매시 10분에 랜덤 상품 1개 등록
      * cron = "초 분 시 일 월 요일"
      */
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 10 * * * *")
     @Transactional
     public void createRandomProduct() {
         log.info("========== [배치] 랜덤 상품 등록 시작 ==========");
