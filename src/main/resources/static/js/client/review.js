@@ -8,6 +8,14 @@ let selectedImages = [];
 
 // 페이지 로드 시 리뷰 불러오기
 document.addEventListener('DOMContentLoaded', function() {
+
+    const reviewContent = document.querySelector('textarea[name="content"]');
+    if (reviewContent) {
+        ProfanityFilter.attachValidator(reviewContent, {
+            errorMessage: '리뷰에 부적절한 표현이 포함되어 있습니다.'
+        });
+    }
+
     loadReviews();
 });
 
@@ -256,13 +264,21 @@ function removePreviewImage(button, index) {
 }
 
 // 리뷰 제출
-function submitReview() {
+async function submitReview() {
     const rating = document.querySelector('.star-rating input:checked');
     const content = document.getElementById('reviewContent').value.trim();
+    const form = document.getElementById('reviewForm');
 
     if (!rating) {
         alert('별점을 선택해주세요.');
         return;
+    }
+
+    const isValid = await ProfanityFilter.validateForm(form, ['content', 'title']);
+
+    //비속어 필터
+    if (!isValid) {
+        return false;
     }
 
     const formData = new FormData();

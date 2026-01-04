@@ -2,6 +2,7 @@ package com.kh.shop.service;
 
 import com.kh.shop.entity.*;
 import com.kh.shop.repository.*;
+import com.kh.shop.util.ProfanityFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -38,12 +39,21 @@ public class ReviewService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private ProfanityFilter profanityFilter;
+
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
 
     // 리뷰 작성
     public Review createReview(Long productId, String userId, Integer rating, String content,
                                Long orderId, List<MultipartFile> images) throws IOException {
+
+        // 비속어 검사
+        if (profanityFilter.containsProfanity(content)) {
+            List<String> detected = profanityFilter.detectProfanities(content);
+            throw new IllegalArgumentException("리뷰에 부적절한 표현이 포함되어 있습니다: " + String.join(", ", detected));
+        }
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
@@ -115,6 +125,12 @@ public class ReviewService {
     public Review updateReview(Long reviewId, String userId, Integer rating, String content,
                                List<MultipartFile> newImages, List<Long> deleteImageIds) throws IOException {
 
+        // 비속어 검사
+        if (profanityFilter.containsProfanity(content)) {
+            List<String> detected = profanityFilter.detectProfanities(content);
+            throw new IllegalArgumentException("리뷰에 부적절한 표현이 포함되어 있습니다: " + String.join(", ", detected));
+        }
+
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("리뷰를 찾을 수 없습니다."));
 
@@ -171,6 +187,12 @@ public class ReviewService {
 
     // 관리자 답변 작성
     public Review addAdminReply(Long reviewId, String reply) {
+        // 관리자 답변도 비속어 검사
+        if (profanityFilter.containsProfanity(reply)) {
+            List<String> detected = profanityFilter.detectProfanities(reply);
+            throw new IllegalArgumentException("답변에 부적절한 표현이 포함되어 있습니다: " + String.join(", ", detected));
+        }
+
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("리뷰를 찾을 수 없습니다."));
 
@@ -281,5 +303,22 @@ public class ReviewService {
     public Page<Review> getUnansweredReviews(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return reviewRepository.findByAdminReplyIsNullAndIsDeletedFalseOrderByCreatedDateDesc(pageable);
+    }
+
+    // 비속어 검증 (외부에서 호출용)
+    public Map<String, Object> validateContent(String content) {
+        Map<String, Object> result = new HashMap<>();
+        boolean hasProfanity = profanityFilter.containsProfanity(content);
+
+        result.put("isValid", !hasProfanity);
+        result.put("hasProfanity", hasProfanity);
+
+        if (hasProfanity) {
+            List<String> detected = profanityFilter.detectProfanities(content);
+            result.put("detectedWords", detected);
+            result.put("message", "부적절한 표현이 포함되어 있습니다.");
+        }
+
+        return result;
     }
 }

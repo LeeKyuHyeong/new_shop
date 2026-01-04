@@ -102,6 +102,35 @@
             background: #2c3e50;
             color: #ecf0f1;
         }
+        
+        /* 비속어 에러 스타일 */
+        .profanity-error {
+            border-color: #dc3545 !important;
+            background-color: #fff5f5 !important;
+        }
+        .profanity-error-msg {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: block;
+        }
+        .input-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+        body.dark-mode .profanity-error {
+            background-color: #3d2020 !important;
+        }
+        body.dark-mode .input-warning {
+            background-color: #3d3820;
+            color: #f5dba5;
+            border-color: #856404;
+        }
     </style>
 </head>
 <body>
@@ -148,9 +177,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="productName">상품명 *</label>
+                            <label for="productName">상품명 * <span style="font-weight:normal;font-size:12px;color:#888;">(부적절한 표현 사용 불가)</span></label>
                             <input type="text" id="productName" name="productName" placeholder="상품명 입력" required
                                 value="<c:if test="${not empty product}">${product.productName}</c:if>">
+                            <div id="productNameError" class="profanity-error-msg" style="display:none;"></div>
                         </div>
 
                         <div class="form-row">
@@ -171,13 +201,12 @@
                             </div>
                         </div>
 
-                        <!-- 옵션 섹션 -->
                         <div class="option-section">
-                            <h3>🎨 상품 옵션 (선택사항)</h3>
+                            <h3>상품 옵션</h3>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="color">색상</label>
-                                    <input type="text" id="color" name="color" placeholder="예: 빨강, 파랑, 검정"
+                                    <input type="text" id="color" name="color" placeholder="예: 블랙, 화이트, 네이비"
                                         value="<c:if test="${not empty product}">${product.color}</c:if>">
                                     <p class="option-hint">콤마(,)로 구분하여 여러 색상 입력</p>
                                     <div class="option-preview" id="colorPreview"></div>
@@ -193,9 +222,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="productDescription">상품 설명</label>
+                            <label for="productDescription">상품 설명 <span style="font-weight:normal;font-size:12px;color:#888;">(부적절한 표현 사용 불가)</span></label>
                             <div id="productDescription"><c:if test="${not empty product}">${product.productDescription}</c:if></div>
                             <input type="hidden" id="productDescriptionInput" name="productDescription">
+                            <div id="productDescError" class="profanity-error-msg" style="display:none;"></div>
                         </div>
 
                         <div class="form-group">
@@ -245,7 +275,7 @@
                         </div>
 
                         <div class="form-buttons">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" id="btnSubmit">
                                 <c:if test="${empty product}">등록</c:if>
                                 <c:if test="${not empty product}">수정</c:if>
                             </button>
@@ -298,7 +328,50 @@
             // 옵션 미리보기 초기화
             updateOptionPreview('color');
             updateOptionPreview('size');
+            
+            // 상품명 비속어 검사 이벤트
+            const productNameInput = document.getElementById('productName');
+            const productNameError = document.getElementById('productNameError');
+            let nameDebounceTimer;
+            
+            productNameInput.addEventListener('input', function() {
+                clearTimeout(nameDebounceTimer);
+                nameDebounceTimer = setTimeout(async () => {
+                    const text = this.value;
+                    if (text.length < 2) {
+                        productNameError.style.display = 'none';
+                        productNameInput.classList.remove('profanity-error');
+                        return;
+                    }
+                    
+                    const result = await validateProfanity(text);
+                    
+                    if (result.hasProfanity) {
+                        productNameInput.classList.add('profanity-error');
+                        productNameError.textContent = '⚠️ 상품명에 부적절한 표현이 포함되어 있습니다.';
+                        productNameError.style.display = 'block';
+                    } else {
+                        productNameInput.classList.remove('profanity-error');
+                        productNameError.style.display = 'none';
+                    }
+                }, 500);
+            });
         });
+        
+        // 비속어 검증 API 호출
+        async function validateProfanity(text) {
+            try {
+                const response = await fetch(contextPath + '/api/profanity/validate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Profanity validation error:', error);
+                return { isValid: true, hasProfanity: false };
+            }
+        }
         
         // 이미지 업로드
         function uploadImage(file) {
@@ -346,6 +419,76 @@
         // 옵션 입력 이벤트
         document.getElementById('color').addEventListener('input', () => updateOptionPreview('color'));
         document.getElementById('size').addEventListener('input', () => updateOptionPreview('size'));
+        
+        // 폼 제출 전 비속어 검증
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const productName = document.getElementById('productName').value;
+            const productDescription = $('#productDescription').summernote('code');
+            // HTML 태그 제거하여 텍스트만 추출
+            const descText = productDescription.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').trim();
+            
+            // 상품명 비속어 검사
+            const nameResult = await validateProfanity(productName);
+            if (nameResult.hasProfanity) {
+                document.getElementById('productName').classList.add('profanity-error');
+                document.getElementById('productNameError').textContent = '⚠️ 상품명에 부적절한 표현이 포함되어 있습니다: ' + (nameResult.detectedWords ? nameResult.detectedWords.join(', ') : '');
+                document.getElementById('productNameError').style.display = 'block';
+                alert('상품명에 부적절한 표현이 포함되어 있습니다.\n내용을 수정해주세요.');
+                document.getElementById('productName').focus();
+                return;
+            }
+            
+            // 상품 설명 비속어 검사
+            if (descText.length > 0) {
+                const descResult = await validateProfanity(descText);
+                if (descResult.hasProfanity) {
+                    document.getElementById('productDescError').textContent = '⚠️ 상품 설명에 부적절한 표현이 포함되어 있습니다: ' + (descResult.detectedWords ? descResult.detectedWords.join(', ') : '');
+                    document.getElementById('productDescError').style.display = 'block';
+                    alert('상품 설명에 부적절한 표현이 포함되어 있습니다.\n내용을 수정해주세요.');
+                    return;
+                }
+            }
+            
+            // 비속어가 없으면 원래 제출 로직 실행
+            submitProductForm();
+        });
+        
+        // 상품 폼 제출 (원래 로직)
+        function submitProductForm() {
+            const formData = new FormData(document.getElementById('productForm'));
+            formData.set('productDescription', $('#productDescription').summernote('code'));
+            
+            const productId = document.getElementById('productId') ? document.getElementById('productId').value : null;
+            const url = productId 
+                ? contextPath + '/api/admin/product/' + productId 
+                : contextPath + '/api/admin/product';
+            const method = productId ? 'PUT' : 'POST';
+            
+            // PUT의 경우 _method 추가
+            if (method === 'PUT') {
+                formData.append('_method', 'PUT');
+            }
+            
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(productId ? '상품이 수정되었습니다.' : '상품이 등록되었습니다.');
+                    location.href = contextPath + '/admin/product';
+                } else {
+                    alert(data.message || '처리 중 오류가 발생했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('처리 중 오류가 발생했습니다.');
+            });
+        }
     </script>
     <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
     <script src="${pageContext.request.contextPath}/js/admin/product-form.js"></script>

@@ -190,6 +190,18 @@
             display: flex;
             gap: 10px;
         }
+        
+        /* 비속어 에러 스타일 */
+        .profanity-error {
+            border-color: #dc3545 !important;
+            background-color: #fff5f5 !important;
+        }
+        .profanity-error-msg {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: block;
+        }
 
         body.dark-mode .review-detail-card {
             background: #2c3e50;
@@ -225,6 +237,9 @@
             background: #34495e;
             border-color: #4a6278;
             color: #ecf0f1;
+        }
+        body.dark-mode .profanity-error {
+            background-color: #3d2020 !important;
         }
     </style>
 </head>
@@ -311,7 +326,7 @@
 
                     <!-- 관리자 답변 섹션 -->
                     <div class="admin-reply-section">
-                        <h4>💬 관리자 답변</h4>
+                        <h4>💬 관리자 답변 <span style="font-weight:normal;font-size:12px;color:#888;">(부적절한 표현 사용 불가)</span></h4>
                         
                         <c:if test="${not empty review.adminReply}">
                             <div class="existing-reply">
@@ -326,8 +341,9 @@
                         <c:if test="${!review.isDeleted}">
                             <form class="reply-form" id="replyForm">
                                 <textarea id="replyContent" placeholder="${empty review.adminReply ? '고객님께 답변을 작성해주세요.' : '답변을 수정하시려면 새 내용을 입력하세요.'}">${review.adminReply}</textarea>
+                                <div id="replyProfanityError" class="profanity-error-msg" style="display:none;"></div>
                                 <div class="reply-form-actions">
-                                    <button type="button" class="btn btn-primary" onclick="submitReply()">
+                                    <button type="button" class="btn btn-primary" id="btnSubmitReply" onclick="submitReply()">
                                         ${empty review.adminReply ? '답변 등록' : '답변 수정'}
                                     </button>
                                 </div>
@@ -340,17 +356,47 @@
     </div>
 
     <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
+    <script src="${pageContext.request.contextPath}/js/common/profanity.js"></script>
     <script>
         const contextPath = '${pageContext.request.contextPath}';
+        window.contextPath = contextPath;
         const reviewId = ${review.reviewId};
         
-        function submitReply() {
+        // 답변 입력란 비속어 검사
+        document.addEventListener('DOMContentLoaded', function() {
+            const replyContent = document.getElementById('replyContent');
+            const errorDiv = document.getElementById('replyProfanityError');
+            
+            if (replyContent) {
+                ProfanityFilter.attachValidator(replyContent, {
+                    errorMessage: '답변에 부적절한 표현이 포함되어 있습니다.',
+                    showAlert: false,
+                    debounceMs: 500
+                });
+            }
+        });
+        
+        async function submitReply() {
             const content = document.getElementById('replyContent').value.trim();
+            const errorDiv = document.getElementById('replyProfanityError');
+            
             if (!content) {
                 alert('답변 내용을 입력해주세요.');
                 return;
             }
             
+            // 비속어 검사
+            const result = await ProfanityFilter.validate(content);
+            
+            if (result.hasProfanity) {
+                document.getElementById('replyContent').classList.add('profanity-error');
+                errorDiv.textContent = '⚠️ 답변에 부적절한 표현이 포함되어 있습니다: ' + (result.detectedWords ? result.detectedWords.join(', ') : '');
+                errorDiv.style.display = 'block';
+                alert('답변에 부적절한 표현이 포함되어 있습니다.\n내용을 수정해주세요.');
+                return;
+            }
+            
+            // 비속어가 없으면 서버로 전송
             fetch(contextPath + '/admin/review/reply/' + reviewId, {
                 method: 'POST',
                 headers: {
@@ -360,10 +406,16 @@
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.message);
                 if (data.success) {
+                    alert(data.message || '답변이 등록되었습니다.');
                     location.reload();
+                } else {
+                    alert(data.message || '답변 등록에 실패했습니다.');
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('답변 등록 중 오류가 발생했습니다.');
             });
         }
         

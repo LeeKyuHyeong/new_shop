@@ -6,6 +6,7 @@ import com.kh.shop.entity.ProductImage;
 import com.kh.shop.repository.CategoryRepository;
 import com.kh.shop.repository.ProductImageRepository;
 import com.kh.shop.repository.ProductRepository;
+import com.kh.shop.util.ProfanityFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -30,6 +33,9 @@ public class ProductService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ProfanityFilter profanityFilter;
 
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
@@ -92,6 +98,18 @@ public class ProductService {
                                  Integer categoryId, String color, String size, MultipartFile thumbnail,
                                  List<MultipartFile> detailImages) throws IOException {
 
+        // 상품명 비속어 검사
+        if (profanityFilter.containsProfanity(productName)) {
+            List<String> detected = profanityFilter.detectProfanities(productName);
+            throw new IllegalArgumentException("상품명에 부적절한 표현이 포함되어 있습니다: " + String.join(", ", detected));
+        }
+
+        // 상품 설명 비속어 검사
+        if (productDescription != null && profanityFilter.containsProfanity(productDescription)) {
+            List<String> detected = profanityFilter.detectProfanities(productDescription);
+            throw new IllegalArgumentException("상품 설명에 부적절한 표현이 포함되어 있습니다: " + String.join(", ", detected));
+        }
+
         Category category = null;
         if (categoryId != null) {
             category = categoryRepository.findById(categoryId).orElse(null);
@@ -143,6 +161,18 @@ public class ProductService {
                                  Integer productStock, String productDescription, Integer productOrder,
                                  Integer categoryId, String color, String size, MultipartFile thumbnail, List<MultipartFile> detailImages,
                                  List<Long> deleteImageIds) throws IOException {
+
+        // 상품명 비속어 검사
+        if (profanityFilter.containsProfanity(productName)) {
+            List<String> detected = profanityFilter.detectProfanities(productName);
+            throw new IllegalArgumentException("상품명에 부적절한 표현이 포함되어 있습니다: " + String.join(", ", detected));
+        }
+
+        // 상품 설명 비속어 검사
+        if (productDescription != null && profanityFilter.containsProfanity(productDescription)) {
+            List<String> detected = profanityFilter.detectProfanities(productDescription);
+            throw new IllegalArgumentException("상품 설명에 부적절한 표현이 포함되어 있습니다: " + String.join(", ", detected));
+        }
 
         Optional<Product> productOpt = productRepository.findById(productId);
         if (!productOpt.isPresent()) {
@@ -256,5 +286,26 @@ public class ProductService {
                 file.delete();
             }
         }
+    }
+
+    // 비속어 검증 (외부에서 호출용)
+    public Map<String, Object> validateProductContent(String productName, String productDescription) {
+        Map<String, Object> result = new HashMap<>();
+        boolean hasNameProfanity = profanityFilter.containsProfanity(productName);
+        boolean hasDescProfanity = productDescription != null && profanityFilter.containsProfanity(productDescription);
+
+        result.put("isValid", !hasNameProfanity && !hasDescProfanity);
+
+        if (hasNameProfanity) {
+            result.put("nameError", true);
+            result.put("nameDetected", profanityFilter.detectProfanities(productName));
+        }
+
+        if (hasDescProfanity) {
+            result.put("descError", true);
+            result.put("descDetected", profanityFilter.detectProfanities(productDescription));
+        }
+
+        return result;
     }
 }

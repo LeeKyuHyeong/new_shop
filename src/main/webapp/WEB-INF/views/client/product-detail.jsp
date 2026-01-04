@@ -10,6 +10,28 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/main.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/product-detail.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/review.css">
+    <style>
+        /* 비속어 에러 스타일 */
+        .profanity-error {
+            border-color: #dc3545 !important;
+            background-color: #fff5f5 !important;
+        }
+        .profanity-error-msg {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: block;
+        }
+        .input-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
     <%@ include file="common/header.jsp" %>
@@ -221,7 +243,8 @@
 
                 <div class="review-content-input">
                     <label for="reviewContent">리뷰 내용</label>
-                    <textarea id="reviewContent" placeholder="상품에 대한 솔직한 리뷰를 작성해주세요."></textarea>
+                    <textarea id="reviewContent" placeholder="상품에 대한 솔직한 리뷰를 작성해주세요. (부적절한 표현은 사용할 수 없습니다.)"></textarea>
+                    <div id="contentProfanityError" class="profanity-error-msg" style="display:none;"></div>
                 </div>
 
                 <div class="image-upload-area">
@@ -236,7 +259,7 @@
 
                 <div class="review-form-actions">
                     <button type="button" class="btn-cancel" onclick="toggleReviewForm()">취소</button>
-                    <button type="button" class="btn-submit-review" onclick="submitReview()">등록</button>
+                    <button type="button" class="btn-submit-review" id="btnSubmitReview" onclick="submitReview()">등록</button>
                 </div>
             </div>
 
@@ -307,7 +330,130 @@
         const hasColorOption = ${not empty product.color};
         const hasSizeOption = ${not empty product.size};
     </script>
+    <script src="${pageContext.request.contextPath}/js/common/profanity.js"></script>
     <script src="${pageContext.request.contextPath}/js/client/product-detail.js"></script>
     <script src="${pageContext.request.contextPath}/js/client/review.js"></script>
+    
+    <script>
+        // 리뷰 내용 실시간 비속어 검사
+        document.addEventListener('DOMContentLoaded', function() {
+            const reviewContent = document.getElementById('reviewContent');
+            const errorDiv = document.getElementById('contentProfanityError');
+            let debounceTimer;
+            
+            if (reviewContent) {
+                // 입력 시 실시간 검사 (debounce 적용)
+                reviewContent.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(async () => {
+                        const text = this.value;
+                        if (text.length < 2) {
+                            errorDiv.style.display = 'none';
+                            reviewContent.classList.remove('profanity-error');
+                            return;
+                        }
+                        
+                        const result = await ProfanityFilter.validate(text);
+                        
+                        if (result.hasProfanity) {
+                            reviewContent.classList.add('profanity-error');
+                            errorDiv.textContent = '⚠️ 부적절한 표현이 포함되어 있습니다. 수정 후 등록해주세요.';
+                            errorDiv.style.display = 'block';
+                        } else {
+                            reviewContent.classList.remove('profanity-error');
+                            errorDiv.style.display = 'none';
+                        }
+                    }, 500);
+                });
+                
+                // 포커스 아웃 시 검사
+                reviewContent.addEventListener('blur', async function() {
+                    const text = this.value;
+                    if (!text) return;
+                    
+                    const result = await ProfanityFilter.validate(text);
+                    
+                    if (result.hasProfanity) {
+                        reviewContent.classList.add('profanity-error');
+                        errorDiv.textContent = '⚠️ 부적절한 표현이 포함되어 있습니다. 수정 후 등록해주세요.';
+                        errorDiv.style.display = 'block';
+                    }
+                });
+            }
+        });
+        
+        // 기존 submitReview 함수 오버라이드
+        const originalSubmitReview = window.submitReview;
+        window.submitReview = async function() {
+            const content = document.getElementById('reviewContent').value;
+            const errorDiv = document.getElementById('contentProfanityError');
+            
+            // 비속어 검사
+            const result = await ProfanityFilter.validate(content);
+            
+            if (result.hasProfanity) {
+                document.getElementById('reviewContent').classList.add('profanity-error');
+                errorDiv.textContent = '⚠️ 부적절한 표현이 포함되어 있습니다: ' + (result.detectedWords ? result.detectedWords.join(', ') : '');
+                errorDiv.style.display = 'block';
+                alert('리뷰에 부적절한 표현이 포함되어 있습니다.\n내용을 수정해주세요.');
+                return;
+            }
+            
+            // 비속어가 없으면 원래 함수 실행
+            if (typeof originalSubmitReview === 'function') {
+                originalSubmitReview();
+            } else {
+                // 원래 함수가 없으면 직접 처리
+                submitReviewToServer();
+            }
+        };
+        
+        // 서버로 리뷰 전송 (기존 로직)
+        async function submitReviewToServer() {
+            const rating = document.querySelector('input[name="rating"]:checked');
+            const content = document.getElementById('reviewContent').value;
+            const imageInput = document.getElementById('reviewImages');
+            
+            if (!rating) {
+                alert('별점을 선택해주세요.');
+                return;
+            }
+            
+            if (!content.trim()) {
+                alert('리뷰 내용을 입력해주세요.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('productId', productId);
+            formData.append('rating', rating.value);
+            formData.append('content', content);
+            
+            if (imageInput.files.length > 0) {
+                for (let i = 0; i < imageInput.files.length; i++) {
+                    formData.append('images', imageInput.files[i]);
+                }
+            }
+            
+            try {
+                const response = await fetch(contextPath + '/api/review', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('리뷰가 등록되었습니다.');
+                    location.reload();
+                } else {
+                    alert(result.message || '리뷰 등록에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('리뷰 등록 중 오류가 발생했습니다.');
+            }
+        }
+    </script>
 </body>
 </html>
