@@ -21,6 +21,7 @@ public class BatchService {
     private final OrderStatusBatchScheduler orderStatusBatchScheduler;
     private final OrderCreateBatchScheduler orderCreateBatchScheduler;
     private final UserSignupBatchScheduler userSignupBatchScheduler;
+    private final CartCleanupBatchScheduler cartCleanupBatchScheduler;
 
     // 배치 정보 정의
     private static final Map<String, BatchInfo> BATCH_INFO_MAP = new LinkedHashMap<>();
@@ -163,8 +164,8 @@ public class BatchService {
                 return "랜덤 회원이 가입되었습니다.";
 
             case "CART_CLEANUP":
-                // TODO: 장바구니 정리 배치 구현 필요
-                return "장바구니 정리가 완료되었습니다. (미구현)";
+                cartCleanupBatchScheduler.cleanupOldCarts();
+                return "장바구니 정리가 완료되었습니다.";
 
             case "ORDER_CANCEL":
                 // TODO: 미결제 주문 취소 배치 구현 필요

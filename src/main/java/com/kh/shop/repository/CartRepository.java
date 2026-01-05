@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,4 +35,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
     @Query("SELECT c FROM Cart c JOIN FETCH c.product p WHERE c.user = :user AND c.cartId IN :cartIds AND c.useYn = 'Y'")
     List<Cart> findByUserAndCartIdIn(@Param("user") User user, @Param("cartIds") List<Long> cartIds);
+
+    @Query("SELECT c FROM Cart c WHERE c.updatedDate < :cutoffDate AND c.useYn = :useYn")
+    List<Cart> findOldCarts(@Param("cutoffDate") LocalDateTime cutoffDate, @Param("useYn") String useYn);
 }
