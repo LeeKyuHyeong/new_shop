@@ -19,6 +19,10 @@ body.dark-mode {
     --text-primary: #ecf0f1;
     --text-secondary: #95a5a6;
     --border-color: #34495e;
+    --btn-primary-bg: #2471a3;
+    --btn-primary-hover: #1f618d;
+    --btn-secondary-bg: #455a64;
+    --btn-secondary-hover: #37474f;
 }
 
 * {
@@ -215,19 +219,16 @@ body {
 
 /* 서브 메뉴 */
 .sub-menu {
-    display: none;
+    display: block;        /* none에서 block으로 변경하여 항상 노출 */
     position: absolute;
     top: 100%;
     left: 0;
     background: white;
-    min-width: 200px;
+    min-width: 150px;      /* 너비는 적절히 조절 */
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     list-style: none;
     z-index: 100;
-}
-
-.category-menu > li:hover .sub-menu {
-    display: block;
+    border-radius: 0 0 4px 4px; /* 아래쪽 모서리만 둥글게 */
 }
 
 .sub-menu li a {
@@ -1051,6 +1052,7 @@ body.dark-mode .category-menu > li.active > a {
 body.dark-mode .sub-menu {
     background: #16213e;
     box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    border: 1px solid #34495e;
 }
 
 body.dark-mode .sub-menu li a {
@@ -1172,4 +1174,8 @@ body.dark-mode .theme-toggle-item {
 
 body.dark-mode .theme-toggle-item:hover {
     color: #3498db;
+}
+
+body.dark-mode img {
+     filter: brightness(.8) contrast(1.2);
 }
