@@ -4,7 +4,7 @@
   *.iml
   build/
   out/
-  target/
+  #target/
   *.log
   *.tmp
   node_modules/
