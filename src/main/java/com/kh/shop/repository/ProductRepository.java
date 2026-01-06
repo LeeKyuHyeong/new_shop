@@ -1,6 +1,8 @@
 package com.kh.shop.repository;
 
 import com.kh.shop.entity.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,32 +14,53 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    // 사용중인 상품 전체 조회
     List<Product> findByUseYnOrderByProductOrderAsc(String useYn);
-
-    // 카테고리별 상품 조회
     List<Product> findByCategoryCategoryIdAndUseYnOrderByProductOrderAsc(Integer categoryId, String useYn);
 
-    // 상품 + 카테고리 fetch join
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn ORDER BY p.productOrder ASC")
     List<Product> findAllWithCategory(@Param("useYn") String useYn);
 
-    // 상품 + 이미지 fetch join
     @Query("SELECT DISTINCT p FROM Product p LEFT JOIN FETCH p.images WHERE p.productId = :productId")
     Optional<Product> findByIdWithImages(@Param("productId") Long productId);
 
-    // 상품명 중복 체크
     Optional<Product> findByProductNameAndUseYn(String productName, String useYn);
 
-    // 신상품 조회 (최근 등록순)
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn ORDER BY p.createdDate DESC")
     List<Product> findNewProducts(@Param("useYn") String useYn);
 
-    // 베스트 상품 조회 (productOrder 높은순)
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn ORDER BY p.productOrder DESC")
     List<Product> findBestProducts(@Param("useYn") String useYn);
 
-    // 할인 상품 조회 (할인율 있는 상품)
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND p.productDiscount > 0 ORDER BY p.productDiscount DESC")
     List<Product> findDiscountProducts(@Param("useYn") String useYn);
+
+    // ==================== 페이징 메서드 추가 ====================
+
+    // Admin: 전체 상품 페이징 조회
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn")
+    Page<Product> findAllWithCategoryPaging(@Param("useYn") String useYn, Pageable pageable);
+
+    // Admin: 검색 (상품명)
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND p.productName LIKE %:keyword%")
+    Page<Product> findByProductNameContaining(@Param("useYn") String useYn, @Param("keyword") String keyword, Pageable pageable);
+
+    // Admin: 검색 (카테고리별)
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND p.category.categoryId = :categoryId")
+    Page<Product> findByCategoryIdPaging(@Param("useYn") String useYn, @Param("categoryId") Integer categoryId, Pageable pageable);
+
+    // Admin: 검색 (상품명 + 카테고리)
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND p.productName LIKE %:keyword% AND p.category.categoryId = :categoryId")
+    Page<Product> findByProductNameAndCategoryPaging(@Param("useYn") String useYn, @Param("keyword") String keyword, @Param("categoryId") Integer categoryId, Pageable pageable);
+
+    // Client: 카테고리별 상품 페이징
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND p.category.categoryId = :categoryId")
+    Page<Product> findByCategoryPaging(@Param("useYn") String useYn, @Param("categoryId") Integer categoryId, Pageable pageable);
+
+    // Client: 전체 상품 페이징 (검색 포함)
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND (p.productName LIKE %:keyword% OR p.productDescription LIKE %:keyword%)")
+    Page<Product> findByKeywordPaging(@Param("useYn") String useYn, @Param("keyword") String keyword, Pageable pageable);
+
+    // Client: 전체 상품 페이징
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn")
+    Page<Product> findAllActivePaging(@Param("useYn") String useYn, Pageable pageable);
 }

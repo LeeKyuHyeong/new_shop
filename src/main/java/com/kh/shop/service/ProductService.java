@@ -1,5 +1,7 @@
 package com.kh.shop.service;
 
+import com.kh.shop.common.dto.PageRequestDTO;
+import com.kh.shop.common.dto.PageResponseDTO;
 import com.kh.shop.entity.Category;
 import com.kh.shop.entity.Product;
 import com.kh.shop.entity.ProductImage;
@@ -9,6 +11,8 @@ import com.kh.shop.repository.ProductRepository;
 import com.kh.shop.util.ProfanityFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,24 +44,20 @@ public class ProductService {
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
 
-    // 전체 상품 조회
     @Transactional(readOnly = true)
     public List<Product> getAllProducts() {
         return productRepository.findAllWithCategory("Y");
     }
 
-    // 카테고리별 상품 조회
     public List<Product> getProductsByCategory(Integer categoryId) {
         return productRepository.findByCategoryCategoryIdAndUseYnOrderByProductOrderAsc(categoryId, "Y");
     }
 
-    // 상품 상세 조회 (이미지 포함)
     @Transactional(readOnly = true)
     public Optional<Product> getProductById(Long productId) {
         return productRepository.findByIdWithImages(productId);
     }
 
-    // 신상품 조회 (최신 10개)
     @Transactional(readOnly = true)
     public List<Product> getNewProducts(int limit) {
         return productRepository.findNewProducts("Y").stream()
@@ -65,7 +65,6 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    // 베스트 상품 조회 (상위 10개)
     @Transactional(readOnly = true)
     public List<Product> getBestProducts(int limit) {
         return productRepository.findBestProducts("Y").stream()
@@ -73,7 +72,6 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    // 할인 상품 조회 (상위 10개)
     @Transactional(readOnly = true)
     public List<Product> getDiscountProducts(int limit) {
         return productRepository.findDiscountProducts("Y").stream()
@@ -81,7 +79,6 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    // 관련 상품 조회 (같은 카테고리의 다른 상품)
     @Transactional(readOnly = true)
     public List<Product> getRelatedProducts(Integer categoryId, Long excludeProductId, int limit) {
         return productRepository.findByCategoryCategoryIdAndUseYnOrderByProductOrderAsc(categoryId, "Y")
@@ -91,20 +88,93 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    // 상품 등록
+    // ==================== 페이징 메서드 추가 ====================
+
+    /**
+     * Admin: 상품 목록 페이징 조회
+     */
+    @Transactional(readOnly = true)
+    public PageResponseDTO<Product> getProductListWithPaging(PageRequestDTO pageRequestDTO) {
+        Pageable pageable = pageRequestDTO.getPageable("productOrder");
+
+        String searchType = pageRequestDTO.getSearchType();
+        String searchKeyword = pageRequestDTO.getSearchKeyword();
+        Integer categoryId = pageRequestDTO.getCategoryId();
+
+        Page<Product> result;
+
+        // 검색 조건에 따른 분기
+        if (categoryId != null && searchKeyword != null && !searchKeyword.isEmpty()) {
+            // 카테고리 + 검색어
+            result = productRepository.findByProductNameAndCategoryPaging("Y", searchKeyword, categoryId, pageable);
+        } else if (categoryId != null) {
+            // 카테고리만
+            result = productRepository.findByCategoryIdPaging("Y", categoryId, pageable);
+        } else if (searchKeyword != null && !searchKeyword.isEmpty()) {
+            // 검색어만
+            result = productRepository.findByProductNameContaining("Y", searchKeyword, pageable);
+        } else {
+            // 전체
+            result = productRepository.findAllWithCategoryPaging("Y", pageable);
+        }
+
+        return PageResponseDTO.<Product>withAll()
+                .pageRequestDTO(pageRequestDTO)
+                .result(result)
+                .build();
+    }
+
+    /**
+     * Client: 카테고리별 상품 페이징 조회
+     */
+    @Transactional(readOnly = true)
+    public PageResponseDTO<Product> getProductsByCategoryWithPaging(Integer categoryId, PageRequestDTO pageRequestDTO) {
+        Pageable pageable = pageRequestDTO.getPageable("productOrder");
+
+        Page<Product> result = productRepository.findByCategoryPaging("Y", categoryId, pageable);
+
+        return PageResponseDTO.<Product>withAll()
+                .pageRequestDTO(pageRequestDTO)
+                .result(result)
+                .build();
+    }
+
+    /**
+     * Client: 전체 상품 페이징 조회 (검색 포함)
+     */
+    @Transactional(readOnly = true)
+    public PageResponseDTO<Product> getAllProductsWithPaging(PageRequestDTO pageRequestDTO) {
+        Pageable pageable = pageRequestDTO.getPageable("createdDate");
+
+        String searchKeyword = pageRequestDTO.getSearchKeyword();
+
+        Page<Product> result;
+
+        if (searchKeyword != null && !searchKeyword.isEmpty()) {
+            result = productRepository.findByKeywordPaging("Y", searchKeyword, pageable);
+        } else {
+            result = productRepository.findAllActivePaging("Y", pageable);
+        }
+
+        return PageResponseDTO.<Product>withAll()
+                .pageRequestDTO(pageRequestDTO)
+                .result(result)
+                .build();
+    }
+
+    // ==================== 기존 CRUD 메서드들 유지 ====================
+
     @Transactional
     public Product createProduct(String productName, Integer productPrice, Integer productDiscount,
                                  Integer productStock, String productDescription, Integer productOrder,
                                  Integer categoryId, String color, String size, MultipartFile thumbnail,
                                  List<MultipartFile> detailImages) throws IOException {
-
-        // 상품명 비속어 검사
+        // ... 기존 코드 유지
         if (profanityFilter.containsProfanity(productName)) {
             List<String> detected = profanityFilter.detectProfanities(productName);
             throw new IllegalArgumentException("상품명에 부적절한 표현이 포함되어 있습니다: " + String.join(", ", detected));
         }
 
-        // 상품 설명 비속어 검사
         if (productDescription != null && profanityFilter.containsProfanity(productDescription)) {
             List<String> detected = profanityFilter.detectProfanities(productDescription);
             throw new IllegalArgumentException("상품 설명에 부적절한 표현이 포함되어 있습니다: " + String.join(", ", detected));
@@ -115,7 +185,6 @@ public class ProductService {
             category = categoryRepository.findById(categoryId).orElse(null);
         }
 
-        // 썸네일 저장
         String thumbnailUrl = null;
         if (thumbnail != null && !thumbnail.isEmpty()) {
             thumbnailUrl = saveFile(thumbnail, "thumbnail");
@@ -136,7 +205,6 @@ public class ProductService {
 
         product = productRepository.save(product);
 
-        // 상세 이미지 저장
         if (detailImages != null && !detailImages.isEmpty()) {
             int order = 1;
             for (MultipartFile file : detailImages) {
@@ -155,20 +223,17 @@ public class ProductService {
         return product;
     }
 
-    // 상품 수정
     @Transactional
     public Product updateProduct(Long productId, String productName, Integer productPrice, Integer productDiscount,
                                  Integer productStock, String productDescription, Integer productOrder,
-                                 Integer categoryId, String color, String size, MultipartFile thumbnail, List<MultipartFile> detailImages,
-                                 List<Long> deleteImageIds) throws IOException {
-
-        // 상품명 비속어 검사
+                                 Integer categoryId, String color, String size, MultipartFile thumbnail,
+                                 List<MultipartFile> detailImages, List<Long> deleteImageIds) throws IOException {
+        // ... 기존 코드 유지
         if (profanityFilter.containsProfanity(productName)) {
             List<String> detected = profanityFilter.detectProfanities(productName);
             throw new IllegalArgumentException("상품명에 부적절한 표현이 포함되어 있습니다: " + String.join(", ", detected));
         }
 
-        // 상품 설명 비속어 검사
         if (productDescription != null && profanityFilter.containsProfanity(productDescription)) {
             List<String> detected = profanityFilter.detectProfanities(productDescription);
             throw new IllegalArgumentException("상품 설명에 부적절한 표현이 포함되어 있습니다: " + String.join(", ", detected));
@@ -196,9 +261,7 @@ public class ProductService {
         product.setColor(color);
         product.setSize(size);
 
-        // 썸네일 변경
         if (thumbnail != null && !thumbnail.isEmpty()) {
-            // 기존 썸네일 삭제
             if (product.getThumbnailUrl() != null) {
                 deleteFile(product.getThumbnailUrl());
             }
@@ -206,7 +269,6 @@ public class ProductService {
             product.setThumbnailUrl(thumbnailUrl);
         }
 
-        // 삭제할 이미지 처리
         if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
             for (Long imageId : deleteImageIds) {
                 Optional<ProductImage> imageOpt = productImageRepository.findById(imageId);
@@ -218,9 +280,7 @@ public class ProductService {
             }
         }
 
-        // 새 상세 이미지 추가
         if (detailImages != null && !detailImages.isEmpty()) {
-            // 현재 최대 순서 구하기
             List<ProductImage> existingImages = productImageRepository.findByProductProductIdAndUseYnOrderByImageOrderAsc(productId, "Y");
             int order = existingImages.isEmpty() ? 1 : existingImages.get(existingImages.size() - 1).getImageOrder() + 1;
 
@@ -240,7 +300,6 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    // 상품 삭제 (soft delete)
     @Transactional
     public void deleteProduct(Long productId) {
         Optional<Product> productOpt = productRepository.findById(productId);
@@ -251,12 +310,10 @@ public class ProductService {
         }
     }
 
-    // 상품 이미지 조회
     public List<ProductImage> getProductImages(Long productId) {
         return productImageRepository.findByProductProductIdAndUseYnOrderByImageOrderAsc(productId, "Y");
     }
 
-    // 파일 저장
     private String saveFile(MultipartFile file, String type) throws IOException {
         String originalFilename = file.getOriginalFilename();
         String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
@@ -277,7 +334,6 @@ public class ProductService {
         return "/uploads/" + type + "/" + savedFilename;
     }
 
-    // 파일 삭제
     private void deleteFile(String fileUrl) {
         if (fileUrl != null && fileUrl.startsWith("/uploads/")) {
             String filePath = uploadDir + fileUrl.substring("/uploads".length());
@@ -288,7 +344,6 @@ public class ProductService {
         }
     }
 
-    // 비속어 검증 (외부에서 호출용)
     public Map<String, Object> validateProductContent(String productName, String productDescription) {
         Map<String, Object> result = new HashMap<>();
         boolean hasNameProfanity = profanityFilter.containsProfanity(productName);

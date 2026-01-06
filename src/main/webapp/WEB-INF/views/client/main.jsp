@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KH Shop - <c:choose><c:when test="${not empty selectedCategory}">${selectedCategory.categoryName}</c:when><c:otherwise>메인</c:otherwise></c:choose></title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/main.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/pagination.css">
 </head>
 <body>
     <%@ include file="common/header.jsp" %>
@@ -15,7 +16,7 @@
     <!-- 메인 컨텐츠 -->
     <main class="main-content">
         <c:choose>
-            <%-- 카테고리 페이지 --%>
+            <%-- 카테고리 페이지 (페이징 적용) --%>
             <c:when test="${not empty selectedCategoryId}">
                 <!-- 페이지 헤더 -->
                 <div class="page-header">
@@ -33,12 +34,28 @@
                     </div>
                 </div>
 
+                <%-- 정렬/필터 옵션 --%>
+                <div class="product-toolbar">
+                    <div class="toolbar-info">
+                        <span>총 <strong>${result.totalCount}</strong>개의 상품</span>
+                    </div>
+                    <div class="toolbar-controls">
+                        <select id="sortSelect" class="sort-select" onchange="changeSort(this.value)">
+                            <option value="productOrder,asc" ${pageRequestDTO.sortField eq 'productOrder' && pageRequestDTO.sortDirection eq 'asc' ? 'selected' : ''}>기본순</option>
+                            <option value="createdDate,desc" ${pageRequestDTO.sortField eq 'createdDate' && pageRequestDTO.sortDirection eq 'desc' ? 'selected' : ''}>최신순</option>
+                            <option value="productPrice,asc" ${pageRequestDTO.sortField eq 'productPrice' && pageRequestDTO.sortDirection eq 'asc' ? 'selected' : ''}>낮은가격순</option>
+                            <option value="productPrice,desc" ${pageRequestDTO.sortField eq 'productPrice' && pageRequestDTO.sortDirection eq 'desc' ? 'selected' : ''}>높은가격순</option>
+                            <option value="productName,asc" ${pageRequestDTO.sortField eq 'productName' && pageRequestDTO.sortDirection eq 'asc' ? 'selected' : ''}>이름순</option>
+                        </select>
+                    </div>
+                </div>
+
                 <!-- 상품 목록 -->
                 <section class="product-section">
                     <c:choose>
-                        <c:when test="${not empty products}">
+                        <c:when test="${not empty result.dtoList}">
                             <div class="product-grid">
-                                <c:forEach var="product" items="${products}">
+                                <c:forEach var="product" items="${result.dtoList}">
                                     <div class="product-card" onclick="location.href='${pageContext.request.contextPath}/product/${product.productId}'">
                                         <div class="product-image <c:if test="${empty product.thumbnailUrl}">no-image</c:if>">
                                             <c:choose>
@@ -49,6 +66,12 @@
                                                     이미지 없음
                                                 </c:otherwise>
                                             </c:choose>
+                                            <c:if test="${product.productDiscount > 0}">
+                                                <span class="product-badge sale">${product.productDiscount}%</span>
+                                            </c:if>
+                                            <c:if test="${product.productStock == 0}">
+                                                <span class="product-badge soldout">품절</span>
+                                            </c:if>
                                         </div>
                                         <div class="product-info">
                                             <c:if test="${not empty product.category}">
@@ -65,6 +88,9 @@
                                             <div class="stock-info <c:if test="${product.productStock == 0}">out</c:if>">
                                                 <c:choose>
                                                     <c:when test="${product.productStock == 0}">품절</c:when>
+                                                    <c:when test="${product.productStock < 10}">
+                                                        <span class="stock-low">재고 ${product.productStock}개</span>
+                                                    </c:when>
                                                     <c:otherwise>재고 ${product.productStock}개</c:otherwise>
                                                 </c:choose>
                                             </div>
@@ -72,6 +98,11 @@
                                     </div>
                                 </c:forEach>
                             </div>
+                            
+                            <%-- 페이징 --%>
+                            <jsp:include page="/WEB-INF/views/common/pagination.jsp">
+                                <jsp:param name="theme" value="client"/>
+                            </jsp:include>
                         </c:when>
                         <c:otherwise>
                             <div class="no-products">
@@ -82,7 +113,7 @@
                 </section>
             </c:when>
 
-            <%-- 메인 페이지 --%>
+            <%-- 메인 페이지 (기존 유지) --%>
             <c:otherwise>
                 <!-- 슬라이드 영역 -->
                 <c:choose>
@@ -308,10 +339,11 @@
     </c:if>
 
     <script>
-        const popupDuration = ${popupDuration};
+        const popupDuration = ${empty popupDuration ? 0 : popupDuration};
     </script>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/popup.css">
     <script src="${pageContext.request.contextPath}/js/client/popup.js"></script>
+    <script src="${pageContext.request.contextPath}/js/common/pagination.js"></script>
     <script src="${pageContext.request.contextPath}/js/client/main.js"></script>
 </body>
 </html>

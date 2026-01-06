@@ -1,5 +1,7 @@
 package com.kh.shop.controller.admin;
 
+import com.kh.shop.common.dto.PageRequestDTO;
+import com.kh.shop.common.dto.PageResponseDTO;
 import com.kh.shop.entity.Category;
 import com.kh.shop.entity.Product;
 import com.kh.shop.entity.Slide;
@@ -54,14 +56,28 @@ public class AdminController {
     }
 
     @GetMapping("/category")
-    public String categoryList(HttpSession session, Model model) {
+    public String categoryList(HttpSession session, PageRequestDTO pageRequestDTO, Model model) {
         if (!isAdmin(session)) {
             return "redirect:/login";
         }
 
-        // 계층형 카테고리 조회
+        // 기본값 설정 추가
+        if (pageRequestDTO.getSize() == 0) {
+            pageRequestDTO.setSize(10);
+        }
+        if (pageRequestDTO.getPage() == 0) {
+            pageRequestDTO.setPage(1);
+        }
+
+        // 페이징된 카테고리 목록 조회
+        PageResponseDTO<Category> result = categoryService.getListWithPaging(pageRequestDTO);
+        model.addAttribute("result", result);
+        model.addAttribute("pageRequestDTO", pageRequestDTO);
+
+        // 필터용 계층형 카테고리 (드롭다운용)
         List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
         model.addAttribute("parentCategories", parentCategories);
+
         return "admin/category/list";
     }
 
@@ -96,13 +112,27 @@ public class AdminController {
     // ==================== 상품 관리 ====================
 
     @GetMapping("/product")
-    public String productList(HttpSession session, Model model) {
+    public String productList(com.kh.shop.common.dto.PageRequestDTO pageRequestDTO, HttpSession session, Model model) {
         if (!isAdmin(session)) {
             return "redirect:/login";
         }
 
-        List<Product> products = productService.getAllProducts();
-        model.addAttribute("products", products);
+        // 기본값 설정
+        if (pageRequestDTO.getSize() == 0) {
+            pageRequestDTO.setSize(10);
+        }
+        if (pageRequestDTO.getPage() == 0) {
+            pageRequestDTO.setPage(1);
+        }
+
+        PageResponseDTO<Product> result = productService.getProductListWithPaging(pageRequestDTO);
+        model.addAttribute("result", result);
+        model.addAttribute("pageRequestDTO", pageRequestDTO);
+
+        // 카테고리 목록 (필터용)
+        List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
+        model.addAttribute("parentCategories", parentCategories);
+
         return "admin/product/list";
     }
 

@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<c:set var="activeMenu" value="category"/>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -34,20 +35,29 @@
 
                         <div class="filter-row">
                             <div class="filter-group">
-                                <label for="categoryId">카테고리</label>
+                                <label for="categoryId">카테고리 필터</label>
                                 <select id="categoryId" name="categoryId" class="form-select">
                                     <option value="">전체</option>
                                     <c:forEach var="parent" items="${parentCategories}">
-                                        <optgroup label="${parent.categoryName}">
-                                            <c:forEach var="child" items="${parent.children}">
-                                                <option value="${child.categoryId}"
-                                                        ${pageRequestDTO.categoryId eq child.categoryId ? 'selected' : ''}>
-                                                    ${child.categoryName}
-                                                </option>
-                                            </c:forEach>
-                                        </optgroup>
+                                        <option value="${parent.categoryId}"
+                                                ${pageRequestDTO.categoryId eq parent.categoryId ? 'selected' : ''}>
+                                            📁 ${parent.categoryName}
+                                        </option>
+                                        <c:forEach var="child" items="${parent.children}">
+                                            <option value="${child.categoryId}"
+                                                    ${pageRequestDTO.categoryId eq child.categoryId ? 'selected' : ''}>
+                                                &nbsp;&nbsp;&nbsp;└ ${child.categoryName}
+                                            </option>
+                                        </c:forEach>
                                     </c:forEach>
                                 </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="searchKeyword">카테고리명 검색</label>
+                                <input type="text" id="searchKeyword" name="searchKeyword" 
+                                       class="form-input" placeholder="카테고리명 입력"
+                                       value="${pageRequestDTO.searchKeyword}">
                             </div>
 
                             <div class="filter-actions">
@@ -79,6 +89,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>카테고리명</th>
+                                <th>상위 카테고리</th>
                                 <th>설명</th>
                                 <th>순서</th>
                                 <th>작성일</th>
@@ -86,51 +97,52 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="parent" items="${result.dtoList}">
-                                <%-- 상위 카테고리 행 --%>
-                                <tr class="parent-row" data-category-id="${parent.categoryId}">
-                                    <td>${parent.categoryId}</td>
+                            <c:if test="${empty result.dtoList}">
+                                <tr>
+                                    <td colspan="7" class="empty-message">등록된 카테고리가 없습니다.</td>
+                                </tr>
+                            </c:if>
+                            <c:forEach var="category" items="${result.dtoList}">
+                                <tr class="${empty category.parent ? 'parent-row' : 'child-row'}" data-category-id="${category.categoryId}">
+                                    <td>${category.categoryId}</td>
                                     <td class="category-name">
-                                        <span class="parent-icon">📁</span>
-                                        <strong>${parent.categoryName}</strong>
-                                        <c:if test="${not empty parent.children}">
-                                            <span class="child-count">(${parent.children.size()})</span>
-                                        </c:if>
+                                        <c:choose>
+                                            <c:when test="${empty category.parent}">
+                                                <span class="parent-icon">📁</span>
+                                                <strong>${category.categoryName}</strong>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="child-indent">└</span>
+                                                ${category.categoryName}
+                                            </c:otherwise>
+                                        </c:choose>
                                     </td>
-                                    <td>${parent.categoryDescription}</td>
-                                    <td>${parent.categoryOrder}</td>
-                                    <td>"${parent.createdDate}"</td>
                                     <td>
-                                        <a href="${pageContext.request.contextPath}/admin/category/edit/${parent.categoryId}" class="btn btn-small btn-info">수정</a>
-                                        <button class="btn btn-small btn-danger" onclick="deleteCategory(${parent.categoryId})">삭제</button>
+                                        <c:choose>
+                                            <c:when test="${not empty category.parent}">
+                                                <span class="parent-badge">${category.parent.categoryName}</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="root-badge">최상위</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>${category.categoryDescription}</td>
+                                    <td>${category.categoryOrder}</td>
+                                    <td>
+                                        <fmt:parseDate value="${category.createdDate}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" type="both"/>
+                                        <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm"/>
+                                    </td>
+                                    <td>
+                                        <a href="${pageContext.request.contextPath}/admin/category/edit/${category.categoryId}" class="btn btn-small btn-info">수정</a>
+                                        <button class="btn btn-small btn-danger" onclick="deleteCategory(${category.categoryId})">삭제</button>
                                     </td>
                                 </tr>
-                                <%-- 하위 카테고리 행 --%>
-                                <c:forEach var="child" items="${parent.children}">
-                                    <c:if test="${child.useYn eq 'Y'}">
-                                        <tr class="child-row" data-category-id="${child.categoryId}" data-parent-id="${parent.categoryId}">
-                                            <td>${child.categoryId}</td>
-                                            <td class="category-name child-category">
-                                                <span class="child-indent">└</span>
-                                                ${child.categoryName}
-                                            </td>
-                                            <td>${child.categoryDescription}</td>
-                                            <td>${child.categoryOrder}</td>
-                                            <td>"${child.createdDate}"</td>
-                                            <td>
-                                                <a href="${pageContext.request.contextPath}/admin/category/edit/${child.categoryId}" class="btn btn-small btn-info">수정</a>
-                                                <button class="btn btn-small btn-danger" onclick="deleteCategory(${child.categoryId})">삭제</button>
-                                            </td>
-                                        </tr>
-                                    </c:if>
-                                </c:forEach>
                             </c:forEach>
                         </tbody>
                     </table>
-                    <c:if test="${empty parentCategories}">
-                        <div class="empty-message">등록된 카테고리가 없습니다.</div>
-                    </c:if>
                 </div>
+                
                 <%-- 페이징 --%>
                 <jsp:include page="/WEB-INF/views/common/pagination.jsp">
                     <jsp:param name="theme" value="admin"/>

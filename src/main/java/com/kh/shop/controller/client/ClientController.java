@@ -1,5 +1,7 @@
 package com.kh.shop.controller.client;
 
+import com.kh.shop.common.dto.PageRequestDTO;
+import com.kh.shop.common.dto.PageResponseDTO;
 import com.kh.shop.entity.Category;
 import com.kh.shop.entity.Popup;
 import com.kh.shop.entity.Product;
@@ -73,9 +75,11 @@ public class ClientController {
         return "client/main";
     }
 
-    // 카테고리별 상품 목록
+    // 카테고리별 상품 목록 (페이징 추가)
     @GetMapping("/category/{categoryId}")
-    public String categoryPage(@PathVariable Long categoryId, Model model) {
+    public String categoryPage(@PathVariable Long categoryId,
+                               PageRequestDTO pageRequestDTO,
+                               Model model) {
         // 선택된 카테고리 정보
         Optional<Category> categoryOpt = categoryService.getCategoryById(categoryId.intValue());
         if (categoryOpt.isEmpty()) {
@@ -102,9 +106,20 @@ public class ClientController {
             model.addAttribute("selectedParentId", selectedCategory.getParent().getCategoryId());
         }
 
-        // 해당 카테고리의 상품 목록 조회
-        List<Product> products = productService.getProductsByCategory(categoryId.intValue());
-        model.addAttribute("products", products);
+        // 기본값 설정
+        if (pageRequestDTO.getSize() == 0) {
+            pageRequestDTO.setSize(12);
+        }
+        if (pageRequestDTO.getPage() == 0) {
+            pageRequestDTO.setPage(1);
+        }
+
+        // 해당 카테고리의 상품 목록 페이징 조회
+        pageRequestDTO.setCategoryId(categoryId.intValue());
+        PageResponseDTO<Product> result = productService.getProductsByCategoryWithPaging(
+                categoryId.intValue(), pageRequestDTO);
+        model.addAttribute("result", result);
+        model.addAttribute("pageRequestDTO", pageRequestDTO);
 
         return "client/main";
     }

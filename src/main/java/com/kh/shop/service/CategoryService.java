@@ -1,8 +1,12 @@
 package com.kh.shop.service;
 
+import com.kh.shop.common.dto.PageRequestDTO;
+import com.kh.shop.common.dto.PageResponseDTO;
 import com.kh.shop.entity.Category;
 import com.kh.shop.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,7 +69,6 @@ public class CategoryService {
             category.setCategoryDescription(categoryDescription);
             category.setCategoryOrder(categoryOrder != null ? categoryOrder : 0);
 
-            // 상위 카테고리 변경
             if (parentId != null) {
                 Category parent = categoryRepository.findById(parentId).orElse(null);
                 category.setParent(parent);
@@ -85,7 +88,6 @@ public class CategoryService {
             Category category = categoryOpt.get();
             category.setUseYn("N");
 
-            // 하위 카테고리도 함께 삭제 처리
             List<Category> children = categoryRepository.findByParentCategoryIdAndUseYnOrderByCategoryOrder(categoryId, "Y");
             for (Category child : children) {
                 child.setUseYn("N");
@@ -96,13 +98,41 @@ public class CategoryService {
         }
     }
 
-    // 중복 체크 (같은 상위 카테고리 내에서)
     public boolean isDuplicateCategoryName(String categoryName, Integer parentId) {
         return categoryRepository.findByCategoryNameAndParentId(categoryName, parentId).isPresent();
     }
 
-    // 기존 호환용
     public boolean isDuplicateCategoryName(String categoryName) {
         return categoryRepository.findByCategoryName(categoryName).isPresent();
+    }
+
+    /**
+     * 카테고리 목록 페이징 조회 (수정됨)
+     */
+    @Transactional(readOnly = true)
+    public PageResponseDTO<Category> getListWithPaging(PageRequestDTO pageRequestDTO) {
+        Pageable pageable = pageRequestDTO.getPageable("categoryOrder");
+
+        String searchKeyword = pageRequestDTO.getSearchKeyword();
+        Integer categoryId = pageRequestDTO.getCategoryId();
+
+        Page<Category> result;
+
+        // 조건 분기 수정
+        if (categoryId != null) {
+            // 특정 카테고리만 조회
+            result = categoryRepository.findByCategoryIdPaging("Y", categoryId, pageable);
+        } else if (searchKeyword != null && !searchKeyword.isEmpty()) {
+            // 카테고리명 검색
+            result = categoryRepository.findByCategoryNameContaining("Y", searchKeyword, pageable);
+        } else {
+            // 전체 조회
+            result = categoryRepository.findAllWithCategoryPaging("Y", pageable);
+        }
+
+        return PageResponseDTO.<Category>withAll()
+                .pageRequestDTO(pageRequestDTO)
+                .result(result)
+                .build();
     }
 }
