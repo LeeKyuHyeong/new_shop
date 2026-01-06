@@ -5,6 +5,11 @@ WORKDIR /app
 # 업로드 디렉토리 생성
 RUN mkdir -p /app/uploads
 
+RUN apk add --no-local-tzdata && \
+    cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
+    echo "Asia/Seoul" > /etc/timezone && \
+    apk del tzdata \
+
 # GitHub Actions에서 빌드된 WAR 파일을 복사
 # (target 폴더 아래의 war 파일을 app.war로 복사)
 COPY target/*.war app.war
