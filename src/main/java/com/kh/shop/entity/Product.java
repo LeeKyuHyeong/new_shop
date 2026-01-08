@@ -52,6 +52,12 @@ public class Product {
     @Column(name = "product_order")
     private Integer productOrder;
 
+    @Column(name = "sales_count")
+    private Integer salesCount;
+
+    @Column(name = "best_rank")
+    private Integer bestRank;
+
     @Column(name = "use_yn", length = 1)
     private String useYn;
 
@@ -78,6 +84,9 @@ public class Product {
         }
         if (this.productStock == null) {
             this.productStock = 0;
+        }
+        if (this.salesCount == null) {
+            this.salesCount = 0;
         }
     }
 

@@ -28,7 +28,7 @@ public class AdminBatchApiController {
      */
     @PostMapping("/{batchId}/execute")
     public ResponseEntity<Map<String, Object>> executeBatch(@PathVariable String batchId) {
-        Map<String, Object> result = batchService.executeBatch(batchId);
+        Map<String, Object> result = batchService.executeBatch(batchId, "MANUAL");
         return ResponseEntity.ok(result);
     }
 }

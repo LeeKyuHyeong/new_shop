@@ -21,7 +21,10 @@ public class BatchService {
     private final OrderStatusBatchScheduler orderStatusBatchScheduler;
     private final OrderCreateBatchScheduler orderCreateBatchScheduler;
     private final UserSignupBatchScheduler userSignupBatchScheduler;
-    private final CartCleanupBatchScheduler cartCleanupBatchScheduler;  // 추가
+    private final CartCleanupBatchScheduler cartCleanupBatchScheduler;
+    private final OrderCancelBatchScheduler orderCancelBatchScheduler;
+    private final BestProductBatchScheduler bestProductBatchScheduler;
+    private final DormantUserBatchScheduler dormantUserBatchScheduler;
 
     // 배치 정보 맵
     private static final Map<String, BatchInfo> BATCH_INFO_MAP = new LinkedHashMap<>();
@@ -43,6 +46,36 @@ public class BatchService {
                 "BEST_PRODUCT_UPDATE", "베스트 상품 갱신", "매일 00:00", "주문량 기반 베스트 상품 순위 갱신"));
         BATCH_INFO_MAP.put("DORMANT_USER", new BatchInfo(
                 "DORMANT_USER", "휴면 계정 처리", "매일 02:00", "1년 이상 미접속 계정 휴면 전환"));
+        // 미구현 추천 배치
+        BATCH_INFO_MAP.put("LOW_STOCK_ALERT", new BatchInfo(
+                "LOW_STOCK_ALERT", "재고 부족 알림", "매일 09:00", "재고 10개 이하 상품 관리자 알림"));
+        BATCH_INFO_MAP.put("REVIEW_REQUEST", new BatchInfo(
+                "REVIEW_REQUEST", "리뷰 작성 요청", "매일 10:00", "배송완료 7일 후 리뷰 작성 요청"));
+        BATCH_INFO_MAP.put("EXPIRED_COUPON", new BatchInfo(
+                "EXPIRED_COUPON", "쿠폰 만료 처리", "매일 00:30", "만료된 쿠폰 비활성화 처리"));
+        BATCH_INFO_MAP.put("STATS_AGGREGATE", new BatchInfo(
+                "STATS_AGGREGATE", "통계 데이터 집계", "매일 01:00", "일별/월별 매출, 방문자 통계 집계"));
+        BATCH_INFO_MAP.put("TEMP_FILE_CLEANUP", new BatchInfo(
+                "TEMP_FILE_CLEANUP", "임시 파일 정리", "매일 04:00", "7일 이상 된 임시 업로드 파일 삭제"));
+        BATCH_INFO_MAP.put("WISHLIST_PRICE_ALERT", new BatchInfo(
+                "WISHLIST_PRICE_ALERT", "위시리스트 가격 알림", "매일 08:00", "찜한 상품 할인 시작 시 알림"));
+        BATCH_INFO_MAP.put("POINT_EXPIRY", new BatchInfo(
+                "POINT_EXPIRY", "포인트 만료 처리", "매일 00:00", "유효기간 지난 적립금 소멸"));
+        BATCH_INFO_MAP.put("SEARCH_KEYWORD_AGGREGATE", new BatchInfo(
+                "SEARCH_KEYWORD_AGGREGATE", "인기 검색어 집계", "매시 00분", "실시간 인기 검색어 순위 갱신"));
+        // 추가 추천 배치
+        BATCH_INFO_MAP.put("RESTOCK_ALERT", new BatchInfo(
+                "RESTOCK_ALERT", "재입고 알림", "매시 10분", "품절 상품 재입고 시 알림 발송"));
+        BATCH_INFO_MAP.put("PRODUCT_VIEW_STATS", new BatchInfo(
+                "PRODUCT_VIEW_STATS", "상품 조회수 집계", "매일 01:30", "일별 상품 조회수 통계 집계"));
+        BATCH_INFO_MAP.put("COUPON_EXPIRY_ALERT", new BatchInfo(
+                "COUPON_EXPIRY_ALERT", "쿠폰 만료 예정 알림", "매일 09:00", "3일 내 만료 예정 쿠폰 알림"));
+        BATCH_INFO_MAP.put("SESSION_CLEANUP", new BatchInfo(
+                "SESSION_CLEANUP", "세션 정리", "매시 00분", "만료된 세션 데이터 정리"));
+        BATCH_INFO_MAP.put("LOG_ARCHIVE", new BatchInfo(
+                "LOG_ARCHIVE", "로그 아카이브", "매주 일요일 03:00", "30일 이상 된 로그 아카이브 처리"));
+        BATCH_INFO_MAP.put("BACKUP_DATABASE", new BatchInfo(
+                "BACKUP_DATABASE", "데이터베이스 백업", "매일 05:00", "DB 자동 백업 및 오래된 백업 정리"));
     }
 
     /**
@@ -83,7 +116,7 @@ public class BatchService {
      * 배치 수동 실행
      */
     @Transactional
-    public Map<String, Object> executeBatch(String batchId) {
+    public Map<String, Object> executeBatch(String batchId, String triggeredBy) {
         Map<String, Object> result = new HashMap<>();
 
         if (!BATCH_INFO_MAP.containsKey(batchId)) {
@@ -99,7 +132,7 @@ public class BatchService {
                 .batchId(batchId)
                 .batchName(info.batchName)
                 .status("RUNNING")
-                .triggeredBy("MANUAL")
+                .triggeredBy(triggeredBy != null ? triggeredBy : "MANUAL")
                 .startedAt(LocalDateTime.now())
                 .build();
         batchLogRepository.save(logEntry);
@@ -164,16 +197,16 @@ public class BatchService {
                 return deletedCount + "개의 방치된 장바구니가 정리되었습니다.";
 
             case "ORDER_CANCEL":
-                // TODO: 미결제 주문 취소 배치 구현 필요
-                return "미결제 주문 취소가 완료되었습니다. (미구현)";
+                int cancelledCount = orderCancelBatchScheduler.cancelUnpaidOrdersManual();
+                return cancelledCount + "개의 미결제 주문이 취소되었습니다.";
 
             case "BEST_PRODUCT_UPDATE":
-                // TODO: 베스트 상품 갱신 배치 구현 필요
-                return "베스트 상품 순위가 갱신되었습니다. (미구현)";
+                int bestCount = bestProductBatchScheduler.updateBestProductsManual();
+                return "베스트 상품 " + bestCount + "개가 갱신되었습니다.";
 
             case "DORMANT_USER":
-                // TODO: 휴면 계정 처리 배치 구현 필요
-                return "휴면 계정 처리가 완료되었습니다. (미구현)";
+                int dormantCount = dormantUserBatchScheduler.processDormantUsersManual();
+                return dormantCount + "개의 계정이 휴면 전환되었습니다.";
 
             default:
                 throw new IllegalArgumentException("알 수 없는 배치: " + batchId);

@@ -4,6 +4,7 @@ import com.kh.shop.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -63,4 +64,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // Client: 전체 상품 페이징
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn")
     Page<Product> findAllActivePaging(@Param("useYn") String useYn, Pageable pageable);
+
+    // 베스트 상품 조회 (bestRank 기준)
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND p.bestRank IS NOT NULL ORDER BY p.bestRank ASC")
+    List<Product> findBestRankedProducts(@Param("useYn") String useYn);
+
+    // 베스트 순위 초기화
+    @Modifying
+    @Query("UPDATE Product p SET p.bestRank = NULL WHERE p.useYn = 'Y'")
+    int clearAllBestRank();
 }

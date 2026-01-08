@@ -42,6 +42,12 @@ public class User {
     @Column(name = "use_yn", length = 1)
     private String useYn;
 
+    @Column(name = "user_status", length = 20)
+    private String userStatus;  // ACTIVE, DORMANT, SUSPENDED
+
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
@@ -54,6 +60,8 @@ public class User {
         this.updatedDate = LocalDateTime.now();
         this.userRole = "USER";
         this.useYn = "Y";
+        this.userStatus = "ACTIVE";
+        this.lastLoginAt = LocalDateTime.now();
     }
 
     @PreUpdate
