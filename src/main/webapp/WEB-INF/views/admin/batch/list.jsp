@@ -23,7 +23,7 @@
             <h2 class="section-title">🟢 활성 배치</h2>
             <div class="batch-grid">
                 <c:forEach var="batch" items="${batches}">
-                    <c:if test="${batch.batchId eq 'PRODUCT_CREATE' or batch.batchId eq 'ORDER_STATUS_UPDATE' or batch.batchId eq 'ORDER_CREATE' or batch.batchId eq 'USER_SIGNUP'}">
+                    <c:if test="${batch.batchId eq 'PRODUCT_CREATE' or batch.batchId eq 'ORDER_STATUS_UPDATE' or batch.batchId eq 'ORDER_CREATE' or batch.batchId eq 'USER_SIGNUP' or batch.batchId eq 'CART_CLEANUP'}">
                         <div class="batch-card" data-batch-id="${batch.batchId}">
                             <div class="batch-header">
                                 <h3 class="batch-name">${batch.batchName}</h3>
@@ -88,7 +88,7 @@
             <h2 class="section-title">⚪ 추천 배치</h2>
             <div class="batch-grid">
                 <c:forEach var="batch" items="${batches}">
-                    <c:if test="${batch.batchId eq 'CART_CLEANUP' or batch.batchId eq 'ORDER_CANCEL' or batch.batchId eq 'BEST_PRODUCT_UPDATE' or batch.batchId eq 'DORMANT_USER'}">
+                    <c:if test="${batch.batchId eq 'ORDER_CANCEL' or batch.batchId eq 'BEST_PRODUCT_UPDATE' or batch.batchId eq 'DORMANT_USER'}">
                         <div class="batch-card disabled" data-batch-id="${batch.batchId}">
                             <div class="batch-header">
                                 <h3 class="batch-name">${batch.batchName}</h3>

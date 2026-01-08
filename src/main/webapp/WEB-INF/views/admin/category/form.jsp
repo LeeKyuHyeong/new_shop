@@ -72,6 +72,7 @@
                             </button>
                             <a href="${pageContext.request.contextPath}/admin/category" class="btn btn-secondary">취소</a>
                         </div>
+
                     </form>
                 </div>
             </div>

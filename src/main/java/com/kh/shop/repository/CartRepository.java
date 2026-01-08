@@ -4,6 +4,7 @@ import com.kh.shop.entity.Cart;
 import com.kh.shop.entity.Product;
 import com.kh.shop.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -38,4 +39,15 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
     @Query("SELECT c FROM Cart c WHERE c.updatedDate < :cutoffDate AND c.useYn = :useYn")
     List<Cart> findOldCarts(@Param("cutoffDate") LocalDateTime cutoffDate, @Param("useYn") String useYn);
+
+    // 7일 이상 방치된 장바구니 조회
+    List<Cart> findByUpdatedDateBefore(LocalDateTime date);
+
+    // 또는 createdDate 기준으로 하려면
+    List<Cart> findByCreatedDateBefore(LocalDateTime date);
+
+    // 삭제용 (벌크 삭제가 더 효율적)
+    @Modifying
+    @Query("DELETE FROM Cart c WHERE c.updatedDate < :date")
+    int deleteByUpdatedDateBefore(@Param("date") LocalDateTime date);
 }
