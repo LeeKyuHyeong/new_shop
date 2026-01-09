@@ -2,10 +2,12 @@ package com.kh.shop.repository;
 
 import com.kh.shop.entity.BatchLog;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,4 +29,13 @@ public interface BatchLogRepository extends JpaRepository<BatchLog, Long> {
 
     // 특정 배치가 현재 실행 중인지 확인
     boolean existsByBatchIdAndStatus(String batchId, String status);
+
+    // 오래된 로그 삭제 (아카이브)
+    @Modifying
+    @Query("DELETE FROM BatchLog b WHERE b.startedAt < :cutoffDate")
+    int deleteByStartedAtBefore(@Param("cutoffDate") LocalDateTime cutoffDate);
+
+    // 오래된 로그 개수 조회
+    @Query("SELECT COUNT(b) FROM BatchLog b WHERE b.startedAt < :cutoffDate")
+    int countByStartedAtBefore(@Param("cutoffDate") LocalDateTime cutoffDate);
 }

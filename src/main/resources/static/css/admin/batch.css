@@ -275,6 +275,15 @@
     color: #155724;
 }
 
+.priority.implemented {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.recommend-table tr.implemented {
+    background: rgba(74, 144, 217, 0.05);
+}
+
 [data-theme="dark"] .priority.high {
     background: #4a1a1a;
     color: #f5a5a5;
@@ -290,6 +299,15 @@
     color: #a3d9a5;
 }
 
+[data-theme="dark"] .priority.implemented {
+    background: #1a3a5c;
+    color: #a5d4f5;
+}
+
+[data-theme="dark"] .recommend-table tr.implemented {
+    background: rgba(74, 144, 217, 0.1);
+}
+
 /* 반응형 */
 @media (max-width: 768px) {
     .batch-grid {
@@ -298,5 +316,185 @@
 
     .info-value {
         max-width: 50%;
+    }
+}
+
+/* 섹션 설명 */
+.section-desc {
+    color: var(--text-secondary, #6c757d);
+    font-size: 0.9rem;
+    margin-top: -15px;
+    margin-bottom: 20px;
+}
+
+/* AI 배치 카드 특별 스타일 */
+.batch-card.batch-ai {
+    border: 2px solid #a855f7;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.05), transparent);
+}
+
+[data-theme="dark"] .batch-card.batch-ai {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), transparent);
+}
+
+/* 카테고리 행 */
+.category-row {
+    background: var(--bg-secondary, #f8f9fa) !important;
+    font-weight: 600;
+}
+
+.category-row td {
+    padding: 10px 16px !important;
+    font-size: 1rem;
+}
+
+[data-theme="dark"] .category-row {
+    background: #2d2d2d !important;
+}
+
+/* 배치 분류 배지 */
+.badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-demo {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.badge-cleanup {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-stats {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-alert {
+    background: #fce7f3;
+    color: #9d174d;
+}
+
+.badge-ai {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+[data-theme="dark"] .badge-demo {
+    background: #312e81;
+    color: #c7d2fe;
+}
+
+[data-theme="dark"] .badge-cleanup {
+    background: #78350f;
+    color: #fde68a;
+}
+
+[data-theme="dark"] .badge-stats {
+    background: #1e3a5f;
+    color: #93c5fd;
+}
+
+[data-theme="dark"] .badge-alert {
+    background: #831843;
+    color: #fbcfe8;
+}
+
+[data-theme="dark"] .badge-ai {
+    background: #4c1d95;
+    color: #ddd6fe;
+}
+
+/* 사용량 표시 박스 */
+.usage-status-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-bg, #fff);
+    border: 2px solid #a855f7;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+.usage-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.usage-label {
+    font-weight: 600;
+    color: var(--text-primary, #333);
+}
+
+.usage-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.usage-count {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #7c3aed;
+}
+
+.usage-remaining {
+    color: var(--text-secondary, #6c757d);
+    font-size: 0.9rem;
+}
+
+#image-usage-info.usage-warning .usage-count {
+    color: #dc2626;
+}
+
+#image-usage-info.usage-warning .usage-remaining {
+    color: #dc2626;
+}
+
+.btn-warning {
+    background: #f59e0b;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-warning:hover {
+    background: #d97706;
+}
+
+.btn-reset {
+    font-size: 0.9rem;
+}
+
+[data-theme="dark"] .usage-status-box {
+    background: #1f1f1f;
+}
+
+[data-theme="dark"] .usage-count {
+    color: #a78bfa;
+}
+
+[data-theme="dark"] #image-usage-info.usage-warning .usage-count,
+[data-theme="dark"] #image-usage-info.usage-warning .usage-remaining {
+    color: #f87171;
+}
+
+@media (max-width: 768px) {
+    .usage-status-box {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
     }
 }

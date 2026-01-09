@@ -36,4 +36,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "AND o.createdDate >= :startDate AND o.useYn = 'Y' " +
             "GROUP BY oi.product.productId ORDER BY totalQty DESC")
     List<Object[]> findProductSalesCount(@Param("startDate") LocalDateTime startDate);
+
+    // 배송완료 후 N일 경과한 주문 조회 (리뷰 요청용)
+    @Query("SELECT o FROM Order o WHERE o.orderStatus = 'DELIVERED' AND o.deliveredAt <= :cutoffDate AND o.useYn = 'Y'")
+    List<Order> findDeliveredOrdersForReview(@Param("cutoffDate") LocalDateTime cutoffDate);
 }

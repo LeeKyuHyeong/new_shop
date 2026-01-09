@@ -40,6 +40,11 @@ function executeBatch(batchId) {
             }
 
             alert('배치가 성공적으로 실행되었습니다.\n\n' + data.message);
+
+            // 이미지 생성 배치인 경우 사용량 갱신
+            if (batchId === 'PRODUCT_IMAGE_GENERATE') {
+                loadImageUsageStatus();
+            }
         } else {
             statusBadge.className = 'batch-status status-failed';
             statusBadge.textContent = '실패';
@@ -57,6 +62,61 @@ function executeBatch(batchId) {
         button.innerHTML = '▶ 수동 실행';
     });
 }
+
+// 이미지 생성 사용량 조회
+function loadImageUsageStatus() {
+    fetch(`${window.contextPath}/api/admin/batch/image-usage`)
+        .then(response => response.json())
+        .then(data => {
+            const usageElement = document.getElementById('image-usage-info');
+            if (usageElement) {
+                usageElement.innerHTML = `
+                    <span class="usage-count">${data.dailyUsed} / ${data.dailyLimit}</span>
+                    <span class="usage-remaining">(남은 할당량: ${data.remainingQuota}장)</span>
+                `;
+
+                // 한도 도달 시 경고 스타일
+                if (data.remainingQuota <= 0) {
+                    usageElement.classList.add('usage-warning');
+                } else {
+                    usageElement.classList.remove('usage-warning');
+                }
+            }
+        })
+        .catch(error => console.error('Error loading image usage:', error));
+}
+
+// 이미지 생성 카운터 리셋
+function resetImageUsageCounter() {
+    if (!confirm('이미지 생성 일일 카운터를 리셋하시겠습니까?\n\n이 기능은 API 호출이 실패했을 때만 사용하세요.')) {
+        return;
+    }
+
+    fetch(`${window.contextPath}/api/admin/batch/image-usage/reset`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            loadImageUsageStatus();
+        } else {
+            alert('리셋 실패: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('카운터 리셋 중 오류가 발생했습니다.');
+    });
+}
+
+// 페이지 로드 시 이미지 사용량 조회
+document.addEventListener('DOMContentLoaded', function() {
+    loadImageUsageStatus();
+});
 
 // 주기적으로 상태 갱신 (30초마다)
 setInterval(() => {
@@ -84,4 +144,7 @@ setInterval(() => {
             });
         })
         .catch(error => console.error('Status update error:', error));
+
+    // 이미지 사용량도 갱신
+    loadImageUsageStatus();
 }, 30000);

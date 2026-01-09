@@ -17,6 +17,8 @@ import java.util.*;
 public class BatchService {
 
     private final BatchLogRepository batchLogRepository;
+
+    // 기존 스케줄러
     private final ProductBatchScheduler productBatchScheduler;
     private final OrderStatusBatchScheduler orderStatusBatchScheduler;
     private final OrderCreateBatchScheduler orderCreateBatchScheduler;
@@ -26,10 +28,28 @@ public class BatchService {
     private final BestProductBatchScheduler bestProductBatchScheduler;
     private final DormantUserBatchScheduler dormantUserBatchScheduler;
 
+    // 신규 스케줄러
+    private final LowStockAlertBatchScheduler lowStockAlertBatchScheduler;
+    private final ReviewRequestBatchScheduler reviewRequestBatchScheduler;
+    private final TempFileCleanupBatchScheduler tempFileCleanupBatchScheduler;
+    private final WishlistPriceAlertBatchScheduler wishlistPriceAlertBatchScheduler;
+    private final RestockAlertBatchScheduler restockAlertBatchScheduler;
+    private final StatsAggregateBatchScheduler statsAggregateBatchScheduler;
+    private final LogArchiveBatchScheduler logArchiveBatchScheduler;
+    private final SessionCleanupBatchScheduler sessionCleanupBatchScheduler;
+    private final BackupDatabaseBatchScheduler backupDatabaseBatchScheduler;
+    private final ExpiredCouponBatchScheduler expiredCouponBatchScheduler;
+    private final PointExpiryBatchScheduler pointExpiryBatchScheduler;
+    private final CouponExpiryAlertBatchScheduler couponExpiryAlertBatchScheduler;
+    private final SearchKeywordAggregateBatchScheduler searchKeywordAggregateBatchScheduler;
+    private final ProductViewStatsBatchScheduler productViewStatsBatchScheduler;
+    private final ProductImageBatchScheduler productImageBatchScheduler;
+
     // 배치 정보 맵
     private static final Map<String, BatchInfo> BATCH_INFO_MAP = new LinkedHashMap<>();
 
     static {
+        // 기존 구현 배치
         BATCH_INFO_MAP.put("PRODUCT_CREATE", new BatchInfo(
                 "PRODUCT_CREATE", "랜덤 상품 등록", "매시 10분", "카테고리에 맞는 랜덤 상품 1개 등록"));
         BATCH_INFO_MAP.put("ORDER_STATUS_UPDATE", new BatchInfo(
@@ -46,7 +66,8 @@ public class BatchService {
                 "BEST_PRODUCT_UPDATE", "베스트 상품 갱신", "매일 00:00", "주문량 기반 베스트 상품 순위 갱신"));
         BATCH_INFO_MAP.put("DORMANT_USER", new BatchInfo(
                 "DORMANT_USER", "휴면 계정 처리", "매일 02:00", "1년 이상 미접속 계정 휴면 전환"));
-        // 미구현 추천 배치
+
+        // 신규 구현 배치
         BATCH_INFO_MAP.put("LOW_STOCK_ALERT", new BatchInfo(
                 "LOW_STOCK_ALERT", "재고 부족 알림", "매일 09:00", "재고 10개 이하 상품 관리자 알림"));
         BATCH_INFO_MAP.put("REVIEW_REQUEST", new BatchInfo(
@@ -63,7 +84,6 @@ public class BatchService {
                 "POINT_EXPIRY", "포인트 만료 처리", "매일 00:00", "유효기간 지난 적립금 소멸"));
         BATCH_INFO_MAP.put("SEARCH_KEYWORD_AGGREGATE", new BatchInfo(
                 "SEARCH_KEYWORD_AGGREGATE", "인기 검색어 집계", "매시 00분", "실시간 인기 검색어 순위 갱신"));
-        // 추가 추천 배치
         BATCH_INFO_MAP.put("RESTOCK_ALERT", new BatchInfo(
                 "RESTOCK_ALERT", "재입고 알림", "매시 10분", "품절 상품 재입고 시 알림 발송"));
         BATCH_INFO_MAP.put("PRODUCT_VIEW_STATS", new BatchInfo(
@@ -76,6 +96,8 @@ public class BatchService {
                 "LOG_ARCHIVE", "로그 아카이브", "매주 일요일 03:00", "30일 이상 된 로그 아카이브 처리"));
         BATCH_INFO_MAP.put("BACKUP_DATABASE", new BatchInfo(
                 "BACKUP_DATABASE", "데이터베이스 백업", "매일 05:00", "DB 자동 백업 및 오래된 백업 정리"));
+        BATCH_INFO_MAP.put("PRODUCT_IMAGE_GENERATE", new BatchInfo(
+                "PRODUCT_IMAGE_GENERATE", "상품 이미지 생성", "08:00, 14:00, 20:00", "이미지 없는 상품에 AI 이미지 자동 생성 (무료티어 일일40장)"));
     }
 
     /**
@@ -176,6 +198,7 @@ public class BatchService {
      */
     private String runBatch(String batchId) {
         switch (batchId) {
+            // 기존 배치
             case "PRODUCT_CREATE":
                 productBatchScheduler.createRandomProduct();
                 return "랜덤 상품 1개가 등록되었습니다.";
@@ -207,6 +230,52 @@ public class BatchService {
             case "DORMANT_USER":
                 int dormantCount = dormantUserBatchScheduler.processDormantUsersManual();
                 return dormantCount + "개의 계정이 휴면 전환되었습니다.";
+
+            // 신규 배치
+            case "LOW_STOCK_ALERT":
+                return lowStockAlertBatchScheduler.checkLowStockProductsManual();
+
+            case "REVIEW_REQUEST":
+                return reviewRequestBatchScheduler.sendReviewRequestsManual();
+
+            case "TEMP_FILE_CLEANUP":
+                return tempFileCleanupBatchScheduler.cleanupTempFilesManual();
+
+            case "WISHLIST_PRICE_ALERT":
+                return wishlistPriceAlertBatchScheduler.sendWishlistPriceAlertsManual();
+
+            case "RESTOCK_ALERT":
+                return restockAlertBatchScheduler.sendRestockAlertsManual();
+
+            case "STATS_AGGREGATE":
+                return statsAggregateBatchScheduler.aggregateDailyStatsManual();
+
+            case "LOG_ARCHIVE":
+                return logArchiveBatchScheduler.archiveOldLogsManual();
+
+            case "SESSION_CLEANUP":
+                return sessionCleanupBatchScheduler.cleanupExpiredSessionsManual();
+
+            case "BACKUP_DATABASE":
+                return backupDatabaseBatchScheduler.backupDatabaseManual();
+
+            case "EXPIRED_COUPON":
+                return expiredCouponBatchScheduler.deactivateExpiredCouponsManual();
+
+            case "POINT_EXPIRY":
+                return pointExpiryBatchScheduler.expirePointsManual();
+
+            case "COUPON_EXPIRY_ALERT":
+                return couponExpiryAlertBatchScheduler.sendCouponExpiryAlertsManual();
+
+            case "SEARCH_KEYWORD_AGGREGATE":
+                return searchKeywordAggregateBatchScheduler.aggregatePopularKeywordsManual();
+
+            case "PRODUCT_VIEW_STATS":
+                return productViewStatsBatchScheduler.aggregateProductViewStatsManual();
+
+            case "PRODUCT_IMAGE_GENERATE":
+                return productImageBatchScheduler.generateAllMissingImagesManual();
 
             default:
                 throw new IllegalArgumentException("알 수 없는 배치: " + batchId);

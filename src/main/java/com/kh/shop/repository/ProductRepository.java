@@ -73,4 +73,34 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Modifying
     @Query("UPDATE Product p SET p.bestRank = NULL WHERE p.useYn = 'Y'")
     int clearAllBestRank();
+
+    // 재고 부족 상품 조회 (재고 N개 이하)
+    @Query("SELECT p FROM Product p WHERE p.useYn = 'Y' AND p.productStock <= :threshold AND p.productStock > 0 ORDER BY p.productStock ASC")
+    List<Product> findLowStockProducts(@Param("threshold") int threshold);
+
+    // 품절 상품 조회
+    @Query("SELECT p FROM Product p WHERE p.useYn = 'Y' AND p.productStock = 0")
+    List<Product> findOutOfStockProducts();
+
+    // 최근 재입고된 상품 조회 (이전에 품절이었다가 재고가 생긴 상품)
+    @Query("SELECT p FROM Product p WHERE p.useYn = 'Y' AND p.productStock > 0 AND p.updatedDate >= :since")
+    List<Product> findRecentlyRestockedProducts(@Param("since") java.time.LocalDateTime since);
+
+    // 할인 시작된 상품 조회 (최근 N시간 내 할인율이 0보다 커진 상품)
+    @Query("SELECT p FROM Product p WHERE p.useYn = 'Y' AND p.productDiscount > 0 AND p.updatedDate >= :since")
+    List<Product> findRecentlyDiscountedProducts(@Param("since") java.time.LocalDateTime since);
+
+    // 이미지 없는 상품 조회 (썸네일이 없거나 기본 이미지인 상품)
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = 'Y' AND (p.thumbnailUrl IS NULL OR p.thumbnailUrl = '' OR p.thumbnailUrl = '/images/default-product.png') ORDER BY p.createdDate DESC")
+    List<Product> findProductsWithoutImagesAll();
+
+    // 이미지 없는 상품 수 조회
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.useYn = 'Y' AND (p.thumbnailUrl IS NULL OR p.thumbnailUrl = '' OR p.thumbnailUrl = '/images/default-product.png')")
+    int countProductsWithoutImages();
+
+    // 이미지 없는 상품 조회 (limit 적용)
+    default List<Product> findProductsWithoutImages(int limit) {
+        List<Product> all = findProductsWithoutImagesAll();
+        return all.stream().limit(limit).toList();
+    }
 }
