@@ -283,6 +283,41 @@
     margin-top: auto;
 }
 
+/* 찜하기 버튼 */
+.btn-wishlist {
+    flex: 0 0 auto;
+    padding: 16px 20px;
+    background: white;
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-wishlist:hover {
+    background: #fff5f5;
+}
+
+.btn-wishlist.active {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-wishlist .wishlist-icon {
+    font-size: 18px;
+    transition: transform 0.3s;
+}
+
+.btn-wishlist:hover .wishlist-icon {
+    transform: scale(1.2);
+}
+
 .btn-cart {
     flex: 1;
     padding: 16px;
@@ -435,6 +470,20 @@ body.dark-mode .main-image {
 }
 body.dark-mode .thumb-item {
     border-color: #34495e;
+}
+
+/* 찜하기 버튼 다크모드 */
+body.dark-mode .btn-wishlist {
+    background: #34495e;
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+body.dark-mode .btn-wishlist:hover {
+    background: #3d566e;
+}
+body.dark-mode .btn-wishlist.active {
+    background: #e74c3c;
+    color: white;
 }
 
 @media (max-width: 900px) {

@@ -171,6 +171,10 @@
                 </c:if>
 
                 <div class="action-buttons">
+                    <button class="btn-wishlist" id="btnWishlist" onclick="toggleWishlist()">
+                        <span class="wishlist-icon" id="wishlistIcon">🤍</span>
+                        <span id="wishlistText">찜하기</span>
+                    </button>
                     <button class="btn-cart" onclick="addToCart()" <c:if test="${product.productStock == 0}">disabled</c:if>>
                         🛒 장바구니
                     </button>

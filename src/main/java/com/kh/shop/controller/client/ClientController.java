@@ -11,12 +11,14 @@ import com.kh.shop.service.PopupService;
 import com.kh.shop.service.ProductService;
 import com.kh.shop.service.SiteSettingService;
 import com.kh.shop.service.SlideService;
+import com.kh.shop.service.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +39,9 @@ public class ClientController {
 
     @Autowired
     private PopupService popupService;
+
+    @Autowired
+    private WishlistService wishlistService;
 
     @GetMapping("/")
     public String clientMain(Model model) {
@@ -159,5 +164,21 @@ public class ClientController {
         }
 
         return "client/product-detail";
+    }
+
+    // 위시리스트 페이지
+    @GetMapping("/wishlist")
+    public String wishlistPage(Model model, HttpSession session) {
+        // 상위 카테고리와 하위 카테고리 조회 (헤더 메뉴용)
+        List<Category> parentCategories = categoryService.getParentCategoriesWithChildren();
+        model.addAttribute("parentCategories", parentCategories);
+
+        // 로그인 확인
+        String userId = (String) session.getAttribute("loggedInUser");
+        if (userId == null) {
+            return "redirect:/login?redirect=/wishlist";
+        }
+
+        return "client/wishlist";
     }
 }

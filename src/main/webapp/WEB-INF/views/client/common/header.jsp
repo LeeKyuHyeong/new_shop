@@ -18,6 +18,10 @@
                 <c:when test="${not empty sessionScope.loggedInUser}">
                     <span class="header-btn user-name">${sessionScope.loggedInUser}님</span>
                     <a href="${pageContext.request.contextPath}/mypage/orders" class="header-btn">마이페이지</a>
+                    <a href="${pageContext.request.contextPath}/wishlist" class="header-btn wishlist-btn">
+                        💝 위시리스트
+                        <span class="wishlist-count" id="wishlistCount">0</span>
+                    </a>
                     <a href="${pageContext.request.contextPath}/cart" class="header-btn cart-btn">
                         🛒 장바구니
                         <span class="cart-count" id="cartCount">0</span>
@@ -67,10 +71,11 @@
 
 <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
 
-<!-- 장바구니 카운트 로드 -->
+<!-- 장바구니/위시리스트 카운트 로드 -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     loadCartCount();
+    loadWishlistHeaderCount();
 });
 
 function loadCartCount() {
@@ -84,5 +89,22 @@ function loadCartCount() {
             }
         })
         .catch(err => console.log('Cart count error:', err));
+}
+
+function loadWishlistHeaderCount() {
+    fetch('${pageContext.request.contextPath}/api/wishlist/count')
+        .then(response => response.json())
+        .then(data => {
+            const countEl = document.getElementById('wishlistCount');
+            if (countEl) {
+                if (data.count > 0) {
+                    countEl.textContent = data.count;
+                    countEl.style.display = 'inline-flex';
+                } else {
+                    countEl.style.display = 'none';
+                }
+            }
+        })
+        .catch(err => console.log('Wishlist count error:', err));
 }
 </script>

@@ -145,3 +145,130 @@ function buyNow() {
 
     location.href = url;
 }
+
+// ==================== 위시리스트 기능 ====================
+
+// 페이지 로드 시 위시리스트 상태 확인
+document.addEventListener('DOMContentLoaded', function() {
+    checkWishlistStatus();
+});
+
+// 위시리스트 상태 확인
+async function checkWishlistStatus() {
+    try {
+        const response = await fetch(contextPath + '/api/wishlist/check/' + productId);
+        const data = await response.json();
+
+        updateWishlistButton(data.isWished);
+    } catch (error) {
+        console.log('위시리스트 상태 확인 실패:', error);
+    }
+}
+
+// 위시리스트 토글
+async function toggleWishlist() {
+    try {
+        const response = await fetch(contextPath + '/api/wishlist/toggle/' + productId, {
+            method: 'POST'
+        });
+        const data = await response.json();
+
+        if (data.requireLogin) {
+            if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+                location.href = contextPath + '/login?redirect=/product/' + productId;
+            }
+            return;
+        }
+
+        if (data.success) {
+            updateWishlistButton(data.isWished);
+
+            // 헤더 위시리스트 카운트 업데이트
+            const countEl = document.getElementById('wishlistCount');
+            if (countEl) {
+                if (data.wishlistCount > 0) {
+                    countEl.textContent = data.wishlistCount;
+                    countEl.style.display = 'inline-flex';
+                } else {
+                    countEl.style.display = 'none';
+                }
+            }
+
+            // 토스트 메시지 (간단한 알림)
+            showToast(data.message);
+        } else {
+            alert(data.message || '처리에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('위시리스트 토글 오류:', error);
+        alert('오류가 발생했습니다.');
+    }
+}
+
+// 위시리스트 버튼 상태 업데이트
+function updateWishlistButton(isWished) {
+    const btn = document.getElementById('btnWishlist');
+    const icon = document.getElementById('wishlistIcon');
+    const text = document.getElementById('wishlistText');
+
+    if (!btn || !icon || !text) return;
+
+    if (isWished) {
+        btn.classList.add('active');
+        icon.textContent = '❤️';
+        text.textContent = '찜취소';
+    } else {
+        btn.classList.remove('active');
+        icon.textContent = '🤍';
+        text.textContent = '찜하기';
+    }
+}
+
+// 토스트 메시지 표시
+function showToast(message) {
+    // 기존 토스트 제거
+    const existingToast = document.querySelector('.toast-message');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    // 토스트 생성
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 10000;
+        animation: toastFadeIn 0.3s ease;
+    `;
+
+    document.body.appendChild(toast);
+
+    // 3초 후 제거
+    setTimeout(() => {
+        toast.style.animation = 'toastFadeOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+}
+
+// 토스트 애니메이션 스타일 추가
+const toastStyle = document.createElement('style');
+toastStyle.textContent = `
+    @keyframes toastFadeIn {
+        from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @keyframes toastFadeOut {
+        from { opacity: 1; transform: translateX(-50%) translateY(0); }
+        to { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    }
+`;
+document.head.appendChild(toastStyle);
