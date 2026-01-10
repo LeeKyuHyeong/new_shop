@@ -48,7 +48,7 @@
         .status-delivered { background: #27ae60; color: white; }
         .status-cancelled { background: #e74c3c; color: white; }
         .status-refunded { background: #95a5a6; color: white; }
-        .price-cell { text-align: right; }
+        /* .price-cell { text-align: right; } */
 
         /* 다크 모드 */
         body.dark-mode .order-number {

@@ -927,6 +927,25 @@ body.dark-mode .list-info strong {
         padding: 0;
     }
 
+    /* 주문상태 - 글자만 색상 적용 */
+    .data-table .status-badge {
+        background: none !important;
+        font-weight: 600;
+        padding: 0;
+    }
+    .data-table .status-badge.status-pending { color: #f39c12; }
+    .data-table .status-badge.status-paid { color: #3498db; }
+    .data-table .status-badge.status-preparing { color: #9b59b6; }
+    .data-table .status-badge.status-shipped { color: #1abc9c; }
+    .data-table .status-badge.status-delivered { color: #27ae60; }
+    .data-table .status-badge.status-cancelled { color: #e74c3c; }
+    .data-table .status-badge.status-refunded { color: #95a5a6; }
+
+    /* 결제금액 정렬 */
+    .data-table td[data-label="결제금액"] {
+        width: 100%;
+    }
+
     /* 액션 버튼 - 하단 전체 너비 */
     .data-table td.action-cell {
         width: 100%;
@@ -961,11 +980,44 @@ body.dark-mode .list-info strong {
         color: var(--btn-primary-bg);
     }
 
-    /* 뱃지 스타일 */
-    .data-table .badge {
-        font-size: 11px;
-        padding: 2px 8px;
+    .data-table td.price-cell strong,
+    .data-table td.price-cell span,
+    .data-table td[data-label="결제금액"] strong {
+        flex: 0 0 auto;
+        text-align: left;
     }
+
+    /* 뱃지 스타일 - 글자만 색상 적용 */
+    .data-table .badge,
+    .data-table .status-badge,
+    .data-table .type-badge,
+    .data-table .category-badge {
+        background: none !important;
+        font-weight: 600;
+        padding: 0;
+        font-size: 12px;
+    }
+
+    /* 슬라이드/팝업 상태 */
+    .data-table .badge-success { color: #27ae60; }
+    .data-table .badge-secondary { color: #95a5a6; }
+
+    /* 회원 권한/상태 */
+    .data-table .badge-admin { color: #e74c3c; }
+    .data-table .badge-user { color: #3498db; }
+    .data-table .badge-active { color: #27ae60; }
+    .data-table .badge-inactive { color: #95a5a6; }
+
+    /* 리뷰 상태 */
+    .data-table .badge-replied { color: #27ae60; }
+    .data-table .badge-pending { color: #f39c12; }
+    .data-table .badge-deleted { color: #e74c3c; }
+
+    /* 비속어 상태/유형 */
+    .data-table .status-badge.active { color: #27ae60; }
+    .data-table .status-badge.inactive { color: #95a5a6; }
+    .data-table .type-badge.system { color: #9b59b6; }
+    .data-table .type-badge.user { color: #3498db; }
 
     /* 체크박스 셀 숨기기 */
     .data-table td[data-label="선택"] {

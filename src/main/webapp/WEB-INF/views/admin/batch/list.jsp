@@ -15,10 +15,15 @@
         <%@ include file="../common/sidebar.jsp" %>
 
         <main class="main-content">
-        <div class="page-header">
-            <h1>배치 관리</h1>
-            <p class="page-description">자동 실행되는 배치 작업을 관리하고 수동으로 실행할 수 있습니다. (총 23개)</p>
-        </div>
+            <header class="top-bar">
+                <h1>배치 관리</h1>
+                <div class="user-info">
+                    <%= session.getAttribute("loggedInUser") %>님
+                </div>
+            </header>
+
+            <div class="content">
+                <p class="page-description">자동 실행되는 배치 작업을 관리하고 수동으로 실행할 수 있습니다. (총 23개)</p>
 
         <!-- 데모용 배치 (4개) -->
         <div class="batch-section">
@@ -587,7 +592,8 @@
                 </table>
             </div>
         </div>
-    </main>
+            </div>
+        </main>
     </div>
 
     <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>

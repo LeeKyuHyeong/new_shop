@@ -544,27 +544,90 @@
 }
 
 @media (max-width: 768px) {
+    /* 통계 카드 - 2개씩 2줄 */
     .stats-cards {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 15px;
     }
-    
+
+    .stat-card {
+        padding: 10px 12px;
+        gap: 8px;
+        border-radius: 8px;
+    }
+
+    .stat-icon {
+        font-size: 20px;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+    }
+
     .action-bar {
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
+        padding: 12px;
     }
-    
+
     .action-left,
     .action-right {
         width: 100%;
         justify-content: center;
+        flex-wrap: wrap;
+        gap: 6px;
     }
-    
+
+    .action-bar .btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
     .filter-row {
         flex-wrap: wrap;
     }
-    
+
     .filter-group {
         max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    /* 더 작은 화면 - 컴팩트하게 */
+    .stats-cards {
+        gap: 6px;
+    }
+
+    .stat-card {
+        padding: 8px 10px;
+        gap: 6px;
+    }
+
+    .stat-icon {
+        font-size: 16px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .stat-value {
+        font-size: 16px;
+    }
+
+    .stat-label {
+        font-size: 10px;
+    }
+
+    .action-bar .btn {
+        padding: 5px 8px;
+        font-size: 11px;
     }
 }
 

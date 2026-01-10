@@ -14,11 +14,14 @@
         <%@ include file="../common/sidebar.jsp" %>
 
         <main class="main-content">
-        <div class="content-header">
-            <h1>통계 관리</h1>
-        </div>
+            <header class="top-bar">
+                <h1>통계 관리</h1>
+                <div class="user-info">
+                    <%= session.getAttribute("loggedInUser") %>님
+                </div>
+            </header>
 
-        <div class="content-body">
+            <div class="content">
             <div class="search-box">
                 <div class="form-group">
                     <label for="startDate">시작일</label>
