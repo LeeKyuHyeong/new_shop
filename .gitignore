@@ -36,3 +36,4 @@ build/
 # Secret 설정 파일
 application.properties
 /src/main/resources/application-secret.properties
+.env

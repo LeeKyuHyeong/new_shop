@@ -2,6 +2,7 @@ package com.kh.shop.controller.admin;
 
 import com.kh.shop.common.dto.PageRequestDTO;
 import com.kh.shop.common.dto.PageResponseDTO;
+import com.kh.shop.dto.UserSearchDTO;
 import com.kh.shop.entity.Category;
 import com.kh.shop.entity.Product;
 import com.kh.shop.entity.Slide;
@@ -237,13 +238,14 @@ public class AdminController {
     // ==================== 사용자 관리 ====================
 
     @GetMapping("/user")
-    public String userList(HttpSession session, Model model) {
+    public String userList(HttpSession session, UserSearchDTO searchDTO, Model model) {
         if (!isAdmin(session)) {
             return "redirect:/login";
         }
 
-        List<User> users = userService.getAllUsers();
+        List<User> users = userService.searchUsers(searchDTO);
         model.addAttribute("users", users);
+        model.addAttribute("searchDTO", searchDTO);
         return "admin/user/list";
     }
 

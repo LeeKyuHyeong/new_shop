@@ -1,3 +1,62 @@
+/* 검색 박스 */
+.search-box {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.search-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.search-row:last-of-type {
+    margin-bottom: 0;
+}
+
+.search-group {
+    flex: 1;
+    min-width: 150px;
+}
+
+.search-group label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+}
+
+.search-group input,
+.search-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.search-group input:focus,
+.search-group select:focus {
+    outline: none;
+    border-color: var(--btn-primary-bg);
+}
+
+.search-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.search-buttons .btn {
+    padding: 10px 20px;
+}
+
 /* 사용자 목록 */
 .table-container {
     background-color: var(--bg-primary);
@@ -194,6 +253,39 @@
 
 /* 태블릿 */
 @media (max-width: 768px) {
+    .search-box {
+        padding: 15px;
+    }
+
+    .search-row {
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .search-group {
+        min-width: calc(50% - 5px);
+        flex: 0 0 calc(50% - 5px);
+    }
+
+    .search-group label {
+        font-size: 12px;
+    }
+
+    .search-group input,
+    .search-group select {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+
+    .search-buttons {
+        margin-top: 10px;
+    }
+
+    .search-buttons .btn {
+        flex: 1;
+        padding: 10px 15px;
+    }
+
     .info-grid {
         grid-template-columns: 1fr;
     }
@@ -305,6 +397,18 @@
 /* ========================================
    다크 모드
    ======================================== */
+body.dark-mode .search-box {
+    background-color: #2c3e50;
+    border-color: #34495e;
+}
+
+body.dark-mode .search-group input,
+body.dark-mode .search-group select {
+    background-color: #34495e;
+    border-color: #4a6278;
+    color: #ecf0f1;
+}
+
 body.dark-mode .data-table td {
     color: #ecf0f1;
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -30,4 +31,26 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     // 상태별 사용자 수
     long countByUserStatusAndUseYn(String userStatus, String useYn);
+
+    // 검색 조건으로 사용자 조회
+    @Query("SELECT u FROM User u WHERE " +
+           "(:userId IS NULL OR :userId = '' OR u.userId LIKE CONCAT('%', :userId, '%')) AND " +
+           "(:userName IS NULL OR :userName = '' OR u.userName LIKE CONCAT('%', :userName, '%')) AND " +
+           "(:email IS NULL OR :email = '' OR u.email LIKE CONCAT('%', :email, '%')) AND " +
+           "(:gender IS NULL OR :gender = '' OR u.gender = :gender) AND " +
+           "(:userRole IS NULL OR :userRole = '' OR u.userRole = :userRole) AND " +
+           "(:useYn IS NULL OR :useYn = '' OR u.useYn = :useYn) AND " +
+           "(:startDate IS NULL OR CAST(u.createdDate AS LocalDate) >= :startDate) AND " +
+           "(:endDate IS NULL OR CAST(u.createdDate AS LocalDate) <= :endDate) " +
+           "ORDER BY u.createdDate DESC")
+    List<User> searchUsers(
+            @Param("userId") String userId,
+            @Param("userName") String userName,
+            @Param("email") String email,
+            @Param("gender") String gender,
+            @Param("userRole") String userRole,
+            @Param("useYn") String useYn,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }

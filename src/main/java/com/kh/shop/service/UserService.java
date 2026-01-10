@@ -1,5 +1,6 @@
 package com.kh.shop.service;
 
+import com.kh.shop.dto.UserSearchDTO;
 import com.kh.shop.entity.User;
 import com.kh.shop.entity.UserSetting;
 import com.kh.shop.repository.UserRepository;
@@ -74,6 +75,23 @@ public class UserService {
     // 전체 사용자 조회
     public List<User> getAllUsers() {
         return userRepository.findAllByOrderByCreatedDateDesc();
+    }
+
+    // 조건 검색으로 사용자 조회
+    public List<User> searchUsers(UserSearchDTO searchDTO) {
+        if (searchDTO == null || !searchDTO.hasSearchCondition()) {
+            return getAllUsers();
+        }
+        return userRepository.searchUsers(
+                searchDTO.getUserId(),
+                searchDTO.getUserName(),
+                searchDTO.getEmail(),
+                searchDTO.getGender(),
+                searchDTO.getUserRole(),
+                searchDTO.getUseYn(),
+                searchDTO.getStartDate(),
+                searchDTO.getEndDate()
+        );
     }
 
     // 활성 사용자만 조회

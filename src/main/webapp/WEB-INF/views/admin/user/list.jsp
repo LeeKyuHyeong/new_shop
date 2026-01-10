@@ -26,6 +26,64 @@
             <div class="content">
                 <div class="alert-container"></div>
 
+                <!-- 검색 필터 -->
+                <div class="search-box">
+                    <form id="searchForm" method="get" action="${pageContext.request.contextPath}/admin/user">
+                        <div class="search-row">
+                            <div class="search-group">
+                                <label for="userId">아이디</label>
+                                <input type="text" id="userId" name="userId" value="${searchDTO.userId}" placeholder="아이디 검색">
+                            </div>
+                            <div class="search-group">
+                                <label for="userName">이름</label>
+                                <input type="text" id="userName" name="userName" value="${searchDTO.userName}" placeholder="이름 검색">
+                            </div>
+                            <div class="search-group">
+                                <label for="email">이메일</label>
+                                <input type="text" id="email" name="email" value="${searchDTO.email}" placeholder="이메일 검색">
+                            </div>
+                            <div class="search-group">
+                                <label for="gender">성별</label>
+                                <select id="gender" name="gender">
+                                    <option value="">전체</option>
+                                    <option value="M" <c:if test="${searchDTO.gender eq 'M'}">selected</c:if>>남</option>
+                                    <option value="F" <c:if test="${searchDTO.gender eq 'F'}">selected</c:if>>여</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="search-row">
+                            <div class="search-group">
+                                <label for="userRole">권한</label>
+                                <select id="userRole" name="userRole">
+                                    <option value="">전체</option>
+                                    <option value="ADMIN" <c:if test="${searchDTO.userRole eq 'ADMIN'}">selected</c:if>>관리자</option>
+                                    <option value="USER" <c:if test="${searchDTO.userRole eq 'USER'}">selected</c:if>>일반</option>
+                                </select>
+                            </div>
+                            <div class="search-group">
+                                <label for="useYn">상태</label>
+                                <select id="useYn" name="useYn">
+                                    <option value="">전체</option>
+                                    <option value="Y" <c:if test="${searchDTO.useYn eq 'Y'}">selected</c:if>>활성</option>
+                                    <option value="N" <c:if test="${searchDTO.useYn eq 'N'}">selected</c:if>>비활성</option>
+                                </select>
+                            </div>
+                            <div class="search-group">
+                                <label for="startDate">가입일(시작)</label>
+                                <input type="date" id="startDate" name="startDate" value="${searchDTO.startDate}">
+                            </div>
+                            <div class="search-group">
+                                <label for="endDate">가입일(종료)</label>
+                                <input type="date" id="endDate" name="endDate" value="${searchDTO.endDate}">
+                            </div>
+                        </div>
+                        <div class="search-buttons">
+                            <button type="submit" class="btn btn-primary">검색</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetSearch()">초기화</button>
+                        </div>
+                    </form>
+                </div>
+
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
@@ -91,6 +149,18 @@
 
     <script>
         const contextPath = '${pageContext.request.contextPath}';
+
+        function resetSearch() {
+            document.getElementById('userId').value = '';
+            document.getElementById('userName').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('gender').value = '';
+            document.getElementById('userRole').value = '';
+            document.getElementById('useYn').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            window.location.href = contextPath + '/admin/user';
+        }
     </script>
     <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
 </body>
