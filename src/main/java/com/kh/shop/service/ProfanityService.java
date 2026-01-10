@@ -57,6 +57,7 @@ public class ProfanityService {
         if (hasProfanity) {
             List<String> detected = profanityFilter.detectProfanities(text);
             result.put("detectedWords", detected);
+            result.put("detectedDetails", profanityFilter.detectProfanitiesDetailed(text));
             result.put("filteredText", profanityFilter.filterProfanity(text));
             result.put("message", "부적절한 표현이 포함되어 있습니다.");
         } else {
@@ -371,11 +372,12 @@ public class ProfanityService {
         addDefaultWord(words, "혐오", "애자", "앰생", "앰창", "정병");
         addDefaultWord(words, "혐오", "쪽바리", "짱깨", "짱개");
 
-        // 초성
+        // 초성 (2글자 초성은 오탐이 많아 3글자 이상만 포함)
         addDefaultWord(words, "초성", "ㅅㅂ", "ㅆㅂ", "ㅂㅅ", "ㅄ");
         addDefaultWord(words, "초성", "ㅈㄹ", "ㅈㄴ", "ㄱㅅㄲ", "ㄱㅅㄱ");
-        addDefaultWord(words, "초성", "ㅁㅊ", "ㅁㅊㄴ", "ㄷㅊ", "ㄲㅈ", "ㄷㅈ");
-        addDefaultWord(words, "초성", "ㄴㄱㅁ", "ㄴㅁ", "ㅊㄴ");
+        addDefaultWord(words, "초성", "ㅁㅊ", "ㅁㅊㄴ", "ㄷㅊ", "ㄲㅈ");
+        // "ㄷㅈ", "ㄴㅁ", "ㅊㄴ" 제거 - 디자인, 나무, 친구 등에서 오탐
+        addDefaultWord(words, "초성", "ㄴㄱㅁ");
 
         // 영어
         addDefaultWord(words, "영어", "fuck", "fucking", "fucked", "fucker", "motherfucker");

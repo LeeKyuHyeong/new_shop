@@ -111,6 +111,13 @@ public class ProfanityFilter {
         }
     }
 
+    // 초성 매칭에서 제외할 짧은 패턴 (오탐 방지)
+    private static final Set<String> CHOSUNG_EXCLUDE_SET = Set.of(
+            "ㄷㅈ",  // 디자인, 대전 등에서 오탐
+            "ㄴㅁ",  // 나무, 내말 등에서 오탐
+            "ㅊㄴ"   // 친구 등에서 오탐
+    );
+
     /**
      * 비속어 포함 여부 확인
      */
@@ -136,15 +143,31 @@ public class ProfanityFilter {
             }
         }
 
-        // 3. 초성 변환 후 매칭
+        // 3. 초성 변환 후 매칭 (짧은 패턴은 제외하여 오탐 방지)
         String chosungText = extractChosung(text);
         for (String profanity : profanitySet) {
+            // 2글자 이하 초성 패턴은 오탐이 많으므로 제외 목록 확인
+            if (profanity.length() <= 2 && isChosungOnly(profanity) && CHOSUNG_EXCLUDE_SET.contains(profanity)) {
+                continue;
+            }
             if (chosungText.contains(profanity)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * 문자열이 초성으로만 구성되어 있는지 확인
+     */
+    private boolean isChosungOnly(String text) {
+        for (char c : text.toCharArray()) {
+            if (c < 'ㄱ' || c > 'ㅎ') {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -208,7 +231,128 @@ public class ProfanityFilter {
             }
         }
 
+        // 3. 초성 매칭 (제외 목록 적용)
+        String chosungText = extractChosung(text);
+        for (String profanity : profanitySet) {
+            if (profanity.length() <= 2 && isChosungOnly(profanity) && CHOSUNG_EXCLUDE_SET.contains(profanity)) {
+                continue;
+            }
+            if (isChosungOnly(profanity) && chosungText.contains(profanity)) {
+                if (!detected.contains(profanity)) {
+                    detected.add(profanity + "(초성)");
+                }
+            }
+        }
+
         return detected;
+    }
+
+    /**
+     * 상세 감지 결과 반환 (어디서 매칭되었는지 표시)
+     */
+    public List<Map<String, Object>> detectProfanitiesDetailed(String text) {
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        if (text == null || text.isEmpty()) {
+            return results;
+        }
+
+        String normalized = normalizeText(text);
+        String lowerText = text.toLowerCase();
+
+        // 1. 단순 매칭
+        for (String profanity : profanitySet) {
+            int idx = lowerText.indexOf(profanity);
+            if (idx >= 0) {
+                Map<String, Object> match = new HashMap<>();
+                match.put("word", profanity);
+                match.put("type", "단어매칭");
+                match.put("position", idx);
+                match.put("context", getContextString(text, idx, profanity.length()));
+                results.add(match);
+            }
+        }
+
+        // 2. 정규식 매칭
+        for (Pattern pattern : profanityPatterns) {
+            var matcher = pattern.matcher(text);
+            while (matcher.find()) {
+                Map<String, Object> match = new HashMap<>();
+                match.put("word", matcher.group());
+                match.put("type", "패턴매칭");
+                match.put("position", matcher.start());
+                match.put("context", getContextString(text, matcher.start(), matcher.group().length()));
+                results.add(match);
+            }
+        }
+
+        // 3. 초성 매칭 (제외 목록 적용)
+        String chosungText = extractChosung(text);
+        for (String profanity : profanitySet) {
+            if (profanity.length() <= 2 && isChosungOnly(profanity) && CHOSUNG_EXCLUDE_SET.contains(profanity)) {
+                continue;
+            }
+            if (isChosungOnly(profanity)) {
+                int idx = chosungText.indexOf(profanity);
+                if (idx >= 0) {
+                    Map<String, Object> match = new HashMap<>();
+                    match.put("word", profanity);
+                    match.put("type", "초성매칭");
+                    match.put("position", idx);
+                    match.put("context", getChosungContext(text, idx, profanity.length()));
+                    results.add(match);
+                }
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * 매칭된 위치 주변 컨텍스트 문자열 반환
+     */
+    private String getContextString(String text, int position, int length) {
+        int start = Math.max(0, position - 5);
+        int end = Math.min(text.length(), position + length + 5);
+        String before = text.substring(start, position);
+        String matched = text.substring(position, position + length);
+        String after = text.substring(position + length, end);
+        return (start > 0 ? "..." : "") + before + "[" + matched + "]" + after + (end < text.length() ? "..." : "");
+    }
+
+    /**
+     * 초성 매칭된 위치의 원본 문자열 컨텍스트 반환
+     */
+    private String getChosungContext(String text, int chosungPosition, int length) {
+        // 초성 위치를 원본 한글 위치로 변환
+        int koreanCharCount = 0;
+        int originalStart = 0;
+        int originalEnd = 0;
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if ((c >= '가' && c <= '힣') || (c >= 'ㄱ' && c <= 'ㅎ')) {
+                if (koreanCharCount == chosungPosition) {
+                    originalStart = i;
+                }
+                if (koreanCharCount == chosungPosition + length - 1) {
+                    originalEnd = i + 1;
+                    break;
+                }
+                koreanCharCount++;
+            }
+        }
+
+        if (originalEnd == 0) originalEnd = text.length();
+
+        int start = Math.max(0, originalStart - 3);
+        int end = Math.min(text.length(), originalEnd + 3);
+
+        String before = text.substring(start, originalStart);
+        String matched = text.substring(originalStart, originalEnd);
+        String after = text.substring(originalEnd, end);
+
+        return (start > 0 ? "..." : "") + before + "[" + matched + "]" + after + (end < text.length() ? "..." : "");
     }
 
     /**

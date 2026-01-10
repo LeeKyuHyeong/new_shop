@@ -284,15 +284,29 @@ async function runTest() {
         });
 
         const result = await response.json();
-        
+
         resultDiv.style.display = 'block';
-        
+
         if (result.hasProfanity) {
+            let detailsHtml = '';
+            if (result.detectedDetails && result.detectedDetails.length > 0) {
+                detailsHtml = '<div class="detected-details"><h5>상세 감지 정보:</h5><ul>';
+                result.detectedDetails.forEach(detail => {
+                    detailsHtml += `<li>
+                        <span class="detail-word">"${detail.word}"</span>
+                        <span class="detail-type">[${detail.type}]</span>
+                        <span class="detail-context">${detail.context}</span>
+                    </li>`;
+                });
+                detailsHtml += '</ul></div>';
+            }
+
             resultDiv.className = 'test-result error';
             resultDiv.innerHTML = `
                 <h4>⚠️ 비속어 감지됨</h4>
-                <p>감지된 단어: ${result.detectedWords.join(', ')}</p>
-                <p>필터링 결과: ${result.filteredText}</p>
+                <p><strong>감지된 단어:</strong> ${result.detectedWords.join(', ')}</p>
+                ${detailsHtml}
+                <p><strong>필터링 결과:</strong> ${result.filteredText}</p>
             `;
         } else {
             resultDiv.className = 'test-result success';
