@@ -43,18 +43,18 @@
                         <tbody>
                             <c:forEach var="user" items="${users}">
                                 <tr data-user-id="${user.userId}">
-                                    <td>
+                                    <td data-label="아이디">
                                         <a href="${pageContext.request.contextPath}/admin/user/detail/${user.userId}" class="user-id-link">
                                             ${user.userId}
                                         </a>
                                     </td>
-                                    <td>${user.userName}</td>
-                                    <td>${user.email}</td>
-                                    <td>
+                                    <td data-label="이름">${user.userName}</td>
+                                    <td data-label="이메일">${user.email}</td>
+                                    <td data-label="성별">
                                         <c:if test="${user.gender eq 'M'}">남</c:if>
                                         <c:if test="${user.gender eq 'F'}">여</c:if>
                                     </td>
-                                    <td>
+                                    <td data-label="권한">
                                         <c:if test="${user.userRole eq 'ADMIN'}">
                                             <span class="badge badge-admin">관리자</span>
                                         </c:if>
@@ -62,7 +62,7 @@
                                             <span class="badge badge-user">일반</span>
                                         </c:if>
                                     </td>
-                                    <td>
+                                    <td data-label="상태">
                                         <c:if test="${user.useYn eq 'Y'}">
                                             <span class="badge badge-active">활성</span>
                                         </c:if>
@@ -70,11 +70,11 @@
                                             <span class="badge badge-inactive">비활성</span>
                                         </c:if>
                                     </td>
-                                    <td>
+                                    <td data-label="가입일">
                                         <fmt:parseDate value="${user.createdDate}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>
                                         <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
                                     </td>
-                                    <td>
+                                    <td class="action-cell">
                                         <a href="${pageContext.request.contextPath}/admin/user/detail/${user.userId}" class="btn btn-small btn-info">상세</a>
                                     </td>
                                 </tr>

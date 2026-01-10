@@ -113,21 +113,26 @@
                             </c:if>
                             <c:forEach var="product" items="${result.dtoList}">
                                 <tr data-product-id="${product.productId}">
-                                    <td>${product.productId}</td>
-                                    <td class="thumbnail-cell">
+                                    <td data-label="ID">${product.productId}</td>
+                                    <td class="thumbnail-cell" data-label="썸네일">
                                         <c:if test="${not empty product.thumbnailUrl}">
                                             <img src="${pageContext.request.contextPath}${product.thumbnailUrl}" alt="${product.productName}" class="thumbnail-img">
                                         </c:if>
                                         <c:if test="${empty product.thumbnailUrl}">
                                             <div class="no-image">No Image</div>
                                         </c:if>
+                                        <span class="mobile-product-name">
+                                            <a href="${pageContext.request.contextPath}/admin/product/detail/${product.productId}" class="product-name-link">
+                                                ${product.productName}
+                                            </a>
+                                        </span>
                                     </td>
-                                    <td>
+                                    <td data-label="상품명" class="desktop-only">
                                         <a href="${pageContext.request.contextPath}/admin/product/detail/${product.productId}" class="product-name-link">
                                             ${product.productName}
                                         </a>
                                     </td>
-                                    <td>
+                                    <td data-label="카테고리">
                                         <c:if test="${not empty product.category}">
                                             <c:if test="${not empty product.category.parent}">
                                                 ${product.category.parent.categoryName} &gt;
@@ -138,10 +143,10 @@
                                             -
                                         </c:if>
                                     </td>
-                                    <td class="price-cell">
+                                    <td class="price-cell" data-label="가격">
                                         <fmt:formatNumber value="${product.productPrice}" type="number"/>원
                                     </td>
-                                    <td>
+                                    <td data-label="할인율">
                                         <c:if test="${product.productDiscount > 0}">
                                             <span class="discount-badge">${product.productDiscount}%</span>
                                         </c:if>
@@ -149,7 +154,7 @@
                                             -
                                         </c:if>
                                     </td>
-                                    <td>
+                                    <td data-label="재고">
                                         <c:if test="${product.productStock > 0}">
                                             <span class="${product.productStock < 10 ? 'stock-low' : ''}">${product.productStock}</span>
                                         </c:if>
@@ -157,8 +162,8 @@
                                             <span class="stock-out">품절</span>
                                         </c:if>
                                     </td>
-                                    <td>${product.productOrder}</td>
-                                    <td>${product.createdDate}</td>
+                                    <td data-label="순서">${product.productOrder}</td>
+                                    <td data-label="등록일">${product.createdDate}</td>
                                     <td class="action-cell">
                                         <a href="${pageContext.request.contextPath}/admin/product/edit/${product.productId}" class="btn btn-small btn-info">수정</a>
                                         <button class="btn btn-small btn-danger" onclick="deleteProduct(${product.productId})">삭제</button>

@@ -109,15 +109,15 @@
                         <tbody>
                             <c:forEach var="order" items="${orders}">
                                 <tr>
-                                    <td>
-                                        <a href="${pageContext.request.contextPath}/admin/order/detail/${order.orderId}" 
+                                    <td data-label="주문번호">
+                                        <a href="${pageContext.request.contextPath}/admin/order/detail/${order.orderId}"
                                            class="order-number">${order.orderNumber}</a>
                                     </td>
-                                    <td>
-                                        ${order.user.userName}<br>
-                                        <small style="color: var(--text-secondary);">${order.user.userId}</small>
+                                    <td data-label="주문자">
+                                        ${order.user.userName}
+                                        <small style="color: var(--text-secondary); display: block;">${order.user.userId}</small>
                                     </td>
-                                    <td>
+                                    <td data-label="상품정보">
                                         <c:choose>
                                             <c:when test="${order.orderItems.size() > 1}">
                                                 ${order.orderItems[0].productName} 외 ${order.orderItems.size() - 1}건
@@ -127,19 +127,19 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td class="price-cell">
+                                    <td class="price-cell" data-label="결제금액">
                                         <strong><fmt:formatNumber value="${order.finalPrice}" pattern="#,###"/>원</strong>
                                     </td>
-                                    <td>${order.paymentMethodName}</td>
-                                    <td>
+                                    <td data-label="결제방법">${order.paymentMethodName}</td>
+                                    <td data-label="주문상태">
                                         <span class="status-badge status-${order.orderStatus.toLowerCase()}">${order.orderStatusName}</span>
                                     </td>
-                                    <td>
+                                    <td data-label="주문일시">
                                         <fmt:parseDate value="${order.createdDate}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>
                                         <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm"/>
                                     </td>
-                                    <td>
-                                        <a href="${pageContext.request.contextPath}/admin/order/detail/${order.orderId}" 
+                                    <td class="action-cell">
+                                        <a href="${pageContext.request.contextPath}/admin/order/detail/${order.orderId}"
                                            class="btn btn-small btn-info">상세</a>
                                         <c:if test="${order.orderStatus ne 'CANCELLED' and order.orderStatus ne 'DELIVERED'}">
                                             <button class="btn btn-small btn-danger" onclick="cancelOrder(${order.orderId})">취소</button>

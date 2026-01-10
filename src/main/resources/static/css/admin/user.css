@@ -211,8 +211,9 @@
         flex: 1;
     }
 
+    /* 카드 레이아웃 사용 */
     .data-table {
-        min-width: 600px;
+        min-width: 0;
     }
 }
 
@@ -270,14 +271,9 @@
         text-align: center;
     }
 
+    /* 카드 레이아웃 사용 */
     .data-table {
-        min-width: 500px;
-        font-size: 12px;
-    }
-
-    .data-table th,
-    .data-table td {
-        padding: 8px;
+        min-width: 0;
     }
 
     .empty-message {
@@ -298,16 +294,6 @@
 
     .info-value {
         font-size: 12px;
-    }
-
-    .data-table {
-        min-width: 450px;
-        font-size: 11px;
-    }
-
-    .data-table th,
-    .data-table td {
-        padding: 6px;
     }
 
     .badge {

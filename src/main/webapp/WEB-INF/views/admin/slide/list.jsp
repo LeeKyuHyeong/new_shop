@@ -48,18 +48,18 @@
                         <tbody>
                             <c:forEach var="slide" items="${slides}">
                                 <tr data-slide-id="${slide.slideId}">
-                                    <td>${slide.slideId}</td>
-                                    <td class="thumbnail-cell">
+                                    <td data-label="ID">${slide.slideId}</td>
+                                    <td class="thumbnail-cell" data-label="이미지">
                                         <img src="${pageContext.request.contextPath}${slide.imageUrl}" alt="${slide.slideTitle}" class="slide-thumb">
                                     </td>
-                                    <td>
+                                    <td data-label="제목">
                                         <div class="slide-title">${slide.slideTitle}</div>
                                         <c:if test="${not empty slide.linkUrl}">
                                             <div class="slide-link">${slide.linkUrl}</div>
                                         </c:if>
                                     </td>
-                                    <td>${slide.slideOrder}</td>
-                                    <td class="period-cell">
+                                    <td data-label="순서">${slide.slideOrder}</td>
+                                    <td class="period-cell" data-label="기간">
                                         <c:if test="${not empty slide.startDate || not empty slide.endDate}">
                                             <c:if test="${not empty slide.startDate}">
                                                 <fmt:parseDate value="${slide.startDate}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedStart" type="both"/>
@@ -75,7 +75,7 @@
                                             <span class="text-muted">상시</span>
                                         </c:if>
                                     </td>
-                                    <td>
+                                    <td data-label="상태">
                                         <c:if test="${slide.active}">
                                             <span class="badge badge-success">활성</span>
                                         </c:if>
@@ -83,11 +83,11 @@
                                             <span class="badge badge-secondary">비활성</span>
                                         </c:if>
                                     </td>
-                                    <td>
+                                    <td data-label="등록일">
                                         <fmt:parseDate value="${slide.createdDate}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreated" type="both"/>
                                         <fmt:formatDate value="${parsedCreated}" pattern="yyyy-MM-dd"/>
                                     </td>
-                                    <td>
+                                    <td class="action-cell">
                                         <a href="${pageContext.request.contextPath}/admin/slide/edit/${slide.slideId}" class="btn btn-small btn-info">수정</a>
                                         <button class="btn btn-small btn-danger" onclick="deleteSlide(${slide.slideId})">삭제</button>
                                     </td>

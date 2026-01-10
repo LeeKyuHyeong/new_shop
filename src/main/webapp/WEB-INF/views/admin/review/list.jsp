@@ -164,7 +164,7 @@
                 <div class="table-container">
                     <c:choose>
                         <c:when test="${not empty reviews}">
-                            <table class="review-table">
+                            <table class="data-table review-table">
                                 <thead>
                                     <tr>
                                         <th>번호</th>
@@ -180,16 +180,16 @@
                                 <tbody>
                                     <c:forEach var="review" items="${reviews}">
                                         <tr>
-                                            <td>${review.reviewId}</td>
-                                            <td>
+                                            <td data-label="번호">${review.reviewId}</td>
+                                            <td data-label="상품">
                                                 <a href="${pageContext.request.contextPath}/admin/product/detail/${review.product.productId}">
                                                     ${review.product.productName}
                                                 </a>
                                             </td>
-                                            <td>${review.maskedUserName}</td>
-                                            <td class="rating-stars">${review.ratingStars}</td>
-                                            <td class="review-content-preview">${review.content}</td>
-                                            <td>
+                                            <td data-label="작성자">${review.maskedUserName}</td>
+                                            <td data-label="별점" class="rating-stars">${review.ratingStars}</td>
+                                            <td data-label="내용" class="review-content-preview">${review.content}</td>
+                                            <td data-label="상태">
                                                 <c:choose>
                                                     <c:when test="${review.isDeleted}">
                                                         <span class="badge badge-deleted">삭제됨</span>
@@ -202,11 +202,11 @@
                                                     </c:otherwise>
                                                 </c:choose>
                                             </td>
-                                            <td>
+                                            <td data-label="작성일">
                                                 <fmt:parseDate value="${review.createdDate}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>
                                                 <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
                                             </td>
-                                            <td>
+                                            <td class="action-cell">
                                                 <a href="${pageContext.request.contextPath}/admin/review/${review.reviewId}" class="action-btn">상세</a>
                                                 <c:if test="${!review.isDeleted}">
                                                     <button class="action-btn delete" onclick="deleteReview(${review.reviewId})">삭제</button>

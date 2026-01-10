@@ -89,18 +89,18 @@
                             <c:forEach var="parent" items="${result.dtoList}">
                                 <%-- 상위 카테고리 행 --%>
                                 <tr class="parent-row" data-category-id="${parent.categoryId}">
-                                    <td>${parent.categoryId}</td>
-                                    <td class="category-name">
+                                    <td data-label="ID">${parent.categoryId}</td>
+                                    <td class="category-name" data-label="카테고리명">
                                         <span class="parent-icon">📁</span>
                                         <strong>${parent.categoryName}</strong>
                                         <c:if test="${not empty parent.children}">
                                             <span class="child-count">(${parent.children.size()})</span>
                                         </c:if>
                                     </td>
-                                    <td>${parent.categoryDescription}</td>
-                                    <td>${parent.categoryOrder}</td>
-                                    <td>"${parent.createdDate}"</td>
-                                    <td>
+                                    <td data-label="설명">${parent.categoryDescription}</td>
+                                    <td data-label="순서">${parent.categoryOrder}</td>
+                                    <td data-label="작성일">"${parent.createdDate}"</td>
+                                    <td class="action-cell">
                                         <a href="${pageContext.request.contextPath}/admin/category/edit/${parent.categoryId}" class="btn btn-small btn-info">수정</a>
                                         <button class="btn btn-small btn-danger" onclick="deleteCategory(${parent.categoryId})">삭제</button>
                                     </td>
@@ -109,15 +109,15 @@
                                 <c:forEach var="child" items="${parent.children}">
                                     <c:if test="${child.useYn eq 'Y'}">
                                         <tr class="child-row" data-category-id="${child.categoryId}" data-parent-id="${parent.categoryId}">
-                                            <td>${child.categoryId}</td>
-                                            <td class="category-name child-category">
+                                            <td data-label="ID">${child.categoryId}</td>
+                                            <td class="category-name child-category" data-label="카테고리명">
                                                 <span class="child-indent">└</span>
                                                 ${child.categoryName}
                                             </td>
-                                            <td>${child.categoryDescription}</td>
-                                            <td>${child.categoryOrder}</td>
-                                            <td>"${child.createdDate}"</td>
-                                            <td>
+                                            <td data-label="설명">${child.categoryDescription}</td>
+                                            <td data-label="순서">${child.categoryOrder}</td>
+                                            <td data-label="작성일">"${child.createdDate}"</td>
+                                            <td class="action-cell">
                                                 <a href="${pageContext.request.contextPath}/admin/category/edit/${child.categoryId}" class="btn btn-small btn-info">수정</a>
                                                 <button class="btn btn-small btn-danger" onclick="deleteCategory(${child.categoryId})">삭제</button>
                                             </td>

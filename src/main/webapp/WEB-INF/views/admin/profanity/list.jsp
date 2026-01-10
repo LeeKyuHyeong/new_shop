@@ -147,37 +147,37 @@
                                 <c:otherwise>
                                     <c:forEach var="word" items="${words}" varStatus="status">
                                         <tr data-id="${word.id}">
-                                            <td>
+                                            <td data-label="선택">
                                                 <input type="checkbox" class="row-check" value="${word.id}"
-                                                       onchange="updateDeleteButton()" 
+                                                       onchange="updateDeleteButton()"
                                                        ${word.isSystem ? 'disabled' : ''}>
                                             </td>
-                                            <td>${totalElements - (currentPage * 20) - status.index}</td>
-                                            <td class="word-cell">
+                                            <td data-label="번호">${totalElements - (currentPage * 20) - status.index}</td>
+                                            <td class="word-cell" data-label="단어">
                                                 <span class="word-text">${word.word}</span>
                                             </td>
-                                            <td>
+                                            <td data-label="카테고리">
                                                 <span class="category-badge category-${word.category}">
                                                     ${word.category != null ? word.category : '미분류'}
                                                 </span>
                                             </td>
-                                            <td class="desc-cell">${word.description}</td>
-                                            <td>
+                                            <td class="desc-cell" data-label="설명">${word.description}</td>
+                                            <td data-label="상태">
                                                 <span class="status-badge ${word.isActive ? 'active' : 'inactive'}"
                                                       onclick="toggleStatus(${word.id})" style="cursor:pointer;">
                                                     ${word.isActive ? '활성' : '비활성'}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td data-label="유형">
                                                 <span class="type-badge ${word.isSystem ? 'system' : 'user'}">
                                                     ${word.isSystem ? '시스템' : '사용자'}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td data-label="등록일">
                                                 <fmt:parseDate value="${word.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>
                                                 <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
                                             </td>
-                                            <td>
+                                            <td class="action-cell">
                                                 <div class="action-buttons">
                                                     <button class="btn-icon" onclick="openEditModal(${word.id}, '${word.word}', '${word.category}', '${word.description}', ${word.isActive})" title="수정">
                                                         ✏️

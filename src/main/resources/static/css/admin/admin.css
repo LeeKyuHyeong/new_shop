@@ -780,3 +780,288 @@ body.dark-mode .list-info {
 body.dark-mode .list-info strong {
     color: #3498db;
 }
+
+/* ========================================
+   모바일 테이블 -> 카드 레이아웃
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* 테이블 컨테이너 */
+    .table-container {
+        overflow-x: visible;
+        background: transparent;
+        border: none;
+    }
+
+    /* 테이블 기본 구조 변경 */
+    .data-table {
+        min-width: 0;
+        display: block;
+        width: 100%;
+    }
+
+    .data-table thead {
+        display: none;
+    }
+
+    .data-table tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* 각 행을 카드로 */
+    .data-table tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 12px;
+        gap: 4px 0;
+    }
+
+    /* 기본 셀 스타일 */
+    .data-table td {
+        display: flex !important;
+        align-items: center;
+        flex-wrap: nowrap;
+        padding: 4px 0;
+        border: none;
+        font-size: 13px;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        min-height: 24px;
+    }
+
+    /* 레이블 */
+    .data-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 11px;
+        width: 55px;
+        min-width: 55px;
+        flex-shrink: 0;
+        margin-right: 5px;
+    }
+
+    /* 값 영역 */
+    .data-table td > * {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* 레이블 없는 셀 */
+    .data-table td.thumbnail-cell::before,
+    .data-table td.action-cell::before,
+    .data-table td.desktop-only::before,
+    .data-table td[data-label="선택"]::before {
+        display: none;
+        width: 0;
+    }
+
+    /* 썸네일 셀 - 큰 사이즈, 2줄 차지 */
+    .data-table td.thumbnail-cell {
+        width: 90px;
+        flex-shrink: 0;
+        margin-right: 12px;
+        padding: 0;
+        align-self: flex-start;
+    }
+
+    .data-table .thumbnail-img,
+    .data-table .no-image {
+        width: 85px !important;
+        height: 85px !important;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .data-table .slide-thumb {
+        width: 70px !important;
+        height: 70px !important;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    /* 썸네일 옆 정보 - 2줄 영역 */
+    .data-table td.thumbnail-cell ~ td[data-label="ID"],
+    .data-table td.thumbnail-cell ~ td[data-label="제목"],
+    .data-table td.thumbnail-cell ~ td[data-label="상품명"],
+    .data-table td.thumbnail-cell ~ td[data-label="주문번호"],
+    .data-table td.thumbnail-cell ~ td[data-label="카테고리"],
+    .data-table td.thumbnail-cell ~ td[data-label="가격"] {
+        width: calc(100% - 102px);
+        flex-grow: 1;
+    }
+
+    /* 나머지 정보들 - 풀 너비 */
+    .data-table td[data-label="순서"],
+    .data-table td[data-label="기간"],
+    .data-table td[data-label="상태"],
+    .data-table td[data-label="사용여부"],
+    .data-table td[data-label="등록일"],
+    .data-table td[data-label="작성일"],
+    .data-table td[data-label="결제금액"],
+    .data-table td[data-label="할인율"],
+    .data-table td[data-label="재고"],
+    .data-table td[data-label="크기"],
+    .data-table td[data-label="위치"],
+    .data-table td[data-label="설명"],
+    .data-table td[data-label="카테고리명"] {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    /* 할인율 - 글자만 색상 적용 */
+    .data-table .discount-badge {
+        background: none !important;
+        color: #e74c3c;
+        font-weight: 600;
+        padding: 0;
+    }
+
+    /* 액션 버튼 - 하단 전체 너비 */
+    .data-table td.action-cell {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+        padding-top: 10px;
+        margin-top: 6px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .data-table td.action-cell .btn,
+    .data-table td.action-cell .btn-small,
+    .data-table td.action-cell a.btn {
+        flex: 1;
+        text-align: center;
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    /* 빈 메시지 */
+    .data-table .empty-message,
+    .data-table .text-center {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 30px 15px;
+    }
+
+    /* 가격 강조 */
+    .data-table td.price-cell {
+        font-weight: 600;
+        color: var(--btn-primary-bg);
+    }
+
+    /* 뱃지 스타일 */
+    .data-table .badge {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+
+    /* 체크박스 셀 숨기기 */
+    .data-table td[data-label="선택"] {
+        display: none;
+    }
+
+    /* 슬라이드 제목/링크 */
+    .data-table .slide-title {
+        font-weight: 600;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .data-table .slide-link {
+        font-size: 11px;
+        color: var(--text-secondary);
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* desktop-only 숨기기 */
+    .data-table td.desktop-only {
+        display: none;
+    }
+
+    /* 기간 셀 줄바꿈 허용 */
+    .data-table td.period-cell {
+        flex-wrap: wrap;
+    }
+}
+
+/* 480px 이하 - 더 컴팩트하게 */
+@media (max-width: 480px) {
+    .data-table tr {
+        padding: 10px;
+        gap: 2px 0;
+    }
+
+    .data-table td {
+        font-size: 12px;
+        padding: 3px 0;
+    }
+
+    .data-table td::before {
+        font-size: 10px;
+        width: 50px;
+    }
+
+    .data-table td.thumbnail-cell {
+        width: 75px;
+        margin-right: 10px;
+    }
+
+    .data-table .thumbnail-img,
+    .data-table .no-image {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .data-table .slide-thumb {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    .data-table td.thumbnail-cell ~ td[data-label="ID"],
+    .data-table td.thumbnail-cell ~ td[data-label="제목"],
+    .data-table td.thumbnail-cell ~ td[data-label="상품명"],
+    .data-table td.thumbnail-cell ~ td[data-label="주문번호"],
+    .data-table td.thumbnail-cell ~ td[data-label="카테고리"],
+    .data-table td.thumbnail-cell ~ td[data-label="가격"] {
+        width: calc(100% - 85px);
+    }
+
+    .data-table td.action-cell .btn,
+    .data-table td.action-cell .btn-small {
+        padding: 7px 6px;
+        font-size: 11px;
+    }
+}
+
+/* 다크모드 */
+@media (max-width: 768px) {
+    body.dark-mode .data-table tr {
+        background: #16213e;
+        border-color: #34495e;
+    }
+
+    body.dark-mode .data-table td.action-cell {
+        border-color: #34495e;
+    }
+
+    body.dark-mode .data-table td::before {
+        color: #7f8c9a;
+    }
+}

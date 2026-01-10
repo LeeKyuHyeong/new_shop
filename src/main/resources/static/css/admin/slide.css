@@ -276,8 +276,19 @@
         padding: 20px;
     }
 
+    /* 카드 레이아웃 사용 - min-width 제거 */
     .data-table {
-        min-width: 700px;
+        min-width: 0;
+    }
+
+    .slide-thumb {
+        width: 60px !important;
+        height: 60px !important;
+        object-fit: cover;
+    }
+
+    .thumbnail-cell {
+        width: auto;
     }
 }
 
@@ -328,19 +339,14 @@
         font-size: 12px;
     }
 
+    /* 카드 레이아웃 - min-width 제거 */
     .data-table {
-        min-width: 600px;
-        font-size: 12px;
-    }
-
-    .data-table th,
-    .data-table td {
-        padding: 8px;
+        min-width: 0;
     }
 
     .slide-thumb {
-        width: 100px;
-        height: 36px;
+        width: 50px !important;
+        height: 50px !important;
     }
 
     .empty-message {
@@ -359,19 +365,9 @@
         height: 120px;
     }
 
-    .data-table {
-        min-width: 550px;
-        font-size: 11px;
-    }
-
-    .data-table th,
-    .data-table td {
-        padding: 6px;
-    }
-
     .slide-thumb {
-        width: 80px;
-        height: 30px;
+        width: 45px !important;
+        height: 45px !important;
     }
 }
 

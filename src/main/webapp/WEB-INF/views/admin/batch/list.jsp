@@ -11,9 +11,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/batch.css">
 </head>
 <body>
-    <%@ include file="../common/sidebar.jsp" %>
+    <div class="admin-container">
+        <%@ include file="../common/sidebar.jsp" %>
 
-    <main class="main-content">
+        <main class="main-content">
         <div class="page-header">
             <h1>배치 관리</h1>
             <p class="page-description">자동 실행되는 배치 작업을 관리하고 수동으로 실행할 수 있습니다. (총 23개)</p>
@@ -587,6 +588,7 @@
             </div>
         </div>
     </main>
+    </div>
 
     <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
     <script src="${pageContext.request.contextPath}/js/admin/batch.js"></script>

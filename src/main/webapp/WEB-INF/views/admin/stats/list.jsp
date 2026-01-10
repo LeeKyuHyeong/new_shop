@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/stats.css">
 </head>
 <body>
-    <%@ include file="../common/sidebar.jsp" %>
+    <div class="admin-container">
+        <%@ include file="../common/sidebar.jsp" %>
 
-    <main class="main-content">
+        <main class="main-content">
         <div class="content-header">
             <h1>통계 관리</h1>
         </div>
@@ -114,16 +115,9 @@
             </div>
         </div>
     </main>
+    </div>
 
     <script src="${pageContext.request.contextPath}/js/common/theme.js"></script>
     <script src="${pageContext.request.contextPath}/js/admin/stats.js"></script>
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
-    </script>
 </body>
 </html>
