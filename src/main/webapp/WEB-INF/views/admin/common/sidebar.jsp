@@ -19,6 +19,8 @@
     </div>
 
     <nav class="sidebar-menu">
+        <a href="${pageContext.request.contextPath}/" class="menu-item client-link" target="_blank">쇼핑몰 바로가기 ↗</a>
+        <div class="menu-divider"></div>
         <a href="${pageContext.request.contextPath}/admin" class="menu-item <c:if test="${activeMenu eq 'dashboard'}">active</c:if>">대시보드</a>
         <a href="${pageContext.request.contextPath}/admin/category" class="menu-item <c:if test="${activeMenu eq 'category'}">active</c:if>">카테고리 관리</a>
         <a href="${pageContext.request.contextPath}/admin/product" class="menu-item <c:if test="${activeMenu eq 'product'}">active</c:if>">상품 관리</a>

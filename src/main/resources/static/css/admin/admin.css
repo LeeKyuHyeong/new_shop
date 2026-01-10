@@ -223,6 +223,22 @@ body.dark-mode .theme-toggle-item {
     background-color: var(--btn-danger-hover);
 }
 
+.menu-item.client-link {
+    background-color: rgba(52, 152, 219, 0.2);
+    border: 1px solid rgba(52, 152, 219, 0.4);
+    font-weight: 600;
+}
+
+.menu-item.client-link:hover {
+    background-color: rgba(52, 152, 219, 0.4);
+}
+
+.menu-divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.15);
+    margin: 5px 0;
+}
+
 .main-content {
     margin-left: 250px;
     display: flex;
