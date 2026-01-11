@@ -3,6 +3,13 @@ name: Build and Deploy to Cafe24
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - '.idea/**'
+      - '.vscode/**'
+      - 'LICENSE'
   workflow_dispatch:  # 수동 실행 버튼 활성화
 
 env:

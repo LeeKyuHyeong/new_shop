@@ -49,6 +49,11 @@ Controller → Service → Repository → Entity
 - `/client/` - Customer storefront views
 - `/common/` - Shared components
 
+### Static Resources (`src/main/resources/static/`)
+- `css/admin/`, `css/client/`, `css/common/` - Stylesheets by area
+- `js/admin/`, `js/client/`, `js/common/` - JavaScript by area
+- CSS uses custom properties (variables) for theming with dark mode support (`body.dark-mode`)
+
 ### Key Entities
 User, Product, ProductImage, Category, Order, OrderItem, Cart, Review, Wishlist, Point, Coupon, SocialAccount, DailyStats
 
@@ -81,3 +86,9 @@ CI/CD via GitHub Actions (`.github/workflows/deploy.yml`):
 1. Maven build with JDK 17
 2. Docker image build and push to Docker Hub
 3. SSH deploy to server via docker-compose
+
+## Notes
+
+- UI is in Korean (한국어)
+- Session-based authentication with `loggedInUser` session attribute
+- Review system requires purchase with DELIVERED order status before writing
