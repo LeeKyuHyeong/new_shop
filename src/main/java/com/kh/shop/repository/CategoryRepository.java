@@ -45,4 +45,16 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     // 카테고리명 검색 (추가)
     @Query("SELECT c FROM Category c WHERE c.useYn = :useYn AND c.categoryName LIKE %:keyword%")
     Page<Category> findByCategoryNameContaining(@Param("useYn") String useYn, @Param("keyword") String keyword, Pageable pageable);
+
+    // 상위 카테고리로 필터링 (해당 상위 카테고리의 하위 카테고리들만 조회)
+    @Query("SELECT c FROM Category c WHERE c.useYn = :useYn AND c.parent.categoryId = :parentId")
+    Page<Category> findByParentCategoryIdPaging(@Param("useYn") String useYn, @Param("parentId") Integer parentId, Pageable pageable);
+
+    // 전체 카테고리 플랫 목록 조회 (상위 카테고리 포함 - LEFT JOIN)
+    @Query("SELECT c FROM Category c LEFT JOIN FETCH c.parent WHERE c.useYn = :useYn")
+    Page<Category> findAllFlatWithParent(@Param("useYn") String useYn, Pageable pageable);
+
+    // 카테고리명 검색 + 상위 카테고리 포함
+    @Query("SELECT c FROM Category c LEFT JOIN FETCH c.parent WHERE c.useYn = :useYn AND c.categoryName LIKE %:keyword%")
+    Page<Category> findByCategoryNameContainingWithParent(@Param("useYn") String useYn, @Param("keyword") String keyword, Pageable pageable);
 }

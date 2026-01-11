@@ -97,19 +97,25 @@ public class ProductService {
     public PageResponseDTO<Product> getProductListWithPaging(PageRequestDTO pageRequestDTO) {
         Pageable pageable = pageRequestDTO.getPageable("productOrder");
 
-        String searchType = pageRequestDTO.getSearchType();
         String searchKeyword = pageRequestDTO.getSearchKeyword();
         Integer categoryId = pageRequestDTO.getCategoryId();
+        Integer parentCategoryId = pageRequestDTO.getParentCategoryId();
 
         Page<Product> result;
 
         // 검색 조건에 따른 분기
         if (categoryId != null && searchKeyword != null && !searchKeyword.isEmpty()) {
-            // 카테고리 + 검색어
+            // 하위 카테고리 + 검색어
             result = productRepository.findByProductNameAndCategoryPaging("Y", searchKeyword, categoryId, pageable);
         } else if (categoryId != null) {
-            // 카테고리만
+            // 하위 카테고리만
             result = productRepository.findByCategoryIdPaging("Y", categoryId, pageable);
+        } else if (parentCategoryId != null && searchKeyword != null && !searchKeyword.isEmpty()) {
+            // 상위 카테고리 + 검색어
+            result = productRepository.findByParentCategoryAndKeywordPaging("Y", parentCategoryId, searchKeyword, pageable);
+        } else if (parentCategoryId != null) {
+            // 상위 카테고리만
+            result = productRepository.findByParentCategoryIdPaging("Y", parentCategoryId, pageable);
         } else if (searchKeyword != null && !searchKeyword.isEmpty()) {
             // 검색어만
             result = productRepository.findByProductNameContaining("Y", searchKeyword, pageable);

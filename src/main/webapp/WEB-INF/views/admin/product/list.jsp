@@ -32,32 +32,44 @@
                 <div class="search-filter-box">
                     <form id="searchForm" method="get" action="${pageContext.request.contextPath}/admin/product">
                         <input type="hidden" name="size" value="${pageRequestDTO.size}">
-                        
+
                         <div class="filter-row">
                             <div class="filter-group">
-                                <label for="categoryId">카테고리</label>
-                                <select id="categoryId" name="categoryId" class="form-select">
+                                <label for="parentCategoryId">상위 카테고리</label>
+                                <select id="parentCategoryId" name="parentCategoryId" class="form-select" onchange="onParentCategoryChange()">
                                     <option value="">전체</option>
                                     <c:forEach var="parent" items="${parentCategories}">
-                                        <optgroup label="${parent.categoryName}">
-                                            <c:forEach var="child" items="${parent.children}">
-                                                <option value="${child.categoryId}" 
-                                                        ${pageRequestDTO.categoryId eq child.categoryId ? 'selected' : ''}>
-                                                    ${child.categoryName}
-                                                </option>
-                                            </c:forEach>
-                                        </optgroup>
+                                        <option value="${parent.categoryId}"
+                                                ${pageRequestDTO.parentCategoryId eq parent.categoryId ? 'selected' : ''}>
+                                            ${parent.categoryName}
+                                        </option>
                                     </c:forEach>
                                 </select>
                             </div>
-                            
+
+                            <div class="filter-group">
+                                <label for="categoryId">하위 카테고리</label>
+                                <select id="categoryId" name="categoryId" class="form-select">
+                                    <option value="">전체</option>
+                                    <c:forEach var="parent" items="${parentCategories}">
+                                        <c:forEach var="child" items="${parent.children}">
+                                            <option value="${child.categoryId}"
+                                                    data-parent="${parent.categoryId}"
+                                                    ${pageRequestDTO.categoryId eq child.categoryId ? 'selected' : ''}>
+                                                ${child.categoryName}
+                                            </option>
+                                        </c:forEach>
+                                    </c:forEach>
+                                </select>
+                            </div>
+
                             <div class="filter-group">
                                 <label for="searchKeyword">상품명 검색</label>
-                                <input type="text" id="searchKeyword" name="searchKeyword" 
+                                <input type="text" id="searchKeyword" name="searchKeyword"
                                        class="form-input" placeholder="상품명 입력"
                                        value="${pageRequestDTO.searchKeyword}">
                             </div>
-                            
+
                             <div class="filter-actions">
                                 <button type="submit" class="btn btn-primary">검색</button>
                                 <button type="button" class="btn btn-secondary" onclick="resetSearch()">초기화</button>

@@ -37,3 +37,4 @@ build/
 application.properties
 /src/main/resources/application-secret.properties
 .env
+.env.comp

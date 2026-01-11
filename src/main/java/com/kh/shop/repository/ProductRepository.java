@@ -53,6 +53,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND p.productName LIKE %:keyword% AND p.category.categoryId = :categoryId")
     Page<Product> findByProductNameAndCategoryPaging(@Param("useYn") String useYn, @Param("keyword") String keyword, @Param("categoryId") Integer categoryId, Pageable pageable);
 
+    // Admin: 상위 카테고리로 필터링 (해당 상위 카테고리의 모든 하위 카테고리 상품)
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category c WHERE p.useYn = :useYn AND c.parent.categoryId = :parentCategoryId")
+    Page<Product> findByParentCategoryIdPaging(@Param("useYn") String useYn, @Param("parentCategoryId") Integer parentCategoryId, Pageable pageable);
+
+    // Admin: 상위 카테고리 + 검색어
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category c WHERE p.useYn = :useYn AND c.parent.categoryId = :parentCategoryId AND p.productName LIKE %:keyword%")
+    Page<Product> findByParentCategoryAndKeywordPaging(@Param("useYn") String useYn, @Param("parentCategoryId") Integer parentCategoryId, @Param("keyword") String keyword, Pageable pageable);
+
     // Client: 카테고리별 상품 페이징
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND p.category.categoryId = :categoryId")
     Page<Product> findByCategoryPaging(@Param("useYn") String useYn, @Param("categoryId") Integer categoryId, Pageable pageable);

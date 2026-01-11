@@ -28,6 +28,9 @@ public class PageRequestDTO {
     // 카테고리 필터용
     private Integer categoryId;
 
+    // 상위 카테고리 필터용
+    private Integer parentCategoryId;
+
     public Pageable getPageable() {
         return getPageable("productId");
     }
@@ -62,6 +65,9 @@ public class PageRequestDTO {
         }
         if (categoryId != null) {
             sb.append("&categoryId=").append(categoryId);
+        }
+        if (parentCategoryId != null) {
+            sb.append("&parentCategoryId=").append(parentCategoryId);
         }
         return sb.toString();
     }

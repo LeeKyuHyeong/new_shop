@@ -34,3 +34,16 @@ function showAlert(message, type) {
         }, 500);
     }
 }
+
+// 검색 초기화
+function resetSearch() {
+    window.location.href = contextPath + '/admin/category';
+}
+
+// 페이지 사이즈 변경
+function changePageSize(size) {
+    const form = document.getElementById('searchForm');
+    const sizeInput = form.querySelector('input[name="size"]');
+    sizeInput.value = size;
+    form.submit();
+}

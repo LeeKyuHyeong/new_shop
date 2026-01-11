@@ -107,7 +107,7 @@ public class CategoryService {
     }
 
     /**
-     * 카테고리 목록 페이징 조회 (수정됨)
+     * 카테고리 목록 페이징 조회 (플랫 목록 + 상위카테고리 필터)
      */
     @Transactional(readOnly = true)
     public PageResponseDTO<Category> getListWithPaging(PageRequestDTO pageRequestDTO) {
@@ -115,19 +115,23 @@ public class CategoryService {
 
         String searchKeyword = pageRequestDTO.getSearchKeyword();
         Integer categoryId = pageRequestDTO.getCategoryId();
+        Integer parentCategoryId = pageRequestDTO.getParentCategoryId();
 
         Page<Category> result;
 
-        // 조건 분기 수정
+        // 조건 분기
         if (categoryId != null) {
             // 특정 카테고리만 조회
             result = categoryRepository.findByCategoryIdPaging("Y", categoryId, pageable);
+        } else if (parentCategoryId != null) {
+            // 상위 카테고리로 필터링 (하위 카테고리만)
+            result = categoryRepository.findByParentCategoryIdPaging("Y", parentCategoryId, pageable);
         } else if (searchKeyword != null && !searchKeyword.isEmpty()) {
             // 카테고리명 검색
-            result = categoryRepository.findByCategoryNameContaining("Y", searchKeyword, pageable);
+            result = categoryRepository.findByCategoryNameContainingWithParent("Y", searchKeyword, pageable);
         } else {
-            // 전체 조회
-            result = categoryRepository.findAllWithCategoryPaging("Y", pageable);
+            // 전체 조회 (플랫 목록)
+            result = categoryRepository.findAllFlatWithParent("Y", pageable);
         }
 
         return PageResponseDTO.<Category>withAll()
