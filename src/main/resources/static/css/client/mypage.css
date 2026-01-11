@@ -23,10 +23,10 @@
 .mypage-sidebar h3 {
     font-size: 20px;
     font-weight: 700;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 20px;
     padding-bottom: 12px;
-    border-bottom: 2px solid #3498db;
+    border-bottom: 2px solid var(--btn-primary-bg);
 }
 
 .mypage-nav {
@@ -40,7 +40,7 @@
     align-items: center;
     gap: 10px;
     padding: 14px 16px;
-    color: #555;
+    color: var(--text-secondary);
     text-decoration: none;
     border-radius: 8px;
     font-size: 15px;
@@ -49,14 +49,14 @@
 }
 
 .mypage-nav a:hover {
-    background: #f0f4f8;
-    color: #3498db;
+    background: var(--bg-secondary);
+    color: var(--btn-primary-bg);
     transform: translateX(3px);
 }
 
 .mypage-nav a.active {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
+    background: linear-gradient(135deg, var(--btn-primary-bg), var(--btn-primary-hover));
+    color: var(--text-white);
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
@@ -75,38 +75,38 @@
 .mypage-title {
     font-size: 26px;
     font-weight: 700;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 30px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #e9ecef;
+    border-bottom: 2px solid var(--border-color);
 }
 
 /* ===========================================
    섹션
    =========================================== */
 .mypage-section {
-    background: white;
+    background: var(--bg-primary);
     border-radius: 12px;
     padding: 28px;
     margin-bottom: 24px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    border: 1px solid #f0f0f0;
+    box-shadow: 0 2px 12px var(--shadow-color);
+    border: 1px solid var(--border-color);
 }
 
 .section-title {
     font-size: 17px;
     font-weight: 600;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 22px;
     padding-left: 12px;
-    border-left: 4px solid #3498db;
+    border-left: 4px solid var(--btn-primary-bg);
 }
 
 /* ===========================================
    프로필 정보
    =========================================== */
 .profile-info {
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 10px;
     padding: 20px 24px;
 }
@@ -115,7 +115,7 @@
     display: flex;
     align-items: center;
     padding: 14px 0;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .info-row:last-child {
@@ -131,12 +131,12 @@
     width: 120px;
     font-weight: 600;
     font-size: 14px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
 }
 
 .info-value {
     flex: 1;
-    color: #2c3e50;
+    color: var(--text-primary);
     font-size: 15px;
 }
 
@@ -148,7 +148,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 10px;
     margin-bottom: 12px;
     transition: background 0.2s;
@@ -159,7 +159,7 @@
 }
 
 .setting-item:hover {
-    background: #f0f4f8;
+    background: var(--bg-hover, #f0f4f8);
 }
 
 .setting-info {
@@ -171,12 +171,12 @@
 .setting-name {
     font-weight: 600;
     font-size: 15px;
-    color: #2c3e50;
+    color: var(--text-primary);
 }
 
 .setting-desc {
     font-size: 13px;
-    color: #95a5a6;
+    color: var(--text-muted);
 }
 
 .setting-control {
@@ -193,25 +193,25 @@
 
 .theme-btn {
     padding: 10px 20px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
-    background: white;
+    background: var(--bg-primary);
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-    color: #666;
+    color: var(--text-secondary);
     transition: all 0.2s ease;
 }
 
 .theme-btn:hover {
-    border-color: #3498db;
-    color: #3498db;
+    border-color: var(--btn-primary-bg);
+    color: var(--btn-primary-bg);
 }
 
 .theme-btn.active {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    border-color: #3498db;
-    color: white;
+    background: linear-gradient(135deg, var(--btn-primary-bg), var(--btn-primary-hover));
+    border-color: var(--btn-primary-bg);
+    color: var(--text-white);
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
@@ -238,7 +238,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    background-color: var(--text-muted);
     transition: all 0.3s ease;
     border-radius: 28px;
 }
@@ -250,14 +250,14 @@
     width: 22px;
     left: 3px;
     bottom: 3px;
-    background-color: white;
+    background-color: var(--text-white);
     transition: all 0.3s ease;
     border-radius: 50%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .toggle-switch input:checked + .toggle-slider {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, var(--btn-primary-bg), var(--btn-primary-hover));
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
@@ -284,27 +284,27 @@
     margin-bottom: 8px;
     font-weight: 600;
     font-size: 14px;
-    color: #2c3e50;
+    color: var(--text-primary);
 }
 
 .form-group input {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 14px;
     transition: all 0.2s ease;
-    background: white;
+    background: var(--bg-primary);
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: var(--btn-primary-bg);
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .form-group input::placeholder {
-    color: #aaa;
+    color: var(--text-muted);
 }
 
 /* ===========================================
@@ -324,8 +324,8 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
+    background: linear-gradient(135deg, var(--btn-primary-bg), var(--btn-primary-hover));
+    color: var(--text-white);
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
@@ -339,14 +339,14 @@
 }
 
 .btn-secondary {
-    background: white;
-    color: #555;
-    border: 2px solid #e0e0e0;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    border: 2px solid var(--border-color);
 }
 
 .btn-secondary:hover {
-    border-color: #3498db;
-    color: #3498db;
+    border-color: var(--btn-primary-bg);
+    color: var(--btn-primary-bg);
 }
 
 /* ===========================================
@@ -357,8 +357,8 @@
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
-    background: #2c3e50;
-    color: white;
+    background: var(--nav-bg);
+    color: var(--text-white);
     padding: 16px 32px;
     border-radius: 10px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
@@ -375,11 +375,11 @@
 }
 
 .toast.error {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--btn-danger-bg), var(--btn-danger-hover));
 }
 
 .toast.success {
-    background: linear-gradient(135deg, #27ae60, #219a52);
+    background: linear-gradient(135deg, var(--badge-success), #219a52);
 }
 
 /* ===========================================
@@ -388,7 +388,7 @@
 .empty-state {
     text-align: center;
     padding: 60px 20px;
-    color: #95a5a6;
+    color: var(--text-muted);
 }
 
 .empty-state .icon {

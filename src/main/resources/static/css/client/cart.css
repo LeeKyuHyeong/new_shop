@@ -43,7 +43,7 @@
     display: flex;
     gap: 20px;
     padding: 20px;
-    background: white;
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-top: none;
 }
@@ -70,8 +70,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8f9fa;
-    color: #999;
+    background: var(--bg-secondary);
+    color: var(--text-muted);
     font-size: 12px;
 }
 .item-info {
@@ -89,8 +89,8 @@
 /* 옵션 표시 스타일 */
 .item-option {
     font-size: 13px;
-    color: #7f8c8d;
-    background: #f8f9fa;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
     padding: 6px 12px;
     border-radius: 4px;
     margin-bottom: 10px;
@@ -102,11 +102,11 @@
 }
 .item-original-price {
     text-decoration: line-through;
-    color: #999;
+    color: var(--text-muted);
     font-size: 13px;
 }
 .item-discount {
-    color: #e74c3c;
+    color: var(--discount-color);
     font-size: 13px;
     margin-left: 5px;
 }
@@ -123,7 +123,7 @@
     width: 32px;
     height: 32px;
     border: 1px solid var(--border-color);
-    background: white;
+    background: var(--bg-primary);
     cursor: pointer;
     border-radius: 4px;
     font-size: 18px;
@@ -150,21 +150,21 @@
 }
 .btn-delete {
     padding: 6px 12px;
-    border: 1px solid #e74c3c;
-    background: white;
-    color: #e74c3c;
+    border: 1px solid var(--btn-danger-bg);
+    background: var(--bg-primary);
+    color: var(--btn-danger-bg);
     border-radius: 4px;
     cursor: pointer;
     font-size: 13px;
 }
 .btn-delete:hover {
-    background: #e74c3c;
-    color: white;
+    background: var(--btn-danger-bg);
+    color: var(--text-white);
 }
 
 /* 요약 박스 */
 .summary-box {
-    background: white;
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 25px;
@@ -195,7 +195,7 @@
     width: 100%;
     padding: 16px;
     background: var(--btn-primary-bg);
-    color: white;
+    color: var(--text-white);
     border: none;
     border-radius: 8px;
     font-size: 16px;
@@ -207,7 +207,7 @@
     background: var(--btn-primary-hover);
 }
 .btn-order:disabled {
-    background: #bdc3c7;
+    background: var(--text-secondary);
     cursor: not-allowed;
 }
 
@@ -215,7 +215,7 @@
 .empty-cart {
     text-align: center;
     padding: 60px 20px;
-    background: white;
+    background: var(--bg-primary);
     border-radius: 12px;
     border: 1px solid var(--border-color);
 }
@@ -227,7 +227,7 @@
     display: inline-block;
     padding: 12px 24px;
     background: var(--btn-primary-bg);
-    color: white;
+    color: var(--text-white);
     text-decoration: none;
     border-radius: 8px;
 }

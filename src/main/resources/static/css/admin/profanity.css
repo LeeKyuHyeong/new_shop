@@ -9,7 +9,7 @@
 }
 
 .stat-card {
-    background: white;
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 20px;
@@ -50,7 +50,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    background: white;
+    background: var(--bg-primary);
     padding: 15px 20px;
     border-radius: 12px;
     border: 1px solid var(--border-color);
@@ -64,7 +64,7 @@
 
 /* 필터 박스 */
 .filter-box {
-    background: white;
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 20px;
@@ -105,7 +105,7 @@
 
 /* 테이블 */
 .table-box {
-    background: white;
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     overflow: hidden;
@@ -147,7 +147,7 @@
 }
 
 .word-text {
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     padding: 4px 8px;
     border-radius: 4px;
     font-family: monospace;
@@ -189,13 +189,13 @@
 }
 
 .status-badge.active {
-    background: #d4edda;
-    color: #155724;
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
 }
 
 .status-badge.inactive {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--alert-error-bg);
+    color: var(--alert-error-text);
 }
 
 /* 유형 배지 */
@@ -208,13 +208,13 @@
 }
 
 .type-badge.system {
-    background: #e7f3ff;
-    color: #0066cc;
+    background: var(--badge-info-bg, #e7f3ff);
+    color: var(--badge-info);
 }
 
 .type-badge.user {
-    background: #f0fdf4;
-    color: #166534;
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
 }
 
 /* 액션 버튼 */
@@ -284,16 +284,16 @@
 }
 
 .btn-danger {
-    background: #dc3545;
-    color: white;
+    background: var(--btn-danger-bg);
+    color: var(--text-white);
 }
 
 .btn-danger:hover {
-    background: #c82333;
+    background: var(--btn-danger-hover);
 }
 
 .btn-danger:disabled {
-    background: #ccc;
+    background: var(--text-muted);
     cursor: not-allowed;
 }
 
@@ -342,7 +342,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--overlay-bg);
     z-index: 1000;
     align-items: center;
     justify-content: center;
@@ -353,7 +353,7 @@
 }
 
 .modal-content {
-    background: white;
+    background: var(--bg-primary);
     border-radius: 16px;
     width: 100%;
     max-width: 480px;
@@ -452,13 +452,13 @@
 }
 
 .test-result.success {
-    background: #d4edda;
-    color: #155724;
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
 }
 
 .test-result.error {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--alert-error-bg);
+    color: var(--alert-error-text);
 }
 
 .test-result h4 {
@@ -512,8 +512,8 @@
 
 .detail-word {
     font-weight: 700;
-    background: #dc3545;
-    color: white;
+    background: var(--btn-danger-bg);
+    color: var(--text-white);
     padding: 2px 8px;
     border-radius: 4px;
     font-family: monospace;

@@ -33,7 +33,7 @@
 
 .search-box .form-control:focus {
     outline: none;
-    border-color: #007bff;
+    border-color: var(--btn-primary-bg);
 }
 
 .search-box .btn {
@@ -47,12 +47,12 @@
 }
 
 .search-box .btn-primary {
-    background-color: #007bff;
-    color: white;
+    background-color: var(--btn-primary-bg);
+    color: var(--text-white);
 }
 
 .search-box .btn-primary:hover {
-    background-color: #0056b3;
+    background-color: var(--btn-primary-hover);
 }
 
 .stats-container {
@@ -158,23 +158,23 @@
    다크 모드
    ======================================== */
 body.dark-mode .stat-card {
-    background-color: #1a1a1a;
-    border-color: #444444;
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
 }
 
 body.dark-mode .stat-label {
-    color: #b0b0b0;
+    color: var(--text-secondary);
 }
 
 body.dark-mode .stat-value {
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 body.dark-mode .chart-container {
-    background-color: #1a1a1a;
-    border-color: #444444;
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
 }
 
 body.dark-mode .chart-title {
-    color: #ffffff;
+    color: var(--text-primary);
 }

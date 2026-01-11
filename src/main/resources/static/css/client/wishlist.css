@@ -14,11 +14,11 @@
 .wishlist-header h1 {
     font-size: 2rem;
     margin-bottom: 10px;
-    color: var(--text-primary, #333);
+    color: var(--text-primary);
 }
 
 .wishlist-description {
-    color: var(--text-secondary, #666);
+    color: var(--text-secondary);
     font-size: 1rem;
 }
 
@@ -31,8 +31,8 @@
 .loading .spinner {
     width: 40px;
     height: 40px;
-    border: 4px solid var(--border-color, #e0e0e0);
-    border-top-color: var(--primary-color, #007bff);
+    border: 4px solid var(--border-color);
+    border-top-color: var(--btn-primary-bg);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 15px;
@@ -43,7 +43,7 @@
 }
 
 .loading p {
-    color: var(--text-secondary, #666);
+    color: var(--text-secondary);
 }
 
 /* 빈 위시리스트 */
@@ -60,19 +60,19 @@
 .empty-wishlist h3 {
     font-size: 1.5rem;
     margin-bottom: 10px;
-    color: var(--text-primary, #333);
+    color: var(--text-primary);
 }
 
 .empty-wishlist p {
-    color: var(--text-secondary, #666);
+    color: var(--text-secondary);
     margin-bottom: 30px;
 }
 
 .btn-shop {
     display: inline-block;
     padding: 12px 30px;
-    background: var(--primary-color, #007bff);
-    color: #fff;
+    background: var(--btn-primary-bg);
+    color: var(--text-white);
     text-decoration: none;
     border-radius: 8px;
     font-weight: 600;
@@ -80,7 +80,7 @@
 }
 
 .btn-shop:hover {
-    background: var(--primary-hover, #0056b3);
+    background: var(--btn-primary-hover);
 }
 
 /* 위시리스트 콘텐츠 */
@@ -88,14 +88,14 @@
     margin-top: 20px;
 }
 
-.wishlist-count {
+.wishlist-content .wishlist-count {
     margin-bottom: 20px;
-    color: var(--text-secondary, #666);
+    color: var(--text-secondary);
     font-size: 0.95rem;
 }
 
-.wishlist-count strong {
-    color: var(--primary-color, #007bff);
+.wishlist-content .wishlist-count strong {
+    color: var(--btn-primary-bg);
 }
 
 /* 위시리스트 그리드 */
@@ -107,10 +107,10 @@
 
 /* 위시리스트 아이템 */
 .wishlist-item {
-    background: var(--card-bg, #fff);
+    background: var(--card-bg);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px var(--shadow-color);
     transition: transform 0.3s, box-shadow 0.3s;
     position: relative;
 }
@@ -127,7 +127,7 @@
     right: 10px;
     width: 32px;
     height: 32px;
-    background: rgba(255,255,255,0.9);
+    background: var(--bg-primary);
     border: none;
     border-radius: 50%;
     cursor: pointer;
@@ -135,14 +135,14 @@
     align-items: center;
     justify-content: center;
     font-size: 1.2rem;
-    color: #dc3545;
+    color: var(--btn-danger-bg);
     transition: all 0.3s;
     z-index: 10;
 }
 
 .btn-remove:hover {
-    background: #dc3545;
-    color: #fff;
+    background: var(--btn-danger-bg);
+    color: var(--text-white);
     transform: scale(1.1);
 }
 
@@ -151,7 +151,7 @@
     width: 100%;
     aspect-ratio: 1;
     overflow: hidden;
-    background: var(--bg-secondary, #f5f5f5);
+    background: var(--bg-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -169,7 +169,7 @@
 }
 
 .wishlist-item .item-image.no-image {
-    color: var(--text-muted, #999);
+    color: var(--text-muted);
     font-size: 0.9rem;
 }
 
@@ -180,11 +180,11 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.5);
+    background: var(--overlay-bg);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: var(--text-white);
     font-size: 1.2rem;
     font-weight: 700;
 }
@@ -196,14 +196,14 @@
 
 .wishlist-item .item-category {
     font-size: 0.8rem;
-    color: var(--text-muted, #999);
+    color: var(--text-muted);
     margin-bottom: 6px;
 }
 
 .wishlist-item .item-name {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-primary, #333);
+    color: var(--text-primary);
     margin-bottom: 10px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -219,7 +219,7 @@
 }
 
 .wishlist-item .item-name a:hover {
-    color: var(--primary-color, #007bff);
+    color: var(--btn-primary-bg);
 }
 
 /* 가격 */
@@ -233,14 +233,14 @@
 
 .wishlist-item .original-price {
     font-size: 0.85rem;
-    color: var(--text-muted, #999);
+    color: var(--text-muted);
     text-decoration: line-through;
 }
 
 .wishlist-item .discount-badge {
     font-size: 0.75rem;
-    background: #ff4757;
-    color: #fff;
+    background: var(--discount-color);
+    color: var(--text-white);
     padding: 2px 6px;
     border-radius: 4px;
     font-weight: 600;
@@ -249,7 +249,7 @@
 .wishlist-item .final-price {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--text-primary, #333);
+    color: var(--text-primary);
 }
 
 /* 버튼 영역 */
@@ -271,34 +271,34 @@
 }
 
 .wishlist-item .btn-cart {
-    background: var(--bg-secondary, #f0f0f0);
-    color: var(--text-primary, #333);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 .wishlist-item .btn-cart:hover {
-    background: var(--border-color, #e0e0e0);
+    background: var(--border-color);
 }
 
 .wishlist-item .btn-buy {
-    background: var(--primary-color, #007bff);
-    color: #fff;
+    background: var(--btn-primary-bg);
+    color: var(--text-white);
 }
 
 .wishlist-item .btn-buy:hover {
-    background: var(--primary-hover, #0056b3);
+    background: var(--btn-primary-hover);
 }
 
 .wishlist-item .btn-cart:disabled,
 .wishlist-item .btn-buy:disabled {
-    background: var(--bg-disabled, #ccc);
-    color: var(--text-muted, #999);
+    background: var(--text-muted);
+    color: var(--text-secondary);
     cursor: not-allowed;
 }
 
 /* 추가된 날짜 */
 .wishlist-item .item-date {
     font-size: 0.75rem;
-    color: var(--text-muted, #999);
+    color: var(--text-muted);
     margin-top: 10px;
     text-align: right;
 }

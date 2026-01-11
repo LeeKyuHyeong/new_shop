@@ -16,10 +16,10 @@
 .setting-sidebar h3 {
     font-size: 18px;
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 15px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #2c3e50;
+    border-bottom: 2px solid var(--text-primary);
 }
 
 .setting-nav {
@@ -30,38 +30,38 @@
 
 .setting-nav a {
     padding: 12px 15px;
-    color: #333;
+    color: var(--text-primary);
     text-decoration: none;
     border-radius: 6px;
     transition: all 0.3s;
 }
 
 .setting-nav a:hover {
-    background: #f8f9fa;
-    color: #3498db;
+    background: var(--bg-secondary);
+    color: var(--btn-primary-bg);
 }
 
 .setting-nav a.active {
-    background: #3498db;
-    color: white;
+    background: var(--btn-primary-bg);
+    color: var(--text-white);
 }
 
 /* 메인 컨텐츠 */
 .setting-content {
     flex: 1;
-    background: white;
+    background: var(--bg-primary);
     border-radius: 8px;
     padding: 30px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .setting-title {
     font-size: 24px;
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 30px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #e9ecef;
+    border-bottom: 2px solid var(--border-color);
 }
 
 /* 섹션 */
@@ -76,15 +76,15 @@
 .section-title {
     font-size: 16px;
     font-weight: 600;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 20px;
     padding-left: 10px;
-    border-left: 3px solid #3498db;
+    border-left: 3px solid var(--btn-primary-bg);
 }
 
 /* 프로필 정보 */
 .profile-info {
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 8px;
     padding: 20px;
 }
@@ -92,7 +92,7 @@
 .info-row {
     display: flex;
     padding: 12px 0;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .info-row:last-child {
@@ -102,12 +102,12 @@
 .info-label {
     width: 120px;
     font-weight: 500;
-    color: #7f8c8d;
+    color: var(--text-secondary);
 }
 
 .info-value {
     flex: 1;
-    color: #2c3e50;
+    color: var(--text-primary);
 }
 
 /* 설정 항목 */
@@ -116,7 +116,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 8px;
     margin-bottom: 10px;
 }
@@ -133,12 +133,12 @@
 
 .setting-name {
     font-weight: 500;
-    color: #2c3e50;
+    color: var(--text-primary);
 }
 
 .setting-desc {
     font-size: 13px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
 }
 
 /* 테마 토글 버튼 */
@@ -149,22 +149,22 @@
 
 .theme-btn {
     padding: 10px 20px;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--border-color);
     border-radius: 6px;
-    background: white;
+    background: var(--bg-primary);
     cursor: pointer;
     font-size: 14px;
     transition: all 0.3s;
 }
 
 .theme-btn:hover {
-    border-color: #3498db;
+    border-color: var(--btn-primary-bg);
 }
 
 .theme-btn.active {
-    background: #3498db;
-    border-color: #3498db;
-    color: white;
+    background: var(--btn-primary-bg);
+    border-color: var(--btn-primary-bg);
+    color: var(--text-white);
 }
 
 /* 토글 스위치 */
@@ -188,7 +188,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    background-color: var(--border-color);
     transition: 0.3s;
     border-radius: 26px;
 }
@@ -200,13 +200,13 @@
     width: 20px;
     left: 3px;
     bottom: 3px;
-    background-color: white;
+    background-color: var(--bg-primary);
     transition: 0.3s;
     border-radius: 50%;
 }
 
 .toggle-switch input:checked + .toggle-slider {
-    background-color: #3498db;
+    background-color: var(--btn-primary-bg);
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
@@ -226,13 +226,13 @@
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: #2c3e50;
+    color: var(--text-primary);
 }
 
 .form-group input {
     width: 100%;
     padding: 12px 15px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 14px;
     transition: border-color 0.3s;
@@ -240,7 +240,7 @@
 
 .form-group input:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: var(--btn-primary-bg);
 }
 
 /* 버튼 */
@@ -255,12 +255,12 @@
 }
 
 .btn-primary {
-    background: #3498db;
-    color: white;
+    background: var(--btn-primary-bg);
+    color: var(--text-white);
 }
 
 .btn-primary:hover {
-    background: #2980b9;
+    background: var(--btn-primary-hover);
 }
 
 /* 토스트 메시지 */
@@ -269,11 +269,11 @@
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
-    background: #2c3e50;
-    color: white;
+    background: var(--text-primary);
+    color: var(--text-white);
     padding: 15px 30px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px var(--shadow-color);
     z-index: 10000;
     opacity: 0;
     transition: all 0.3s ease;
@@ -285,11 +285,11 @@
 }
 
 .toast.error {
-    background: #e74c3c;
+    background: var(--btn-danger-bg);
 }
 
 .toast.success {
-    background: #27ae60;
+    background: var(--badge-success);
 }
 
 /* 반응형 - 태블릿 */

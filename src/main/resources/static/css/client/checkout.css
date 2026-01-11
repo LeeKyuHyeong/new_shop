@@ -20,7 +20,7 @@
     flex-shrink: 0;
 }
 .form-section {
-    background: white;
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 25px;
@@ -43,7 +43,7 @@
     font-size: 14px;
 }
 .form-group label .required {
-    color: #e74c3c;
+    color: var(--discount-color);
 }
 .form-group input, .form-group textarea, .form-group select {
     width: 100%;
@@ -74,7 +74,7 @@
 .btn-search {
     padding: 12px 16px;
     background: var(--btn-secondary-bg);
-    color: white;
+    color: var(--text-white);
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -116,7 +116,7 @@
 /* 옵션 표시 스타일 */
 .order-item-option {
     font-size: 13px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
     margin-bottom: 5px;
 }
 
@@ -148,7 +148,7 @@
 }
 .payment-method.selected {
     border-color: var(--btn-primary-bg);
-    background: rgba(0, 123, 255, 0.05);
+    background: var(--btn-primary-light, rgba(52, 152, 219, 0.05));
 }
 .payment-method input {
     display: none;
@@ -169,7 +169,7 @@
     font-size: 14px;
     font-weight: 600;
     margin-bottom: 15px;
-    color: #333;
+    color: var(--text-primary);
 }
 .card-companies {
     display: grid;
@@ -178,21 +178,21 @@
 }
 .card-company {
     padding: 12px 8px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     text-align: center;
     font-size: 12px;
     font-weight: 500;
     transition: all 0.3s;
-    background: white;
+    background: var(--bg-primary);
 }
 .card-company:hover {
-    border-color: #3498db;
+    border-color: var(--btn-primary-bg);
 }
 .card-company.selected {
-    border-color: #3498db;
-    background: #ebf5fb;
+    border-color: var(--btn-primary-bg);
+    background: var(--btn-primary-light, #ebf5fb);
 }
 .card-company img {
     width: 40px;
@@ -209,7 +209,7 @@
 
 /* 요약 박스 */
 .summary-box {
-    background: white;
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 25px;
@@ -238,7 +238,7 @@
     width: 100%;
     padding: 16px;
     background: var(--btn-primary-bg);
-    color: white;
+    color: var(--text-white);
     border: none;
     border-radius: 8px;
     font-size: 16px;

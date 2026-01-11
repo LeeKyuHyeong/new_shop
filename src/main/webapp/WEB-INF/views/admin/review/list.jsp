@@ -77,7 +77,7 @@
         .action-btn {
             padding: 6px 12px;
             border: 1px solid var(--border-color);
-            background: white;
+            background: var(--bg-primary);
             border-radius: 4px;
             cursor: pointer;
             font-size: 13px;

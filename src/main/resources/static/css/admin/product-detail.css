@@ -101,13 +101,13 @@
 }
 
 .badge-danger {
-    background-color: #e74c3c;
-    color: white;
+    background-color: var(--badge-danger);
+    color: var(--text-white);
 }
 
 .badge-warning {
-    background-color: #f39c12;
-    color: white;
+    background-color: var(--badge-warning);
+    color: var(--text-white);
 }
 
 .product-name {
@@ -159,8 +159,8 @@
 }
 
 .discount-rate {
-    background-color: #e74c3c;
-    color: white;
+    background-color: var(--discount-color);
+    color: var(--text-white);
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 14px;
@@ -430,43 +430,43 @@
    ======================================== */
 body.dark-mode .detail-top,
 body.dark-mode .detail-bottom {
-    background-color: #1a1a1a;
-    border-color: #444444;
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
 }
 
 body.dark-mode .product-name {
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 body.dark-mode .final-price {
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 body.dark-mode .info-value {
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 body.dark-mode .description-content {
-    color: #b0b0b0;
+    color: var(--text-secondary);
 }
 
 body.dark-mode .section-title h3 {
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 body.dark-mode .category-tag {
-    background-color: #2d2d2d;
-    color: #ffffff;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 body.dark-mode .main-image {
-    border-color: #444444;
+    border-color: var(--border-color);
 }
 
 body.dark-mode .thumb-item {
-    border-color: #444444;
+    border-color: var(--border-color);
 }
 
 body.dark-mode .no-image-large {
-    background-color: #2d2d2d;
+    background-color: var(--bg-secondary);
 }

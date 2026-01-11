@@ -76,8 +76,8 @@
 }
 
 .discount-badge {
-    background-color: #e74c3c;
-    color: white;
+    background-color: var(--discount-color);
+    color: var(--text-white);
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 12px;
@@ -85,7 +85,7 @@
 }
 
 .stock-out {
-    color: #e74c3c;
+    color: var(--stock-out);
     font-weight: 600;
 }
 
@@ -248,8 +248,8 @@
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background-color: #e74c3c;
-    color: white;
+    background-color: var(--btn-danger-bg);
+    color: var(--text-white);
     border: none;
     font-size: 16px;
     cursor: pointer;
@@ -260,7 +260,7 @@
 }
 
 .remove-image:hover {
-    background-color: #c0392b;
+    background-color: var(--btn-danger-hover);
 }
 
 /* 상세 이미지 */
@@ -420,45 +420,45 @@
    다크 모드
    ======================================== */
 body.dark-mode .data-table td {
-    color: #ecf0f1;
+    color: var(--text-primary);
 }
 
 body.dark-mode .product-name-link {
-    color: #ecf0f1;
+    color: var(--text-primary);
 }
 
 body.dark-mode .product-name-link:hover {
-    color: #3498db;
+    color: var(--link-color);
 }
 
 body.dark-mode .price-cell {
-    color: #ecf0f1;
+    color: var(--text-primary);
 }
 
 body.dark-mode .form-group input,
 body.dark-mode .form-group textarea,
 body.dark-mode .form-group select {
-    background-color: #2d2d2d;
-    border-color: #444444;
-    color: #ffffff;
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
 }
 
 body.dark-mode .form-group select option {
-    background-color: #2d2d2d;
-    color: #ffffff;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 body.dark-mode .upload-placeholder {
-    border-color: #444444;
+    border-color: var(--border-color);
 }
 
 body.dark-mode .upload-placeholder:hover {
-    border-color: #3498db;
-    background-color: #2d2d2d;
+    border-color: var(--link-color);
+    background-color: var(--bg-secondary);
 }
 
 body.dark-mode .upload-placeholder p {
-    color: #b0b0b0;
+    color: var(--text-secondary);
 }
 
 /* ========================================
@@ -493,7 +493,7 @@ body.dark-mode .upload-placeholder p {
 
 .style-btn.active {
     background: var(--btn-primary-bg);
-    color: white;
+    color: var(--text-white);
     border-color: var(--btn-primary-bg);
 }
 
@@ -763,16 +763,16 @@ body.dark-mode .upload-placeholder p {
 @media (max-width: 768px) {
     body.dark-mode .mobile-style-1 .data-table tr,
     body.dark-mode .mobile-style-2 .data-table tr {
-        background: #16213e;
-        border-color: #34495e;
+        background: var(--bg-primary);
+        border-color: var(--border-color);
     }
 
     body.dark-mode .mobile-style-1 .data-table td.action-cell {
-        border-color: #34495e;
+        border-color: var(--border-color);
     }
 
     body.dark-mode .mobile-style-selector {
-        background: #16213e;
-        border-color: #34495e;
+        background: var(--bg-primary);
+        border-color: var(--border-color);
     }
 }

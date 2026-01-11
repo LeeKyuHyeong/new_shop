@@ -2,23 +2,78 @@
 
 /* CSS 변수 정의 */
 :root {
+    /* 배경 */
     --bg-primary: #ffffff;
     --bg-secondary: #f8f9fa;
+    --bg-tertiary: #0f3460;
+    --card-bg: #ffffff;
+
+    /* 텍스트 */
     --text-primary: #2c3e50;
     --text-secondary: #7f8c8d;
+    --text-muted: #999999;
+    --text-white: #ffffff;
+
+    /* 테두리 */
     --border-color: #e0e0e0;
+    --border-color-light: #dddddd;
+
+    /* 버튼 */
     --btn-primary-bg: #3498db;
     --btn-primary-hover: #2980b9;
     --btn-secondary-bg: #6c757d;
     --btn-secondary-hover: #5a6268;
+    --btn-danger-bg: #e74c3c;
+    --btn-danger-hover: #c0392b;
+
+    /* 링크 */
+    --link-color: #3498db;
+
+    /* 뱃지/상태 */
+    --badge-danger: #e74c3c;
+    --badge-warning: #f39c12;
+    --badge-success: #27ae60;
+    --badge-info: #3498db;
+    --badge-new: #3498db;
+    --badge-best: #f39c12;
+
+    /* 카테고리 네비게이션 */
+    --nav-bg: #2c3e50;
+    --nav-bg-hover: #34495e;
+    --nav-border: #34495e;
+
+    /* 오버레이 */
+    --overlay-bg: rgba(0, 0, 0, 0.5);
+    --shadow-color: rgba(0, 0, 0, 0.08);
+
+    /* 할인/재고 */
+    --discount-color: #e74c3c;
+    --stock-low: #e67e22;
 }
 
 body.dark-mode {
+    /* 배경 */
     --bg-primary: #16213e;
     --bg-secondary: #1a1a2e;
+    --bg-tertiary: #0f3460;
+    --card-bg: #16213e;
+
+    /* 텍스트 */
     --text-primary: #ecf0f1;
     --text-secondary: #95a5a6;
+    --text-muted: #7f8c8d;
+
+    /* 테두리 */
     --border-color: #34495e;
+    --border-color-light: #34495e;
+
+    /* 카테고리 네비게이션 */
+    --nav-bg: #0f3460;
+    --nav-bg-hover: #1a1a2e;
+    --nav-border: #1a1a2e;
+
+    /* 오버레이 */
+    --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -35,8 +90,8 @@ body {
 
 /* 헤더 */
 .header {
-    background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    background: var(--bg-primary);
+    box-shadow: 0 2px 4px var(--shadow-color);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -54,39 +109,40 @@ body {
 .logo {
     font-size: 24px;
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--text-primary);
     text-decoration: none;
 }
 
 .header-right {
     display: flex;
+    align-items: center;
     gap: 15px;
 }
 
 .header-btn {
     padding: 8px 16px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color-light);
     border-radius: 4px;
     text-decoration: none;
-    color: #333;
+    color: var(--text-primary);
     font-size: 14px;
     transition: all 0.3s;
 }
 
 .header-btn:hover {
-    background: #f8f9fa;
-    border-color: #aaa;
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
 }
 
 .header-btn.primary {
-    background: #3498db;
-    color: white;
-    border-color: #3498db;
+    background: var(--btn-primary-bg);
+    color: var(--text-white);
+    border-color: var(--btn-primary-bg);
 }
 
 .header-btn.primary:hover {
-    background: #2980b9;
-    border-color: #2980b9;
+    background: var(--btn-primary-hover);
+    border-color: var(--btn-primary-hover);
 }
 
 /* 테마 토글 버튼 (헤더) */
@@ -95,18 +151,18 @@ body {
     align-items: center;
     gap: 5px;
     padding: 8px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color-light);
     border-radius: 4px;
-    background: white;
-    color: #333;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s;
 }
 
 .theme-toggle-btn:hover {
-    background: #f8f9fa;
-    border-color: #aaa;
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
 }
 
 .theme-toggle-btn .theme-text {
@@ -116,17 +172,17 @@ body {
 /* 테마 토글 아이템 (admin sidebar용) */
 .theme-toggle-item {
     padding: 8px 16px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color-light);
     border-radius: 4px;
-    color: #333;
+    color: var(--text-primary);
     font-size: 14px;
     transition: all 0.3s;
     gap: 8px;
 }
 
 .theme-toggle-item:hover {
-    background: #f8f9fa;
-    border-color: #aaa;
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
 }
 
 /* 장바구니 버튼 */
@@ -144,8 +200,8 @@ body {
     min-width: 18px;
     height: 18px;
     padding: 0 5px;
-    background: #e74c3c;
-    color: white;
+    background: var(--badge-danger);
+    color: var(--text-white);
     font-size: 11px;
     font-weight: 600;
     border-radius: 9px;
@@ -166,8 +222,8 @@ body {
     min-width: 18px;
     height: 18px;
     padding: 0 5px;
-    background: #e74c3c;
-    color: white;
+    background: var(--badge-danger);
+    color: var(--text-white);
     font-size: 11px;
     font-weight: 600;
     border-radius: 9px;
@@ -175,8 +231,8 @@ body {
 
 /* 카테고리 메뉴 */
 .category-nav {
-    background: #2c3e50;
-    border-bottom: 2px solid #34495e;
+    background: var(--nav-bg);
+    border-bottom: 2px solid var(--nav-border);
     position: relative;
     z-index: 100;
 }
@@ -207,7 +263,7 @@ body {
 .category-menu > li > a {
     display: block;
     padding: 15px 20px;
-    color: white;
+    color: var(--text-white);
     text-decoration: none;
     font-weight: 500;
     transition: background 0.3s;
@@ -216,7 +272,7 @@ body {
 
 .category-menu > li > a:hover,
 .category-menu > li.active > a {
-    background: #34495e;
+    background: var(--nav-bg-hover);
 }
 
 /* 서브 메뉴 (수정됨) */
@@ -225,7 +281,7 @@ body {
     position: absolute;
     top: 100%;
     left: 0;
-    background: white;
+    background: var(--bg-primary);
     min-width: 200px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     list-style: none;
@@ -240,22 +296,22 @@ body {
 
 /* 서브메뉴가 보일 때 상위 li 배경 유지 */
 .category-menu > li:hover > a {
-    background: #34495e;
+    background: var(--nav-bg-hover);
 }
 
 .sub-menu li a {
     display: block;
     padding: 12px 20px;
-    color: #333;
+    color: var(--text-primary);
     text-decoration: none;
     transition: all 0.2s;
     border-left: 3px solid transparent;
 }
 
 .sub-menu li a:hover {
-    background: #f8f9fa;
-    color: #3498db;
-    border-left-color: #3498db;
+    background: var(--bg-secondary);
+    color: var(--link-color);
+    border-left-color: var(--link-color);
 }
 
 .sub-menu li:last-child a {
@@ -263,9 +319,9 @@ body {
 }
 
 .sub-menu li.active a {
-    color: #3498db;
+    color: var(--link-color);
     font-weight: 500;
-    border-left-color: #3498db;
+    border-left-color: var(--link-color);
 }
 
 /* 메인 컨텐츠 */
@@ -280,10 +336,10 @@ body {
     position: relative;
     width: 100%;
     height: 500px;
-    background: white;
+    background: var(--bg-primary);
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px var(--shadow-color);
     margin-bottom: 50px;
 }
 
@@ -316,7 +372,7 @@ body {
     right: 0;
     background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
     padding: 40px;
-    color: white;
+    color: var(--text-white);
 }
 
 .slide-title {
@@ -357,8 +413,8 @@ body {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0,0,0,0.5);
-    color: white;
+    background: var(--overlay-bg);
+    color: var(--text-white);
     border: none;
     width: 50px;
     height: 50px;
@@ -387,15 +443,15 @@ body {
     align-items: center;
     justify-content: center;
     height: 500px;
-    background: white;
+    background: var(--bg-primary);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px var(--shadow-color);
     margin-bottom: 50px;
 }
 
 .no-slides p {
     font-size: 18px;
-    color: #999;
+    color: var(--text-muted);
 }
 
 /* 카테고리 페이지 헤더 */
@@ -406,22 +462,22 @@ body {
 .page-title {
     font-size: 32px;
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 10px;
 }
 
 .page-breadcrumb {
     font-size: 14px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
 }
 
 .page-breadcrumb a {
-    color: #7f8c8d;
+    color: var(--text-secondary);
     text-decoration: none;
 }
 
 .page-breadcrumb a:hover {
-    color: #3498db;
+    color: var(--link-color);
 }
 
 .page-breadcrumb span {
@@ -439,19 +495,19 @@ body {
     align-items: center;
     margin-bottom: 25px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #2c3e50;
+    border-bottom: 2px solid var(--nav-bg);
 }
 
 .section-title {
     font-size: 24px;
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--text-primary);
 }
 
 .section-badge {
     display: inline-block;
-    background: #e74c3c;
-    color: white;
+    background: var(--badge-danger);
+    color: var(--text-white);
     padding: 4px 10px;
     border-radius: 4px;
     font-size: 12px;
@@ -460,15 +516,15 @@ body {
 }
 
 .section-badge.new {
-    background: #3498db;
+    background: var(--badge-new);
 }
 
 .section-badge.best {
-    background: #f39c12;
+    background: var(--badge-best);
 }
 
 .section-badge.discount {
-    background: #e74c3c;
+    background: var(--badge-danger);
 }
 
 /* 상품 그리드 */
@@ -480,10 +536,10 @@ body {
 
 .product-card {
     position: relative;
-    background: white;
+    background: var(--bg-primary);
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px var(--shadow-color);
     transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
 }
@@ -519,14 +575,14 @@ body {
 }
 
 .product-card .wish-btn.active {
-    color: #e74c3c;
+    color: var(--badge-danger);
 }
 
 .product-image {
     width: 100%;
     height: 250px;
     overflow: hidden;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -544,7 +600,7 @@ body {
 }
 
 .product-image.no-image {
-    color: #bdc3c7;
+    color: var(--text-secondary);
     font-size: 14px;
 }
 
@@ -554,14 +610,14 @@ body {
 
 .product-category {
     font-size: 12px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
     margin-bottom: 5px;
 }
 
 .product-name {
     font-size: 16px;
     font-weight: 600;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 10px;
     line-height: 1.4;
     overflow: hidden;
@@ -578,13 +634,13 @@ body {
 
 .original-price {
     font-size: 13px;
-    color: #999;
+    color: var(--text-muted);
     text-decoration: line-through;
 }
 
 .discount-badge {
-    background: #e74c3c;
-    color: white;
+    background: var(--discount-color);
+    color: var(--text-white);
     padding: 2px 6px;
     border-radius: 3px;
     font-size: 11px;
@@ -594,33 +650,33 @@ body {
 .final-price {
     font-size: 18px;
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--text-primary);
 }
 
 .stock-info {
     margin-top: 8px;
     font-size: 12px;
-    color: #e74c3c;
+    color: var(--discount-color);
 }
 
 /* 상품 없음 */
 .no-products {
-    background: white;
+    background: var(--bg-primary);
     border-radius: 8px;
     padding: 60px 20px;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .no-products p {
-    color: #999;
+    color: var(--text-muted);
     font-size: 16px;
 }
 
 /* 푸터 */
 .footer {
-    background: #2c3e50;
-    color: white;
+    background: var(--nav-bg);
+    color: var(--text-white);
     text-align: center;
     padding: 30px 20px;
     margin-top: 50px;
@@ -1240,12 +1296,12 @@ body.dark-mode .theme-toggle-item:hover {
     border-radius: 4px;
     font-size: 11px;
     font-weight: 700;
-    color: white;
+    color: var(--text-white);
     z-index: 1;
 }
 
 .product-badge.sale {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, var(--badge-danger), var(--btn-danger-hover));
 }
 
 .product-badge.soldout {
@@ -1253,18 +1309,18 @@ body.dark-mode .theme-toggle-item:hover {
 }
 
 .product-badge.new {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    background: linear-gradient(135deg, var(--badge-success), #2ecc71);
 }
 
 /* 재고 부족 표시 */
 .stock-low {
-    color: #e67e22 !important;
+    color: var(--stock-low) !important;
     font-weight: 600;
 }
 
 /* 상품 섹션 뱃지 스타일 보완 */
 .section-badge.best {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, var(--badge-warning), var(--stock-low));
 }
 
 /* 반응형 - 태블릿 */
@@ -1627,8 +1683,8 @@ body.mobile-menu-open {
 }
 
 .mobile-logout-btn {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--alert-error-bg, #f8d7da);
+    color: var(--alert-error-text, #721c24);
 }
 
 .mobile-admin-btn {

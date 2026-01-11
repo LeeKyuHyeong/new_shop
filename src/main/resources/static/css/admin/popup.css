@@ -67,13 +67,13 @@
 }
 
 .badge-success {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: var(--alert-success-bg);
+    color: var(--alert-success-text);
 }
 
 .badge-secondary {
-    background-color: #e2e3e5;
-    color: #383d41;
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
 }
 
 .btn-sm {
@@ -198,8 +198,8 @@
     position: absolute;
     top: -8px;
     right: -8px;
-    background: #dc3545;
-    color: white;
+    background: var(--btn-danger-bg);
+    color: var(--text-white);
     border: none;
     border-radius: 50%;
     width: 28px;
@@ -214,7 +214,7 @@
 }
 
 .remove-image:hover {
-    background: #c82333;
+    background: var(--btn-danger-hover);
 }
 
 .form-hint {
@@ -310,36 +310,36 @@
    다크 모드
    ======================================== */
 body.dark-mode .data-table td {
-    color: #ecf0f1;
+    color: var(--text-primary);
 }
 
 body.dark-mode .popup-title {
-    color: #ecf0f1;
+    color: var(--text-primary);
 }
 
 body.dark-mode .form-group input,
 body.dark-mode .form-group textarea,
 body.dark-mode .form-group select {
-    background-color: #2d2d2d;
-    border-color: #444444;
-    color: #ffffff;
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
 }
 
 body.dark-mode .upload-placeholder {
-    border-color: #444444;
+    border-color: var(--border-color);
 }
 
 body.dark-mode .upload-placeholder:hover {
-    border-color: #3498db;
-    background-color: #2d2d2d;
+    border-color: var(--link-color);
+    background-color: var(--bg-secondary);
 }
 
 body.dark-mode .upload-placeholder p {
-    color: #b0b0b0;
+    color: var(--text-secondary);
 }
 
 body.dark-mode .popup-content-editor {
-    background-color: #2d2d2d;
-    border-color: #444444;
-    color: #ffffff;
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
 }

@@ -26,7 +26,7 @@
 }
 
 .detail-section {
-    background: white;
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 25px;
@@ -47,9 +47,9 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--btn-primary-bg) 0%, var(--btn-primary-hover) 100%);
     border-radius: 12px;
-    color: white;
+    color: var(--text-white);
     margin-bottom: 25px;
 }
 
@@ -189,9 +189,9 @@
 
 .btn-cancel {
     padding: 14px 30px;
-    background: white;
-    color: #e74c3c;
-    border: 2px solid #e74c3c;
+    background: var(--bg-primary);
+    color: var(--btn-danger-bg);
+    border: 2px solid var(--btn-danger-bg);
     border-radius: 8px;
     font-size: 15px;
     font-weight: 600;
@@ -199,8 +199,8 @@
 }
 
 .btn-cancel:hover {
-    background: #e74c3c;
-    color: white;
+    background: var(--btn-danger-bg);
+    color: var(--text-white);
 }
 
 /* 다크 모드 */

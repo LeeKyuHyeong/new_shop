@@ -141,33 +141,33 @@
    다크 모드
    ======================================== */
 body.dark-mode .setting-section {
-    background-color: #1a1a1a;
-    border-color: #444444;
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
 }
 
 body.dark-mode .setting-section h3 {
-    color: #ffffff;
-    border-bottom-color: #444444;
+    color: var(--text-primary);
+    border-bottom-color: var(--border-color);
 }
 
 body.dark-mode .setting-row {
-    border-bottom-color: #444444;
+    border-bottom-color: var(--border-color);
 }
 
 body.dark-mode .setting-label {
-    color: #b0b0b0;
+    color: var(--text-secondary);
 }
 
 body.dark-mode .setting-value {
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 body.dark-mode .setting-input {
-    background-color: #2d2d2d;
-    border-color: #444444;
-    color: #ffffff;
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
 }
 
 body.dark-mode .setting-desc {
-    color: #808080;
+    color: var(--text-muted);
 }

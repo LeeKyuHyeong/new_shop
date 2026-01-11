@@ -22,7 +22,7 @@
 }
 
 .order-info-box {
-    background: white;
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 30px;
@@ -84,7 +84,7 @@
 
 .btn-primary {
     background: var(--btn-primary-bg);
-    color: white;
+    color: var(--text-white);
 }
 
 .btn-primary:hover {
@@ -92,7 +92,7 @@
 }
 
 .btn-secondary {
-    background: white;
+    background: var(--bg-primary);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
 }
