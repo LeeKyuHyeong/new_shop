@@ -1,0 +1,256 @@
+/**
+ * 웹접근성 개선 CSS
+ * - 키보드 포커스 스타일
+ * - 색상 대비 개선
+ * - 스크린리더 지원
+ */
+
+/* ========================================
+   1. 키보드 포커스 스타일 (WCAG 2.4.7)
+   ======================================== */
+
+/* 모든 포커스 가능 요소에 명확한 포커스 표시 */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[tabindex]:focus {
+    outline: 3px solid #005fcc !important;
+    outline-offset: 2px !important;
+}
+
+/* 마우스 클릭 시에는 outline 숨김 (키보드 사용자만 표시) */
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible),
+[tabindex]:focus:not(:focus-visible) {
+    outline: none !important;
+}
+
+/* 키보드 포커스 시 명확한 표시 */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid #005fcc !important;
+    outline-offset: 2px !important;
+}
+
+/* 다크모드에서 포커스 색상 */
+body.dark-mode a:focus-visible,
+body.dark-mode button:focus-visible,
+body.dark-mode input:focus-visible,
+body.dark-mode select:focus-visible,
+body.dark-mode textarea:focus-visible,
+body.dark-mode [tabindex]:focus-visible {
+    outline-color: #66b3ff !important;
+}
+
+/* 버튼 포커스 시 배경 강조 */
+button:focus-visible,
+.btn:focus-visible {
+    box-shadow: 0 0 0 3px rgba(0, 95, 204, 0.3) !important;
+}
+
+/* ========================================
+   2. 색상 대비 개선 (WCAG 1.4.3 - 4.5:1)
+   ======================================== */
+
+/* 라이트 모드 - 텍스트 대비 강화 */
+:root {
+    /* 기본 텍스트: #2c3e50 on #ffffff = 10.7:1 */
+    --a11y-text-primary: #2c3e50;
+    /* 보조 텍스트: #555555 on #ffffff = 7.5:1 */
+    --a11y-text-secondary: #555555;
+    /* 비활성 텍스트: #666666 on #ffffff = 5.7:1 */
+    --a11y-text-muted: #666666;
+    /* 링크: #0056b3 on #ffffff = 7.2:1 */
+    --a11y-link-color: #0056b3;
+    /* 에러: #c0392b on #ffffff = 6.5:1 */
+    --a11y-error-color: #c0392b;
+    /* 성공: #1e7e34 on #ffffff = 5.5:1 */
+    --a11y-success-color: #1e7e34;
+    /* 플레이스홀더: #666666 on #ffffff = 5.7:1 */
+    --a11y-placeholder-color: #666666;
+}
+
+/* 다크 모드 - 텍스트 대비 강화 */
+body.dark-mode {
+    /* 기본 텍스트: #f0f0f0 on #16213e = 12.1:1 */
+    --a11y-text-primary: #f0f0f0;
+    /* 보조 텍스트: #b0b0b0 on #16213e = 7.3:1 */
+    --a11y-text-secondary: #b0b0b0;
+    /* 비활성 텍스트: #909090 on #16213e = 5.1:1 */
+    --a11y-text-muted: #909090;
+    /* 링크: #6cb2ff on #16213e = 6.8:1 */
+    --a11y-link-color: #6cb2ff;
+    /* 에러: #ff6b6b on #16213e = 5.4:1 */
+    --a11y-error-color: #ff6b6b;
+    /* 성공: #69db7c on #16213e = 7.2:1 */
+    --a11y-success-color: #69db7c;
+    /* 플레이스홀더: #909090 on #16213e = 5.1:1 */
+    --a11y-placeholder-color: #909090;
+}
+
+/* 보조 텍스트 대비 개선 */
+.text-secondary,
+.text-muted,
+small,
+.form-text {
+    color: var(--a11y-text-secondary) !important;
+}
+
+/* 플레이스홀더 대비 개선 */
+::placeholder {
+    color: var(--a11y-placeholder-color) !important;
+    opacity: 1 !important;
+}
+
+/* 링크 대비 개선 */
+a:not(.btn) {
+    color: var(--a11y-link-color);
+}
+
+a:not(.btn):hover {
+    text-decoration: underline;
+}
+
+/* 에러 메시지 대비 */
+.error,
+.text-danger,
+.invalid-feedback {
+    color: var(--a11y-error-color) !important;
+}
+
+/* 성공 메시지 대비 */
+.success,
+.text-success,
+.valid-feedback {
+    color: var(--a11y-success-color) !important;
+}
+
+/* ========================================
+   3. 스크린리더 전용 텍스트
+   ======================================== */
+
+/* 시각적으로 숨기지만 스크린리더는 읽을 수 있음 */
+.sr-only,
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* 포커스 시에만 보이는 건너뛰기 링크 */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    background: #000;
+    color: #fff;
+    padding: 8px 16px;
+    z-index: 10000;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* ========================================
+   4. 폼 접근성
+   ======================================== */
+
+/* 필수 입력 표시 */
+label.required::after,
+.form-label.required::after {
+    content: " *";
+    color: var(--a11y-error-color);
+}
+
+/* 입력 필드 에러 상태 */
+input:invalid,
+select:invalid,
+textarea:invalid {
+    border-color: var(--a11y-error-color) !important;
+}
+
+/* 비활성화된 입력 필드 */
+input:disabled,
+select:disabled,
+textarea:disabled,
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   5. 버튼 접근성
+   ======================================== */
+
+/* 최소 터치 영역 44x44px (WCAG 2.5.5) */
+button,
+.btn,
+a.btn,
+[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* 작은 버튼은 예외 처리 */
+.btn-sm {
+    min-height: 32px;
+    min-width: 32px;
+}
+
+/* ========================================
+   6. 애니메이션 제어 (WCAG 2.3.3)
+   ======================================== */
+
+/* 사용자가 모션 감소를 원할 때 애니메이션 비활성화 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ========================================
+   7. 고대비 모드 지원
+   ======================================== */
+
+@media (prefers-contrast: high) {
+    :root {
+        --a11y-text-primary: #000000;
+        --a11y-text-secondary: #333333;
+        --a11y-link-color: #0000cc;
+    }
+
+    body.dark-mode {
+        --a11y-text-primary: #ffffff;
+        --a11y-text-secondary: #dddddd;
+        --a11y-link-color: #99ccff;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+        outline-width: 4px !important;
+    }
+}
