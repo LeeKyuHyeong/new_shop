@@ -2,6 +2,7 @@ package com.kh.shop.controller.client;
 
 import com.kh.shop.entity.Category;
 import com.kh.shop.entity.User;
+import com.kh.shop.security.SessionRegistry;
 import com.kh.shop.service.CategoryService;
 import com.kh.shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class LoginController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private SessionRegistry sessionRegistry;
+
     @GetMapping("/login")
     public String loginPage(Model model) {
         // 상단 메뉴용 카테고리 조회
@@ -49,16 +53,18 @@ public class LoginController {
         Optional<User> user = userService.loginUser(userId, userPassword);
 
         if (user.isPresent()) {
+            // 중복 로그인 방지: 기존 세션이 있으면 무효화
+            boolean hadExistingSession = sessionRegistry.registerSession(userId, session);
+            if (hadExistingSession) {
+                // 기존 세션이 있었음을 알림 (선택적)
+                redirectAttributes.addFlashAttribute("duplicateLoginInfo",
+                        "다른 기기에서 로그인 중이던 세션이 종료되었습니다.");
+            }
+
             session.setAttribute("loggedInUser", userId);
             session.setAttribute("userRole", user.get().getUserRole());
             session.setAttribute("loginTime", System.currentTimeMillis());
 
-            // 역할에 따라 분기 (관리자는 따로 '관리자' 버튼으로 이동)
-//            if ("ADMIN".equals(user.get().getUserRole())) {
-//                return "redirect:/admin";
-//            } else {
-//
-//            }
             return "redirect:/";
         } else {
             redirectAttributes.addFlashAttribute("loginError", "아이디 또는 비밀번호를 확인하세요");
@@ -68,6 +74,11 @@ public class LoginController {
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
+        // 세션 레지스트리에서 제거
+        String userId = (String) session.getAttribute("loggedInUser");
+        if (userId != null) {
+            sessionRegistry.removeSessionByUserId(userId);
+        }
         session.invalidate();
         return "redirect:/";
     }
