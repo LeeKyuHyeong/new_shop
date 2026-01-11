@@ -566,6 +566,10 @@ body.dark-mode .user-info .user-name {
     color: #ecf0f1;
 }
 
+body.dark-mode .star-rating label {
+    color: #7f8c8d;
+}
+
 /* 반응형 */
 @media (max-width: 768px) {
     .review-stats {
