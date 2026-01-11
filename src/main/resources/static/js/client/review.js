@@ -23,9 +23,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 리뷰 목록 불러오기
 function loadReviews(append = false) {
-    if (isLoading || (!append && !hasMoreReviews)) return;
+    if (isLoading) return;
+    // append 모드가 아니면 항상 새로고침 허용
+    if (append && !hasMoreReviews) return;
 
     isLoading = true;
+    // 새로고침 시 hasMoreReviews 초기화
+    if (!append) hasMoreReviews = true;
     const page = append ? currentPage + 1 : 0;
 
     fetch(`${contextPath}/api/review/product/${productId}?page=${page}&size=10`)
