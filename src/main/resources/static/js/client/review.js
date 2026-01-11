@@ -6,6 +6,7 @@ let isLoading = false;
 let editingReviewId = null;
 let selectedImages = [];
 let hasAlreadyReviewed = false; // 이미 리뷰를 작성했는지 여부
+let hasPurchasedProduct = false; // 구매한 상품인지 여부
 
 // 페이지 로드 시 리뷰 불러오기
 document.addEventListener('DOMContentLoaded', function() {
@@ -49,7 +50,7 @@ function loadReviews(append = false) {
                 }
 
                 // 리뷰 작성 가능 여부
-                updateWriteButton(data.canWrite);
+                updateWriteButton(data.canWrite, data.hasPurchased);
 
                 // 리뷰 개수 업데이트
                 document.getElementById('reviewCount').textContent = data.totalElements;
@@ -189,18 +190,35 @@ function createReviewHtml(review) {
 }
 
 // 리뷰 작성 버튼 상태 업데이트
-function updateWriteButton(canWrite) {
+function updateWriteButton(canWrite, hasPurchased) {
     const writeBtn = document.getElementById('btnWriteReview');
     if (writeBtn) {
-        // 로그인한 사용자이고 이미 리뷰를 작성한 경우에만 비활성화
-        if (typeof isLoggedIn !== 'undefined' && isLoggedIn && !canWrite) {
-            hasAlreadyReviewed = true;
-            writeBtn.disabled = true;
-            writeBtn.title = '이미 리뷰를 작성하셨습니다.';
+        // 구매 여부 저장
+        hasPurchasedProduct = hasPurchased || false;
+
+        // 로그인한 사용자인 경우
+        if (typeof isLoggedIn !== 'undefined' && isLoggedIn) {
+            if (!hasPurchased) {
+                // 구매하지 않은 경우
+                writeBtn.disabled = true;
+                writeBtn.title = '구매하신 상품만 리뷰 작성이 가능합니다.';
+                hasAlreadyReviewed = false;
+            } else if (!canWrite) {
+                // 구매했지만 이미 리뷰를 작성한 경우
+                writeBtn.disabled = true;
+                writeBtn.title = '이미 리뷰를 작성하셨습니다.';
+                hasAlreadyReviewed = true;
+            } else {
+                // 리뷰 작성 가능
+                writeBtn.disabled = false;
+                writeBtn.title = '';
+                hasAlreadyReviewed = false;
+            }
         } else {
-            hasAlreadyReviewed = false;
+            // 비로그인 사용자는 버튼 활성화 (클릭 시 로그인 안내)
             writeBtn.disabled = false;
             writeBtn.title = '';
+            hasAlreadyReviewed = false;
         }
     }
 }

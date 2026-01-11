@@ -142,9 +142,13 @@ public class ReviewApiController {
 
             // 리뷰 작성 가능 여부
             if (currentUserId != null) {
-                response.put("canWrite", reviewService.canWriteReview(productId, currentUserId));
+                boolean hasPurchased = reviewService.hasPurchased(productId, currentUserId);
+                boolean canWrite = reviewService.canWriteReview(productId, currentUserId);
+                response.put("canWrite", canWrite);
+                response.put("hasPurchased", hasPurchased);
             } else {
                 response.put("canWrite", false);
+                response.put("hasPurchased", false);
             }
 
         } catch (Exception e) {

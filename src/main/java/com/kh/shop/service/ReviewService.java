@@ -40,6 +40,9 @@ public class ReviewService {
     private OrderRepository orderRepository;
 
     @Autowired
+    private OrderItemRepository orderItemRepository;
+
+    @Autowired
     private ProfanityFilter profanityFilter;
 
     @Value("${file.upload-dir:uploads}")
@@ -274,8 +277,19 @@ public class ReviewService {
             return false;
         }
 
+        // 구매(배송완료) 여부 확인
+        if (!orderItemRepository.existsPurchasedProduct(productId, userId)) {
+            return false;
+        }
+
         // 이미 리뷰 작성했는지 확인
         return !reviewRepository.existsByProductAndUserAndIsDeletedFalse(product, user);
+    }
+
+    // 구매 여부만 확인 (리뷰 작성 여부와 별개)
+    @Transactional(readOnly = true)
+    public boolean hasPurchased(Long productId, String userId) {
+        return orderItemRepository.existsPurchasedProduct(productId, userId);
     }
 
     // 이미지 파일 삭제

@@ -42,4 +42,12 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "ORDER BY SUM(oi.totalPrice) DESC")
     List<Object[]> findSizeStatsByDateRange(@Param("startDate") LocalDateTime startDate,
                                             @Param("endDate") LocalDateTime endDate);
+
+    // 특정 사용자가 특정 상품을 구매(배송완료)했는지 확인
+    @Query("SELECT COUNT(oi) > 0 FROM OrderItem oi " +
+            "JOIN oi.order o " +
+            "WHERE oi.product.productId = :productId " +
+            "AND o.user.userId = :userId " +
+            "AND o.orderStatus = 'DELIVERED'")
+    boolean existsPurchasedProduct(@Param("productId") Long productId, @Param("userId") String userId);
 }
