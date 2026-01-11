@@ -44,21 +44,56 @@ public class LoginController {
         return "client/login";
     }
 
+    /**
+     * 중복 로그인 체크 API
+     */
+    @ResponseBody
+    @PostMapping("/api/check-duplicate-login")
+    public Map<String, Object> checkDuplicateLogin(@RequestParam String userId,
+                                                    @RequestParam String userPassword) {
+        Map<String, Object> response = new HashMap<>();
+
+        // 먼저 아이디/비밀번호 확인
+        Optional<User> user = userService.loginUser(userId, userPassword);
+        if (!user.isPresent()) {
+            response.put("success", false);
+            response.put("message", "아이디 또는 비밀번호를 확인하세요");
+            return response;
+        }
+
+        // 이미 로그인된 세션이 있는지 확인
+        boolean isAlreadyLoggedIn = sessionRegistry.isUserLoggedIn(userId);
+        response.put("success", true);
+        response.put("alreadyLoggedIn", isAlreadyLoggedIn);
+
+        return response;
+    }
+
     @PostMapping("/login")
     public String login(@RequestParam String userId,
                         @RequestParam String userPassword,
+                        @RequestParam(defaultValue = "false") boolean forceLogin,
                         HttpSession session,
                         RedirectAttributes redirectAttributes) {
 
         Optional<User> user = userService.loginUser(userId, userPassword);
 
         if (user.isPresent()) {
-            // 중복 로그인 방지: 기존 세션이 있으면 무효화
+            // 중복 로그인 체크
+            boolean isAlreadyLoggedIn = sessionRegistry.isUserLoggedIn(userId);
+
+            if (isAlreadyLoggedIn && !forceLogin) {
+                // 강제 로그인이 아니면 확인 요청
+                redirectAttributes.addFlashAttribute("confirmDuplicateLogin", true);
+                redirectAttributes.addFlashAttribute("pendingUserId", userId);
+                return "redirect:/login";
+            }
+
+            // 기존 세션 무효화하고 새 세션 등록
             boolean hadExistingSession = sessionRegistry.registerSession(userId, session);
             if (hadExistingSession) {
-                // 기존 세션이 있었음을 알림 (선택적)
-                redirectAttributes.addFlashAttribute("duplicateLoginInfo",
-                        "다른 기기에서 로그인 중이던 세션이 종료되었습니다.");
+                // 로그아웃된 사용자에게 알림을 위해 기록
+                sessionRegistry.recordForcedLogout(userId);
             }
 
             session.setAttribute("loggedInUser", userId);

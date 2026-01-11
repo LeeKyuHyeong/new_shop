@@ -22,6 +22,9 @@ public class SessionRegistry {
     // 세션 ID -> 사용자 ID 역매핑 (세션 만료 시 정리용)
     private final Map<String, String> sessionUsers = new ConcurrentHashMap<>();
 
+    // 강제 로그아웃된 사용자 ID 목록 (일정 시간 후 자동 정리)
+    private final Map<String, Long> forcedLogoutUsers = new ConcurrentHashMap<>();
+
     /**
      * 사용자 로그인 시 세션 등록
      * 기존 세션이 있으면 무효화하고 새 세션 등록
@@ -144,5 +147,41 @@ public class SessionRegistry {
      */
     public String getUserIdBySessionId(String sessionId) {
         return sessionUsers.get(sessionId);
+    }
+
+    /**
+     * 강제 로그아웃 기록 (다른 기기에서 로그인하여 세션이 종료됨)
+     */
+    public void recordForcedLogout(String userId) {
+        if (userId != null) {
+            forcedLogoutUsers.put(userId, System.currentTimeMillis());
+            log.info("[강제로그아웃] 기록됨 - 사용자: {}", userId);
+        }
+    }
+
+    /**
+     * 강제 로그아웃 여부 확인 및 제거 (한 번만 확인 가능)
+     */
+    public boolean checkAndClearForcedLogout(String userId) {
+        if (userId == null) {
+            return false;
+        }
+        Long timestamp = forcedLogoutUsers.remove(userId);
+        if (timestamp != null) {
+            // 5분 이내의 기록만 유효
+            long fiveMinutes = 5 * 60 * 1000;
+            return (System.currentTimeMillis() - timestamp) < fiveMinutes;
+        }
+        return false;
+    }
+
+    /**
+     * 오래된 강제 로그아웃 기록 정리 (5분 이상 된 기록 삭제)
+     */
+    public void cleanupOldForcedLogouts() {
+        long fiveMinutes = 5 * 60 * 1000;
+        long now = System.currentTimeMillis();
+        forcedLogoutUsers.entrySet().removeIf(entry ->
+                (now - entry.getValue()) > fiveMinutes);
     }
 }

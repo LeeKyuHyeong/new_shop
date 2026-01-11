@@ -231,6 +231,60 @@
     text-align: center;
 }
 
+.warning-message {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.confirm-message {
+    background: #cce5ff;
+    border: 1px solid #b8daff;
+    color: #004085;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.confirm-message p {
+    margin: 5px 0;
+}
+
+.btn-confirm {
+    background: #e74c3c !important;
+}
+
+.btn-confirm:hover {
+    background: #c0392b !important;
+}
+
+.btn-cancel {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background: var(--bg-secondary, #f5f5f5);
+    color: var(--text-primary, #333);
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+
+.btn-cancel:hover {
+    background: var(--border-color, #ddd);
+}
+
 /* 다크 모드 */
 body.dark-mode .login-card {
     background: #2c3e50;
@@ -267,6 +321,24 @@ body.dark-mode .btn-signup {
 body.dark-mode .btn-signup:hover {
     background: #95a5a6;
     color: #2c3e50;
+}
+body.dark-mode .warning-message {
+    background: #3d3d00;
+    border-color: #5c5c00;
+    color: #ffc107;
+}
+body.dark-mode .confirm-message {
+    background: #1a3a5c;
+    border-color: #2a5a8c;
+    color: #8bb8e8;
+}
+body.dark-mode .btn-cancel {
+    background: #34495e;
+    border-color: #4a6278;
+    color: #ecf0f1;
+}
+body.dark-mode .btn-cancel:hover {
+    background: #4a6278;
 }
 
 @media (max-width: 480px) {

@@ -25,26 +25,59 @@
                     <div class="error-message">${loginError}</div>
                 </c:if>
 
-                <form action="${pageContext.request.contextPath}/login" method="post" class="login-form">
-                    <div class="form-group">
-                        <label for="userId">아이디</label>
-                        <input type="text" id="userId" name="userId" placeholder="아이디를 입력하세요" required>
-                    </div>
+                <c:if test="${not empty forcedLogoutMessage}">
+                    <div class="warning-message">${forcedLogoutMessage}</div>
+                </c:if>
 
-                    <div class="form-group">
-                        <label for="userPassword">비밀번호</label>
-                        <input type="password" id="userPassword" name="userPassword" placeholder="비밀번호를 입력하세요" required>
+                <c:if test="${confirmDuplicateLogin}">
+                    <div class="confirm-message">
+                        <p>이미 다른 기기에서 로그인되어 있습니다.</p>
+                        <p>계속 진행하시면 기존 세션이 종료됩니다.</p>
                     </div>
+                </c:if>
 
-                    <div class="login-options">
-                        <label class="remember-me">
-                            <input type="checkbox" name="remember">
-                            <span>로그인 상태 유지</span>
-                        </label>
-                        <a href="${pageContext.request.contextPath}/password-reset" class="forgot-password">비밀번호 찾기</a>
-                    </div>
+                <form action="${pageContext.request.contextPath}/login" method="post" class="login-form" id="loginForm">
+                    <c:choose>
+                        <c:when test="${confirmDuplicateLogin}">
+                            <input type="hidden" name="forceLogin" value="true">
+                            <div class="form-group">
+                                <label for="userId">아이디</label>
+                                <input type="text" id="userId" name="userId" value="${pendingUserId}" readonly
+                                       style="background: var(--bg-secondary, #f5f5f5);">
+                            </div>
+                            <div class="form-group">
+                                <label for="userPassword">비밀번호 재입력</label>
+                                <input type="password" id="userPassword" name="userPassword" placeholder="비밀번호를 다시 입력하세요" required autofocus>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="form-group">
+                                <label for="userId">아이디</label>
+                                <input type="text" id="userId" name="userId" placeholder="아이디를 입력하세요" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="userPassword">비밀번호</label>
+                                <input type="password" id="userPassword" name="userPassword" placeholder="비밀번호를 입력하세요" required>
+                            </div>
+                            <div class="login-options">
+                                <label class="remember-me">
+                                    <input type="checkbox" name="remember">
+                                    <span>로그인 상태 유지</span>
+                                </label>
+                                <a href="${pageContext.request.contextPath}/password-reset" class="forgot-password">비밀번호 찾기</a>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
 
-                    <button type="submit" class="btn-login">로그인</button>
+                    <c:choose>
+                        <c:when test="${confirmDuplicateLogin}">
+                            <button type="submit" class="btn-login btn-confirm">기존 세션 종료 후 로그인</button>
+                            <a href="${pageContext.request.contextPath}/login" class="btn-cancel">취소</a>
+                        </c:when>
+                        <c:otherwise>
+                            <button type="submit" class="btn-login">로그인</button>
+                        </c:otherwise>
+                    </c:choose>
                 </form>
 
                 <div class="divider">
