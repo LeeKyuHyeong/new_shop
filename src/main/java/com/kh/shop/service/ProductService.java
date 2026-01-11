@@ -8,6 +8,7 @@ import com.kh.shop.entity.ProductImage;
 import com.kh.shop.repository.CategoryRepository;
 import com.kh.shop.repository.ProductImageRepository;
 import com.kh.shop.repository.ProductRepository;
+import com.kh.shop.security.FileUploadValidator;
 import com.kh.shop.util.ProfanityFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,9 @@ public class ProductService {
 
     @Autowired
     private ProfanityFilter profanityFilter;
+
+    @Autowired
+    private FileUploadValidator fileUploadValidator;
 
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
@@ -321,9 +325,20 @@ public class ProductService {
     }
 
     private String saveFile(MultipartFile file, String type) throws IOException {
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String savedFilename = UUID.randomUUID().toString() + extension;
+        // 파일 보안 검증
+        FileUploadValidator.ValidationResult validationResult = fileUploadValidator.validateImage(file);
+        if (!validationResult.isValid()) {
+            throw new IllegalArgumentException(validationResult.getErrorMessage());
+        }
+
+        // 안전한 확장자만 사용
+        String safeExtension = fileUploadValidator.getSafeExtension(file.getOriginalFilename());
+        if (safeExtension.isEmpty()) {
+            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+        }
+
+        // UUID로 파일명 생성 (원본 파일명 사용 안함)
+        String savedFilename = UUID.randomUUID().toString() + safeExtension;
 
         String dirPath = uploadDir + "/" + type;
         File dir = new File(dirPath);
