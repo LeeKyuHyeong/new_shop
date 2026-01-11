@@ -1,11 +1,18 @@
 package com.kh.shop.controller.admin;
 
-import com.kh.shop.service.BatchService;
 import com.kh.shop.scheduler.ProductImageBatchScheduler;
+import com.kh.shop.service.BatchService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -35,18 +42,33 @@ public class AdminBatchApiController {
     }
 
     /**
-     * 이미지 생성 일일 사용량 조회
+     * 내보내기 파일 목록 조회
      */
-    @GetMapping("/image-usage")
-    public ResponseEntity<Map<String, Object>> getImageUsageStatus() {
-        return ResponseEntity.ok(productImageBatchScheduler.getUsageStatus());
+    @GetMapping("/export/files")
+    public ResponseEntity<List<String>> getExportFiles() {
+        List<String> files = productImageBatchScheduler.getExportFileList();
+        return ResponseEntity.ok(files);
     }
 
     /**
-     * 이미지 생성 일일 카운터 리셋
+     * 내보내기 파일 다운로드
      */
-    @PostMapping("/image-usage/reset")
-    public ResponseEntity<Map<String, Object>> resetImageUsageCounter() {
-        return ResponseEntity.ok(productImageBatchScheduler.resetDailyCounter());
+    @GetMapping("/export/download/{fileName}")
+    public ResponseEntity<Resource> downloadExportFile(@PathVariable String fileName) {
+        File file = productImageBatchScheduler.getExportFile(fileName);
+
+        if (file == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Resource resource = new FileSystemResource(file);
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
+                .replaceAll("\\+", "%20");
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename*=UTF-8''" + encodedFileName)
+                .body(resource);
     }
 }

@@ -1,86 +1,61 @@
 package com.kh.shop.scheduler;
 
 import com.kh.shop.entity.BatchLog;
+import com.kh.shop.entity.Product;
 import com.kh.shop.repository.BatchLogRepository;
-import com.kh.shop.service.ImageGenerationService;
+import com.kh.shop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * 상품 이미지 자동 생성 배치 스케줄러
+ * 기본 이미지 상품 목록 추출 배치 스케줄러
  *
- * Google AI Studio 무료 티어 제한에 맞춤:
- * - 일일 최대 40장 (상품 10개 × 4장)
- * - 하루 3회 실행: 08:00, 14:00, 20:00
- * - 회당 최대 3개 상품 처리 (12장)
- * - 하루 총 9개 상품 = 36장 (여유분 4장)
+ * - 매일 06:00 실행
+ * - thumbnail_url이 기본 이미지인 상품 목록을 txt 파일로 저장
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class ProductImageBatchScheduler {
 
-    private final ImageGenerationService imageGenerationService;
+    private final ProductRepository productRepository;
     private final BatchLogRepository batchLogRepository;
 
-    @Value("${image.batch.enabled:false}")
-    private boolean batchEnabled;
-
-    @Value("${image.batch.max-products-per-run:3}")
-    private int maxProductsPerRun;
+    @Value("${batch.export.dir:./list}")
+    private String outputDir;
+    private static final DateTimeFormatter FILE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
     /**
-     * 오전 8시 실행 - 1차 이미지 생성
+     * 매일 06:00 실행 - 기본 이미지 상품 목록 추출
      */
-    @Scheduled(cron = "0 0 8 * * *")
-    public void generateProductImagesMorning() {
-        if (!batchEnabled) {
-            log.info("[이미지배치] 배치가 비활성화되어 있습니다.");
-            return;
-        }
-        executeImageGeneration("SCHEDULED_08:00");
+    @Scheduled(cron = "0 0 6 * * *")
+    public void exportDefaultImageProducts() {
+        executeExport("SCHEDULED_06:00");
     }
 
     /**
-     * 오후 2시 실행 - 2차 이미지 생성
+     * 기본 이미지 상품 목록 추출 실행 (공통 로직)
      */
-    @Scheduled(cron = "0 0 14 * * *")
-    public void generateProductImagesAfternoon() {
-        if (!batchEnabled) {
-            log.info("[이미지배치] 배치가 비활성화되어 있습니다.");
-            return;
-        }
-        executeImageGeneration("SCHEDULED_14:00");
-    }
-
-    /**
-     * 오후 8시 실행 - 3차 이미지 생성
-     */
-    @Scheduled(cron = "0 0 20 * * *")
-    public void generateProductImagesEvening() {
-        if (!batchEnabled) {
-            log.info("[이미지배치] 배치가 비활성화되어 있습니다.");
-            return;
-        }
-        executeImageGeneration("SCHEDULED_20:00");
-    }
-
-    /**
-     * 이미지 생성 실행 (공통 로직)
-     */
-    private void executeImageGeneration(String triggeredBy) {
-        log.info("[이미지배치] ========== 상품 이미지 생성 배치 시작 ({}) ==========", triggeredBy);
+    private String executeExport(String triggeredBy) {
+        log.info("[이미지배치] ========== 기본 이미지 상품 목록 추출 시작 ({}) ==========", triggeredBy);
 
         long startTime = System.currentTimeMillis();
         BatchLog logEntry = BatchLog.builder()
                 .batchId("PRODUCT_IMAGE_GENERATE")
-                .batchName("상품 이미지 자동 생성")
+                .batchName("기본 이미지 상품 목록 추출")
                 .status("RUNNING")
                 .triggeredBy(triggeredBy)
                 .startedAt(LocalDateTime.now())
@@ -88,12 +63,12 @@ public class ProductImageBatchScheduler {
         batchLogRepository.save(logEntry);
 
         try {
-            // 이미지 없는 상품 수 확인
-            int productsWithoutImages = imageGenerationService.countProductsWithoutImages();
-            log.info("[이미지배치] 이미지 없는 상품 수: {}개", productsWithoutImages);
+            // 기본 이미지인 상품 조회
+            List<Product> products = productRepository.findProductsWithoutImagesAll();
+            log.info("[이미지배치] 기본 이미지 상품 수: {}개", products.size());
 
-            if (productsWithoutImages == 0) {
-                String message = "이미지가 없는 상품이 없습니다.";
+            if (products.isEmpty()) {
+                String message = "기본 이미지인 상품이 없습니다.";
                 log.info("[이미지배치] {}", message);
 
                 logEntry.setStatus("SUCCESS");
@@ -101,28 +76,25 @@ public class ProductImageBatchScheduler {
                 logEntry.setFinishedAt(LocalDateTime.now());
                 logEntry.setExecutionTime(System.currentTimeMillis() - startTime);
                 batchLogRepository.save(logEntry);
-                return;
+                return message;
             }
 
-            // 현재 일일 사용량 확인
-            Map<String, Object> usageStatus = imageGenerationService.getDailyUsageStatus();
-            log.info("[이미지배치] 일일 사용량: {}/{}",
-                    usageStatus.get("dailyUsed"), usageStatus.get("dailyLimit"));
+            // 파일 저장
+            String fileName = createExportFile(products);
 
-            // 이미지 생성 실행
-            Map<String, Object> result = imageGenerationService.generateImagesForProductsWithoutImages(maxProductsPerRun);
-
-            String message = (String) result.get("message");
-            log.info("[이미지배치] 결과: {}", message);
-            log.info("[이미지배치] 남은 일일 할당량: {}장", result.get("remainingQuota"));
+            String message = String.format("기본 이미지 상품 %d개 목록 저장 완료 (%s)", products.size(), fileName);
+            log.info("[이미지배치] {}", message);
 
             // 로그 저장
             long executionTime = System.currentTimeMillis() - startTime;
             logEntry.setStatus("SUCCESS");
-            logEntry.setMessage(message + " (소요시간: " + executionTime + "ms)");
+            logEntry.setMessage(message);
             logEntry.setFinishedAt(LocalDateTime.now());
             logEntry.setExecutionTime(executionTime);
             batchLogRepository.save(logEntry);
+
+            log.info("[이미지배치] ========== 기본 이미지 상품 목록 추출 종료 ==========");
+            return message;
 
         } catch (Exception e) {
             log.error("[이미지배치] 배치 실행 중 오류 발생", e);
@@ -133,54 +105,104 @@ public class ProductImageBatchScheduler {
             logEntry.setFinishedAt(LocalDateTime.now());
             logEntry.setExecutionTime(executionTime);
             batchLogRepository.save(logEntry);
+
+            return "오류 발생: " + e.getMessage();
+        }
+    }
+
+    /**
+     * 상품 목록을 txt 파일로 저장
+     */
+    private String createExportFile(List<Product> products) throws IOException {
+        // 디렉토리 생성
+        File dir = new File(outputDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
 
-        log.info("[이미지배치] ========== 상품 이미지 생성 배치 종료 ==========");
+        // 파일명 생성 (default_image_products_20260111_060000.txt)
+        String timestamp = LocalDateTime.now().format(FILE_DATE_FORMAT);
+        String fileName = "default_image_products_" + timestamp + ".txt";
+        File file = new File(outputDir, fileName);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            // 헤더
+            writer.write("=== 기본 이미지 상품 목록 ===");
+            writer.newLine();
+            writer.write("추출일시: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            writer.newLine();
+            writer.write("총 상품 수: " + products.size() + "개");
+            writer.newLine();
+            writer.write("========================================");
+            writer.newLine();
+            writer.newLine();
+
+            // 상품 목록
+            writer.write(String.format("%-10s | %s", "상품ID", "상품명"));
+            writer.newLine();
+            writer.write("----------------------------------------");
+            writer.newLine();
+
+            for (Product product : products) {
+                writer.write(String.format("%-10d | %s", product.getProductId(), product.getProductName()));
+                writer.newLine();
+            }
+
+            writer.newLine();
+            writer.write("=== 목록 끝 ===");
+            writer.newLine();
+        }
+
+        log.info("[이미지배치] 파일 저장 완료: {}", file.getAbsolutePath());
+        return fileName;
     }
 
     /**
-     * 수동 실행 - 모든 이미지 없는 상품 처리 (일일 제한 내)
+     * 수동 실행 - 기본 이미지 상품 목록 추출
      */
     public String generateAllMissingImagesManual() {
-        log.info("[이미지배치] 수동 실행 시작 - 모든 이미지 없는 상품");
-
-        Map<String, Object> result = imageGenerationService.generateImagesForProductsWithoutImages(10);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append((String) result.get("message"));
-        sb.append(" [일일 사용량: ").append(result.get("dailyUsed"));
-        sb.append("/").append(result.get("dailyLimit")).append("]");
-
-        return sb.toString();
+        return executeExport("MANUAL");
     }
 
     /**
-     * 수동 실행 - 특정 개수만 처리
+     * 내보내기 파일 목록 조회 (최신순)
      */
-    public String generateImagesManual(int maxProducts) {
-        log.info("[이미지배치] 수동 실행 시작 - 최대 {}개 상품", maxProducts);
+    public List<String> getExportFileList() {
+        File dir = new File(outputDir);
+        if (!dir.exists() || !dir.isDirectory()) {
+            return Collections.emptyList();
+        }
 
-        Map<String, Object> result = imageGenerationService.generateImagesForProductsWithoutImages(maxProducts);
+        String[] files = dir.list((d, name) -> name.startsWith("default_image_products_") && name.endsWith(".txt"));
+        if (files == null || files.length == 0) {
+            return Collections.emptyList();
+        }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append((String) result.get("message"));
-        sb.append(" [일일 사용량: ").append(result.get("dailyUsed"));
-        sb.append("/").append(result.get("dailyLimit")).append("]");
-
-        return sb.toString();
+        // 최신순 정렬
+        Arrays.sort(files, Collections.reverseOrder());
+        return Arrays.asList(files);
     }
 
     /**
-     * 일일 사용량 상태 조회
+     * 파일 객체 반환 (다운로드용)
      */
-    public Map<String, Object> getUsageStatus() {
-        return imageGenerationService.getDailyUsageStatus();
+    public File getExportFile(String fileName) {
+        // 보안: 파일명에 경로 조작 문자가 있으면 거부
+        if (fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
+            return null;
+        }
+
+        File file = new File(outputDir, fileName);
+        if (file.exists() && file.isFile()) {
+            return file;
+        }
+        return null;
     }
 
     /**
-     * 일일 카운터 강제 리셋
+     * 내보내기 디렉토리 경로 반환
      */
-    public Map<String, Object> resetDailyCounter() {
-        return imageGenerationService.forceResetDailyCounter();
+    public String getOutputDir() {
+        return outputDir;
     }
 }

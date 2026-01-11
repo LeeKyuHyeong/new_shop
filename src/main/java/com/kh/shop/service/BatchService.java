@@ -97,7 +97,7 @@ public class BatchService {
         BATCH_INFO_MAP.put("BACKUP_DATABASE", new BatchInfo(
                 "BACKUP_DATABASE", "데이터베이스 백업", "매일 05:00", "DB 자동 백업 및 오래된 백업 정리"));
         BATCH_INFO_MAP.put("PRODUCT_IMAGE_GENERATE", new BatchInfo(
-                "PRODUCT_IMAGE_GENERATE", "상품 이미지 생성", "08:00, 14:00, 20:00", "이미지 없는 상품에 AI 이미지 자동 생성 (무료티어 일일40장)"));
+                "PRODUCT_IMAGE_GENERATE", "기본 이미지 상품 목록 추출", "매일 06:00", "기본 이미지 상품 ID와 상품명을 txt 파일로 저장"));
     }
 
     /**
@@ -200,8 +200,8 @@ public class BatchService {
         switch (batchId) {
             // 기존 배치
             case "PRODUCT_CREATE":
-                productBatchScheduler.createRandomProduct();
-                return "랜덤 상품 1개가 등록되었습니다.";
+                productBatchScheduler.createRandomProductWithImage();
+                return "랜덤 상품 1개가 등록되었습니다. (이미지 포함)";
 
             case "ORDER_STATUS_UPDATE":
                 orderStatusBatchScheduler.updateOrderStatus();

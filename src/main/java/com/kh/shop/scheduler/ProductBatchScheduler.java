@@ -6,6 +6,7 @@ import com.kh.shop.entity.ProductTemplate;
 import com.kh.shop.repository.CategoryRepository;
 import com.kh.shop.repository.ProductRepository;
 import com.kh.shop.repository.ProductTemplateRepository;
+import com.kh.shop.service.ImageGenerationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +24,7 @@ public class ProductBatchScheduler {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductTemplateRepository templateRepository;
+    private final ImageGenerationService imageGenerationService;
     private final Random random = new Random();
 
     // ==================== 공통 데이터 (DB에 없을 때 기본값) ====================
@@ -45,11 +47,34 @@ public class ProductBatchScheduler {
     private final String DEFAULT_DESCRIPTION = "좋은 품질의 %s입니다. 다양한 스타일링이 가능합니다.";
 
     /**
-     * 매시 10분에 랜덤 상품 1개 등록
+     * 오전 8시 10분 - 랜덤 상품 등록 + 이미지 생성
      */
-    @Scheduled(cron = "0 10 * * * *")
+    @Scheduled(cron = "0 10 8 * * *")
+    public void createRandomProductMorning() {
+        createRandomProductWithImage();
+    }
+
+    /**
+     * 오후 2시 10분 - 랜덤 상품 등록 + 이미지 생성
+     */
+    @Scheduled(cron = "0 10 14 * * *")
+    public void createRandomProductAfternoon() {
+        createRandomProductWithImage();
+    }
+
+    /**
+     * 오후 8시 10분 - 랜덤 상품 등록 + 이미지 생성
+     */
+    @Scheduled(cron = "0 10 20 * * *")
+    public void createRandomProductEvening() {
+        createRandomProductWithImage();
+    }
+
+    /**
+     * 랜덤 상품 1개 등록 + 이미지 생성 (공통 로직)
+     */
     @Transactional
-    public void createRandomProduct() {
+    public void createRandomProductWithImage() {
         log.info("========== [배치] 랜덤 상품 등록 시작 ==========");
 
         try {
@@ -103,6 +128,15 @@ public class ProductBatchScheduler {
                     saved.getProductName(),
                     selectedCategory.getCategoryName(),
                     saved.getProductPrice());
+
+            // 이미지 생성
+            log.info("[배치] 상품 이미지 생성 시작 - ID: {}", saved.getProductId());
+            boolean imageGenerated = imageGenerationService.generateImagesForProduct(saved);
+            if (imageGenerated) {
+                log.info("[배치] 상품 이미지 생성 완료 - ID: {}", saved.getProductId());
+            } else {
+                log.warn("[배치] 상품 이미지 생성 실패 - ID: {}", saved.getProductId());
+            }
 
         } catch (Exception e) {
             log.error("[배치] 상품 등록 실패: {}", e.getMessage(), e);
