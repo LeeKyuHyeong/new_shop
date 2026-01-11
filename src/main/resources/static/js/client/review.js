@@ -201,23 +201,23 @@ function updateWriteButton(canWrite, hasPurchased) {
             if (!hasPurchased) {
                 // 구매하지 않은 경우
                 writeBtn.disabled = true;
-                writeBtn.title = '구매하신 상품만 리뷰 작성이 가능합니다.';
+                writeBtn.innerHTML = '🛒 구매 후 리뷰 작성 가능';
                 hasAlreadyReviewed = false;
             } else if (!canWrite) {
                 // 구매했지만 이미 리뷰를 작성한 경우
                 writeBtn.disabled = true;
-                writeBtn.title = '이미 리뷰를 작성하셨습니다.';
+                writeBtn.innerHTML = '✅ 리뷰 작성 완료';
                 hasAlreadyReviewed = true;
             } else {
                 // 리뷰 작성 가능
                 writeBtn.disabled = false;
-                writeBtn.title = '';
+                writeBtn.innerHTML = '✏️ 리뷰 작성하기';
                 hasAlreadyReviewed = false;
             }
         } else {
             // 비로그인 사용자는 버튼 활성화 (클릭 시 로그인 안내)
             writeBtn.disabled = false;
-            writeBtn.title = '';
+            writeBtn.innerHTML = '✏️ 리뷰 작성하기';
             hasAlreadyReviewed = false;
         }
     }
