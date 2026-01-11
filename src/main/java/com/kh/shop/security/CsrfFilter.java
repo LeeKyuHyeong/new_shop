@@ -27,7 +27,9 @@ public class CsrfFilter implements Filter {
     // CSRF 검증을 건너뛸 경로 (API, 웹훅 등)
     private static final Set<String> EXCLUDED_PATHS = Set.of(
             "/api/payment/webhook",      // 결제 웹훅
-            "/api/social/callback"       // 소셜 로그인 콜백
+            "/api/social/callback",      // 소셜 로그인 콜백
+            "/login",                    // 로그인 (세션 생성 전이므로)
+            "/signup"                    // 회원가입 (세션 생성 전이므로)
     );
 
     // 안전한 HTTP 메서드 (상태 변경 없음)

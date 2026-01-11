@@ -51,7 +51,7 @@ public class BatchService {
     static {
         // 기존 구현 배치
         BATCH_INFO_MAP.put("PRODUCT_CREATE", new BatchInfo(
-                "PRODUCT_CREATE", "랜덤 상품 등록", "매시 10분", "카테고리에 맞는 랜덤 상품 1개 등록"));
+                "PRODUCT_CREATE", "랜덤 상품 등록", "08:10, 14:10, 20:10", "카테고리에 맞는 랜덤 상품 1개 등록 (하루 3회)"));
         BATCH_INFO_MAP.put("ORDER_STATUS_UPDATE", new BatchInfo(
                 "ORDER_STATUS_UPDATE", "주문 상태 업데이트", "매시 5분", "랜덤 주문 상태 변경"));
         BATCH_INFO_MAP.put("ORDER_CREATE", new BatchInfo(

@@ -441,8 +441,8 @@
                         <tr>
                             <td><span class="badge badge-demo">데모</span></td>
                             <td>랜덤 상품 등록</td>
-                            <td>매시 10분</td>
-                            <td>카테고리에 맞는 랜덤 상품 1개 등록</td>
+                            <td>08:10, 14:10, 20:10</td>
+                            <td>카테고리에 맞는 랜덤 상품 1개 등록 (하루 3회)</td>
                         </tr>
                         <tr>
                             <td><span class="badge badge-demo">데모</span></td>
