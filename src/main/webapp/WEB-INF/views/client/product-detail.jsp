@@ -329,10 +329,13 @@
         const productId = ${product.productId};
         const productPrice = ${product.discountedPrice};
         const maxStock = ${product.productStock};
-        
+
         // 옵션 필수 여부
         const hasColorOption = ${not empty product.color};
         const hasSizeOption = ${not empty product.size};
+
+        // 로그인 여부
+        const isLoggedIn = ${not empty sessionScope.loggedInUser};
     </script>
     <script src="${pageContext.request.contextPath}/js/common/profanity.js"></script>
     <script src="${pageContext.request.contextPath}/js/client/product-detail.js"></script>

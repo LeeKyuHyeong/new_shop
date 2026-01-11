@@ -5,6 +5,7 @@ let hasMoreReviews = true;
 let isLoading = false;
 let editingReviewId = null;
 let selectedImages = [];
+let hasAlreadyReviewed = false; // 이미 리뷰를 작성했는지 여부
 
 // 페이지 로드 시 리뷰 불러오기
 document.addEventListener('DOMContentLoaded', function() {
@@ -191,15 +192,29 @@ function createReviewHtml(review) {
 function updateWriteButton(canWrite) {
     const writeBtn = document.getElementById('btnWriteReview');
     if (writeBtn) {
-        writeBtn.disabled = !canWrite;
-        if (!canWrite) {
+        // 로그인한 사용자이고 이미 리뷰를 작성한 경우에만 비활성화
+        if (typeof isLoggedIn !== 'undefined' && isLoggedIn && !canWrite) {
+            hasAlreadyReviewed = true;
+            writeBtn.disabled = true;
             writeBtn.title = '이미 리뷰를 작성하셨습니다.';
+        } else {
+            hasAlreadyReviewed = false;
+            writeBtn.disabled = false;
+            writeBtn.title = '';
         }
     }
 }
 
 // 리뷰 작성 폼 토글
 function toggleReviewForm() {
+    // 로그인 여부 확인
+    if (typeof isLoggedIn !== 'undefined' && !isLoggedIn) {
+        if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+            location.href = `${contextPath}/login?redirect=/product/${productId}`;
+        }
+        return;
+    }
+
     const form = document.getElementById('reviewForm');
     form.classList.toggle('active');
 
