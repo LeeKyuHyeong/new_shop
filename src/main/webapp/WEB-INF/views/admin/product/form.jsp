@@ -459,20 +459,15 @@
         function submitProductForm() {
             const formData = new FormData(document.getElementById('productForm'));
             formData.set('productDescription', $('#productDescription').summernote('code'));
-            
+
             const productId = document.getElementById('productId') ? document.getElementById('productId').value : null;
-            const url = productId 
-                ? contextPath + '/api/admin/product/' + productId 
-                : contextPath + '/api/admin/product';
-            const method = productId ? 'PUT' : 'POST';
-            
-            // PUT의 경우 _method 추가
-            if (method === 'PUT') {
-                formData.append('_method', 'PUT');
-            }
+            const url = productId
+                ? contextPath + '/api/admin/product/update/' + productId
+                : contextPath + '/api/admin/product/create';
+            const method = 'POST';
             
             fetch(url, {
-                method: 'POST',
+                method: method,
                 body: formData
             })
             .then(response => response.json())
