@@ -211,6 +211,26 @@
     background-color: var(--bg-secondary);
 }
 
+/* 드래그 앤 드롭 스타일 */
+.image-upload-area.drag-over,
+.detail-images-container.drag-over {
+    border: 2px dashed var(--btn-primary-bg);
+    background-color: rgba(52, 152, 219, 0.1);
+    border-radius: 8px;
+}
+
+.image-upload-area.drag-over .upload-placeholder,
+.detail-images-container.drag-over .upload-placeholder {
+    border-color: var(--btn-primary-bg);
+    background-color: rgba(52, 152, 219, 0.15);
+}
+
+.image-upload-area.drag-over .upload-placeholder p,
+.detail-images-container.drag-over .upload-placeholder p {
+    color: var(--btn-primary-bg);
+    font-weight: 600;
+}
+
 .upload-placeholder span {
     font-size: 32px;
     margin-bottom: 5px;

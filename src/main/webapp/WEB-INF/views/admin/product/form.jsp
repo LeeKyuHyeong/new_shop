@@ -245,7 +245,7 @@
                                 </c:if>
                                 <div class="upload-placeholder" id="thumbnailPlaceholder" <c:if test="${not empty product && not empty product.thumbnailUrl}">style="display:none"</c:if>>
                                     <span>📷</span>
-                                    <p>클릭하여 이미지 업로드</p>
+                                    <p>클릭 또는 드래그하여 업로드</p>
                                     <p class="hint">권장: 500x500px, 최대 5MB</p>
                                 </div>
                                 <input type="file" id="thumbnail" name="thumbnail" accept="image/*" style="display:none">
@@ -267,7 +267,7 @@
                                 </c:if>
                                 <div class="upload-placeholder detail-upload" id="detailPlaceholder">
                                     <span>+</span>
-                                    <p>이미지 추가</p>
+                                    <p>클릭 또는 드래그</p>
                                 </div>
                                 <input type="file" id="detailImages" name="detailImages" accept="image/*" multiple style="display:none">
                             </div>

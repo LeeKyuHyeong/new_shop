@@ -53,7 +53,7 @@
                             </c:if>
                             <div class="upload-placeholder" id="imagePlaceholder" <c:if test="${not empty popup && not empty popup.popupImageUrl}">style="display:none"</c:if>>
                                 <span>📷</span>
-                                <p>클릭하여 이미지 업로드</p>
+                                <p>클릭 또는 드래그하여 업로드</p>
                             </div>
                             <input type="file" id="popupImage" name="popupImage" accept="image/*" style="display:none">
                         </div>

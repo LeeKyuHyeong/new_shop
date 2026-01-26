@@ -3,6 +3,77 @@ document.getElementById('imagePlaceholder').addEventListener('click', function()
     document.getElementById('image').click();
 });
 
+// ========================================
+// 드래그 앤 드롭 기능
+// ========================================
+(function() {
+    const imageArea = document.getElementById('imageArea');
+    if (!imageArea) return;
+
+    // 기본 동작 방지
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        imageArea.addEventListener(eventName, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }, false);
+    });
+
+    // 드래그 오버 스타일
+    ['dragenter', 'dragover'].forEach(eventName => {
+        imageArea.addEventListener(eventName, () => {
+            imageArea.classList.add('drag-over');
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        imageArea.addEventListener(eventName, () => {
+            imageArea.classList.remove('drag-over');
+        }, false);
+    });
+
+    // 드롭 처리
+    imageArea.addEventListener('drop', function(e) {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 업로드 가능합니다.');
+                return;
+            }
+            handleImageDrop(file);
+        }
+    }, false);
+
+    function handleImageDrop(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const placeholder = document.getElementById('imagePlaceholder');
+
+            // 기존 미리보기 제거
+            const existingPreview = imageArea.querySelector('.preview-image');
+            if (existingPreview) {
+                existingPreview.remove();
+            }
+
+            // 새 미리보기 추가
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'preview-image slide-preview';
+            previewDiv.innerHTML = `
+                <img src="${e.target.result}" alt="슬라이드 이미지">
+                <button type="button" class="remove-image" onclick="removeImage()">×</button>
+            `;
+            imageArea.insertBefore(previewDiv, placeholder);
+            placeholder.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+
+        // input에 파일 설정
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        document.getElementById('image').files = dataTransfer.files;
+    }
+})();
+
 // 이미지 변경 미리보기
 document.getElementById('image').addEventListener('change', function(e) {
     const file = e.target.files[0];

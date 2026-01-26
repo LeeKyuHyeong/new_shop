@@ -93,7 +93,7 @@
                                 </c:if>
                                 <div class="upload-placeholder slide-upload" id="imagePlaceholder" <c:if test="${not empty slide && not empty slide.imageUrl}">style="display:none"</c:if>>
                                     <span>🖼️</span>
-                                    <p>클릭하여 이미지 업로드</p>
+                                    <p>클릭 또는 드래그하여 업로드</p>
                                     <p class="hint">권장: 1920x600px, 최대 10MB</p>
                                 </div>
                                 <input type="file" id="image" name="image" accept="image/*" style="display:none">
