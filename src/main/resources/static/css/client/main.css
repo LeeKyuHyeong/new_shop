@@ -119,14 +119,26 @@ body {
     gap: 15px;
 }
 
+/* 헤더 버튼 - button/a 태그 공통 스타일 */
 .header-btn {
     padding: 8px 16px;
+    min-height: 38px;
     border: 1px solid var(--border-color-light);
     border-radius: 4px;
     text-decoration: none;
     color: var(--text-primary);
+    background: var(--bg-primary);
     font-size: 14px;
+    font-family: inherit;
+    font-weight: 400;
+    line-height: 1.5;
+    cursor: pointer;
     transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    box-sizing: border-box;
 }
 
 .header-btn:hover {
@@ -145,27 +157,12 @@ body {
     border-color: var(--btn-primary-hover);
 }
 
-/* 테마 토글 버튼 (헤더) */
-.theme-toggle-btn {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 8px 12px;
-    border: 1px solid var(--border-color-light);
-    border-radius: 4px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s;
+/* 테마 토글 버튼 - header-btn 확장 */
+.header-btn.theme-toggle-btn {
+    /* header-btn 기본 스타일 상속, 추가 스타일만 정의 */
 }
 
-.theme-toggle-btn:hover {
-    background: var(--bg-secondary);
-    border-color: var(--border-color);
-}
-
-.theme-toggle-btn .theme-text {
+.header-btn.theme-toggle-btn .theme-text {
     display: inline;
 }
 
@@ -820,11 +817,11 @@ body {
     }
 
     /* 테마 토글 버튼 - 텍스트 숨기고 아이콘만 */
-    .theme-toggle-btn {
+    .header-btn.theme-toggle-btn {
         padding: 5px 8px;
     }
 
-    .theme-toggle-btn .theme-text {
+    .header-btn.theme-toggle-btn .theme-text {
         display: none;
     }
 
@@ -1214,17 +1211,7 @@ body.dark-mode .footer {
     background: #0f3460;
 }
 
-body.dark-mode .theme-toggle-btn {
-    background: #16213e;
-    border-color: #34495e;
-    color: #bdc3c7;
-}
-
-body.dark-mode .theme-toggle-btn:hover {
-    background: #34495e;
-    border-color: #3498db;
-    color: #ecf0f1;
-}
+/* theme-toggle-btn은 header-btn 다크모드 스타일 상속 */
 
 body.dark-mode .theme-toggle-item {
     color: #bdc3c7;
@@ -1759,4 +1746,14 @@ body.dark-mode .mobile-theme-btn {
 body.dark-mode .mobile-logout-btn {
     background: #4a1a1a;
     color: #f8d7da;
+}
+
+body.dark-mode .mobile-admin-btn {
+    background: #2980b9;
+    color: #ffffff !important;
+}
+
+body.dark-mode .mobile-admin-btn:visited,
+body.dark-mode .mobile-admin-btn:link {
+    color: #ffffff !important;
 }

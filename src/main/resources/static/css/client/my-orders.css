@@ -32,9 +32,14 @@
 
 .order-status {
     padding: 6px 14px;
+    min-height: 32px;
     border-radius: 20px;
     font-size: 13px;
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
 }
 
 .status-pending { background: #fef3cd; color: #856404; }
@@ -128,23 +133,41 @@
 
 .btn-detail {
     padding: 10px 20px;
+    min-height: 40px;
     background: var(--btn-primary-bg);
     color: var(--text-white);
-    border: none;
+    border: 2px solid var(--btn-primary-bg);
     border-radius: 6px;
     text-decoration: none;
     font-size: 14px;
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    transition: all 0.3s;
+}
+
+.btn-detail:hover {
+    background: var(--btn-primary-hover);
+    border-color: var(--btn-primary-hover);
 }
 
 .btn-cancel {
     padding: 10px 20px;
+    min-height: 40px;
     background: var(--bg-primary);
     color: var(--btn-danger-bg);
-    border: 1px solid var(--btn-danger-bg);
+    border: 2px solid var(--btn-danger-bg);
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    transition: all 0.3s;
 }
 
 .btn-cancel:hover {
@@ -166,12 +189,23 @@
 }
 
 .btn-shop {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 12px 24px;
+    min-height: 44px;
     background: var(--btn-primary-bg);
     color: var(--text-white);
+    border: 2px solid var(--btn-primary-bg);
     text-decoration: none;
     border-radius: 8px;
+    box-sizing: border-box;
+    transition: all 0.3s;
+}
+
+.btn-shop:hover {
+    background: var(--btn-primary-hover);
+    border-color: var(--btn-primary-hover);
 }
 
 /* 다크 모드 */

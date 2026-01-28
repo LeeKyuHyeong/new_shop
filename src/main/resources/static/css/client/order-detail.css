@@ -21,8 +21,15 @@
     background: var(--bg-secondary);
     color: var(--text-primary);
     text-decoration: none;
+    border: 2px solid var(--border-color);
     border-radius: 6px;
     font-size: 14px;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    border-color: var(--btn-primary-bg);
+    color: var(--btn-primary-bg);
 }
 
 .detail-section {

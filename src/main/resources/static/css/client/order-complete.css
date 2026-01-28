@@ -75,6 +75,7 @@
 
 .btn-action {
     padding: 14px 30px;
+    border: 2px solid transparent;
     border-radius: 8px;
     font-size: 15px;
     font-weight: 600;
@@ -85,20 +86,23 @@
 .btn-primary {
     background: var(--btn-primary-bg);
     color: var(--text-white);
+    border-color: var(--btn-primary-bg);
 }
 
 .btn-primary:hover {
     background: var(--btn-primary-hover);
+    border-color: var(--btn-primary-hover);
 }
 
 .btn-secondary {
     background: var(--bg-primary);
     color: var(--text-primary);
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
 }
 
 .btn-secondary:hover {
     background: var(--bg-secondary);
+    border-color: var(--btn-primary-bg);
 }
 
 /* 다크 모드 */

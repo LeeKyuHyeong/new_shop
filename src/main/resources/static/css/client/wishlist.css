@@ -74,13 +74,15 @@
     background: var(--btn-primary-bg);
     color: var(--text-white);
     text-decoration: none;
+    border: 2px solid var(--btn-primary-bg);
     border-radius: 8px;
     font-weight: 600;
-    transition: background 0.3s;
+    transition: all 0.3s;
 }
 
 .btn-shop:hover {
     background: var(--btn-primary-hover);
+    border-color: var(--btn-primary-hover);
 }
 
 /* 위시리스트 콘텐츠 */
@@ -262,7 +264,7 @@
 .wishlist-item .btn-buy {
     flex: 1;
     padding: 10px;
-    border: none;
+    border: 2px solid transparent;
     border-radius: 6px;
     font-size: 0.9rem;
     font-weight: 600;
@@ -273,19 +275,23 @@
 .wishlist-item .btn-cart {
     background: var(--bg-secondary);
     color: var(--text-primary);
+    border-color: var(--border-color);
 }
 
 .wishlist-item .btn-cart:hover {
     background: var(--border-color);
+    border-color: var(--btn-primary-bg);
 }
 
 .wishlist-item .btn-buy {
     background: var(--btn-primary-bg);
     color: var(--text-white);
+    border-color: var(--btn-primary-bg);
 }
 
 .wishlist-item .btn-buy:hover {
     background: var(--btn-primary-hover);
+    border-color: var(--btn-primary-hover);
 }
 
 .wishlist-item .btn-cart:disabled,
