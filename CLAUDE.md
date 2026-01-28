@@ -87,6 +87,13 @@ CI/CD via GitHub Actions (`.github/workflows/deploy.yml`):
 2. Docker image build and push to Docker Hub
 3. SSH deploy to server via docker-compose
 
+## Security Features
+
+- **CSRF Protection**: Token-based with `CsrfFilter` (excludes `/login`, `/signup`, webhooks)
+- **XSS Prevention**: Input sanitization via `XssSanitizer`, Content Security Policy headers
+- **Duplicate Login Prevention**: `SessionRegistry` tracks active sessions per user; new login terminates existing session with notification
+- **Security Headers**: Configured in `security-headers.jsp` (X-Frame-Options, X-Content-Type-Options, etc.)
+
 ## Notes
 
 - UI is in Korean (한국어)

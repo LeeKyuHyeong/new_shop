@@ -111,13 +111,6 @@ public class ProfanityFilter {
         }
     }
 
-    // 초성 매칭에서 제외할 짧은 패턴 (오탐 방지)
-    private static final Set<String> CHOSUNG_EXCLUDE_SET = Set.of(
-            "ㄷㅈ",  // 디자인, 대전 등에서 오탐
-            "ㄴㅁ",  // 나무, 내말 등에서 오탐
-            "ㅊㄴ"   // 친구 등에서 오탐
-    );
-
     /**
      * 비속어 포함 여부 확인
      */
@@ -143,31 +136,7 @@ public class ProfanityFilter {
             }
         }
 
-        // 3. 초성 변환 후 매칭 (짧은 패턴은 제외하여 오탐 방지)
-        String chosungText = extractChosung(text);
-        for (String profanity : profanitySet) {
-            // 2글자 이하 초성 패턴은 오탐이 많으므로 제외 목록 확인
-            if (profanity.length() <= 2 && isChosungOnly(profanity) && CHOSUNG_EXCLUDE_SET.contains(profanity)) {
-                continue;
-            }
-            if (chosungText.contains(profanity)) {
-                return true;
-            }
-        }
-
         return false;
-    }
-
-    /**
-     * 문자열이 초성으로만 구성되어 있는지 확인
-     */
-    private boolean isChosungOnly(String text) {
-        for (char c : text.toCharArray()) {
-            if (c < 'ㄱ' || c > 'ㅎ') {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
@@ -231,19 +200,6 @@ public class ProfanityFilter {
             }
         }
 
-        // 3. 초성 매칭 (제외 목록 적용)
-        String chosungText = extractChosung(text);
-        for (String profanity : profanitySet) {
-            if (profanity.length() <= 2 && isChosungOnly(profanity) && CHOSUNG_EXCLUDE_SET.contains(profanity)) {
-                continue;
-            }
-            if (isChosungOnly(profanity) && chosungText.contains(profanity)) {
-                if (!detected.contains(profanity)) {
-                    detected.add(profanity + "(초성)");
-                }
-            }
-        }
-
         return detected;
     }
 
@@ -286,25 +242,6 @@ public class ProfanityFilter {
             }
         }
 
-        // 3. 초성 매칭 (제외 목록 적용)
-        String chosungText = extractChosung(text);
-        for (String profanity : profanitySet) {
-            if (profanity.length() <= 2 && isChosungOnly(profanity) && CHOSUNG_EXCLUDE_SET.contains(profanity)) {
-                continue;
-            }
-            if (isChosungOnly(profanity)) {
-                int idx = chosungText.indexOf(profanity);
-                if (idx >= 0) {
-                    Map<String, Object> match = new HashMap<>();
-                    match.put("word", profanity);
-                    match.put("type", "초성매칭");
-                    match.put("position", idx);
-                    match.put("context", getChosungContext(text, idx, profanity.length()));
-                    results.add(match);
-                }
-            }
-        }
-
         return results;
     }
 
@@ -317,41 +254,6 @@ public class ProfanityFilter {
         String before = text.substring(start, position);
         String matched = text.substring(position, position + length);
         String after = text.substring(position + length, end);
-        return (start > 0 ? "..." : "") + before + "[" + matched + "]" + after + (end < text.length() ? "..." : "");
-    }
-
-    /**
-     * 초성 매칭된 위치의 원본 문자열 컨텍스트 반환
-     */
-    private String getChosungContext(String text, int chosungPosition, int length) {
-        // 초성 위치를 원본 한글 위치로 변환
-        int koreanCharCount = 0;
-        int originalStart = 0;
-        int originalEnd = 0;
-
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            if ((c >= '가' && c <= '힣') || (c >= 'ㄱ' && c <= 'ㅎ')) {
-                if (koreanCharCount == chosungPosition) {
-                    originalStart = i;
-                }
-                if (koreanCharCount == chosungPosition + length - 1) {
-                    originalEnd = i + 1;
-                    break;
-                }
-                koreanCharCount++;
-            }
-        }
-
-        if (originalEnd == 0) originalEnd = text.length();
-
-        int start = Math.max(0, originalStart - 3);
-        int end = Math.min(text.length(), originalEnd + 3);
-
-        String before = text.substring(start, originalStart);
-        String matched = text.substring(originalStart, originalEnd);
-        String after = text.substring(originalEnd, end);
-
         return (start > 0 ? "..." : "") + before + "[" + matched + "]" + after + (end < text.length() ? "..." : "");
     }
 
@@ -369,23 +271,6 @@ public class ProfanityFilter {
         }
         // 공백, 특수문자 제거
         return sb.toString().replaceAll("[\\s\\W]", "").toLowerCase();
-    }
-
-    /**
-     * 초성 추출
-     */
-    private String extractChosung(String text) {
-        StringBuilder sb = new StringBuilder();
-        char[] chosungs = {'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'};
-        for (char c : text.toCharArray()) {
-            if (c >= '가' && c <= '힣') {
-                int chosungIndex = (c - '가') / (21 * 28);
-                sb.append(chosungs[chosungIndex]);
-            } else if (c >= 'ㄱ' && c <= 'ㅎ') {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
     }
 
     /**

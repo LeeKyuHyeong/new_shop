@@ -39,3 +39,10 @@ application.properties
 .env
 .env.comp
 .mcp.json
+
+### Local Development ###
+.claude/
+list/
+tools/
+uploads/
+*.png
