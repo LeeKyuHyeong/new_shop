@@ -1,5 +1,6 @@
 package com.kh.shop.scheduler;
 
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,8 @@ import java.time.temporal.ChronoUnit;
 @RequiredArgsConstructor
 public class TempFileCleanupBatchScheduler {
 
+    private final BatchStatusManager batchStatusManager;
+
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
 
@@ -29,6 +32,10 @@ public class TempFileCleanupBatchScheduler {
      */
     @Scheduled(cron = "0 0 4 * * *")
     public void cleanupTempFiles() {
+        if (!batchStatusManager.isEnabled("TEMP_FILE_CLEANUP")) {
+            log.debug("[배치] 임시 파일 정리 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 임시 파일 정리 시작 ==========");
 
         try {

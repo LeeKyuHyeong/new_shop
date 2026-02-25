@@ -2,6 +2,7 @@ package com.kh.shop.scheduler;
 
 import com.kh.shop.entity.Product;
 import com.kh.shop.repository.ProductRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,6 +17,7 @@ import java.util.List;
 public class LowStockAlertBatchScheduler {
 
     private final ProductRepository productRepository;
+    private final BatchStatusManager batchStatusManager;
 
     // 재고 부족 기준 (10개 이하)
     private static final int LOW_STOCK_THRESHOLD = 10;
@@ -26,6 +28,10 @@ public class LowStockAlertBatchScheduler {
     @Scheduled(cron = "0 0 9 * * *")
     @Transactional(readOnly = true)
     public void checkLowStockProducts() {
+        if (!batchStatusManager.isEnabled("LOW_STOCK_ALERT")) {
+            log.debug("[배치] 재고 부족 알림 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 재고 부족 알림 시작 ==========");
 
         try {

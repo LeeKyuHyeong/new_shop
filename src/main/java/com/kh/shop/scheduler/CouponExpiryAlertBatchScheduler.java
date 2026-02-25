@@ -2,6 +2,7 @@ package com.kh.shop.scheduler;
 
 import com.kh.shop.entity.UserCoupon;
 import com.kh.shop.repository.UserCouponRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +18,7 @@ import java.util.List;
 public class CouponExpiryAlertBatchScheduler {
 
     private final UserCouponRepository userCouponRepository;
+    private final BatchStatusManager batchStatusManager;
 
     // 만료 예정 기준 일수 (3일)
     private static final int EXPIRY_ALERT_DAYS = 3;
@@ -27,6 +29,10 @@ public class CouponExpiryAlertBatchScheduler {
     @Scheduled(cron = "0 0 9 * * *")
     @Transactional(readOnly = true)
     public void sendCouponExpiryAlerts() {
+        if (!batchStatusManager.isEnabled("COUPON_EXPIRY_ALERT")) {
+            log.debug("[배치] 쿠폰 만료 예정 알림 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 쿠폰 만료 예정 알림 시작 ==========");
 
         try {

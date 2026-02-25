@@ -2,6 +2,7 @@ package com.kh.shop.scheduler;
 
 import com.kh.shop.entity.User;
 import com.kh.shop.repository.UserRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +18,7 @@ import java.util.List;
 public class DormantUserBatchScheduler {
 
     private final UserRepository userRepository;
+    private final BatchStatusManager batchStatusManager;
 
     // 휴면 기준 일수 (365일 = 1년)
     private static final int DORMANT_DAYS = 365;
@@ -28,6 +30,10 @@ public class DormantUserBatchScheduler {
     @Scheduled(cron = "0 0 2 * * *")
     @Transactional
     public void processDormantUsers() {
+        if (!batchStatusManager.isEnabled("DORMANT_USER")) {
+            log.debug("[배치] 휴면 계정 처리 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 휴면 계정 처리 시작 ==========");
 
         try {

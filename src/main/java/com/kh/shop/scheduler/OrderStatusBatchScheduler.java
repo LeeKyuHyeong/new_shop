@@ -2,6 +2,7 @@ package com.kh.shop.scheduler;
 
 import com.kh.shop.entity.Order;
 import com.kh.shop.repository.OrderRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,6 +19,7 @@ import java.util.Random;
 public class OrderStatusBatchScheduler {
 
     private final OrderRepository orderRepository;
+    private final BatchStatusManager batchStatusManager;
     private final Random random = new Random();
 
     /**
@@ -27,6 +29,10 @@ public class OrderStatusBatchScheduler {
     @Scheduled(cron = "0 20 * * * *")
     @Transactional
     public void updateOrderStatus() {
+        if (!batchStatusManager.isEnabled("ORDER_STATUS_UPDATE")) {
+            log.debug("[배치] 주문 상태 업데이트 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 주문 상태 변경 시작 ==========");
 
         try {

@@ -5,6 +5,7 @@ import com.kh.shop.entity.User;
 import com.kh.shop.entity.UserSetting;
 import com.kh.shop.repository.UserRepository;
 import com.kh.shop.repository.UserSettingRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,6 +22,7 @@ public class UserSignupBatchScheduler {
 
     private final UserRepository userRepository;
     private final UserSettingRepository userSettingRepository;
+    private final BatchStatusManager batchStatusManager;
     private final Random random = new Random();
 
     // 성씨 데이터
@@ -53,6 +55,10 @@ public class UserSignupBatchScheduler {
     @Scheduled(cron = "0 0 5 * * *")
     @Transactional
     public void createRandomUser() {
+        if (!batchStatusManager.isEnabled("USER_SIGNUP")) {
+            log.debug("[배치] 랜덤 회원 가입 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 랜덤 회원가입 시작 ==========");
 
         try {

@@ -1,5 +1,6 @@
 package com.kh.shop.scheduler;
 
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +18,8 @@ import java.time.temporal.ChronoUnit;
 @RequiredArgsConstructor
 public class SessionCleanupBatchScheduler {
 
+    private final BatchStatusManager batchStatusManager;
+
     // 세션 만료 시간 (2시간)
     private static final int SESSION_TIMEOUT_HOURS = 2;
 
@@ -26,6 +29,10 @@ public class SessionCleanupBatchScheduler {
      */
     @Scheduled(cron = "0 0 * * * *")
     public void cleanupExpiredSessions() {
+        if (!batchStatusManager.isEnabled("SESSION_CLEANUP")) {
+            log.debug("[배치] 세션 정리 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 세션 정리 시작 ==========");
 
         try {

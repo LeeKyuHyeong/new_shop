@@ -1,6 +1,7 @@
 package com.kh.shop.scheduler;
 
 import com.kh.shop.repository.ProductViewStatsRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,6 +17,7 @@ import java.util.List;
 public class ProductViewStatsBatchScheduler {
 
     private final ProductViewStatsRepository productViewStatsRepository;
+    private final BatchStatusManager batchStatusManager;
 
     // 통계 데이터 보관 기간 (90일)
     private static final int RETENTION_DAYS = 90;
@@ -26,6 +28,10 @@ public class ProductViewStatsBatchScheduler {
     @Scheduled(cron = "0 30 1 * * *")
     @Transactional(readOnly = true)
     public void aggregateProductViewStats() {
+        if (!batchStatusManager.isEnabled("PRODUCT_VIEW_STATS")) {
+            log.debug("[배치] 상품 조회수 집계 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 상품 조회수 집계 시작 ==========");
 
         try {
@@ -63,6 +69,10 @@ public class ProductViewStatsBatchScheduler {
     @Scheduled(cron = "0 0 3 1 * *")
     @Transactional
     public void cleanupOldStats() {
+        if (!batchStatusManager.isEnabled("PRODUCT_VIEW_STATS")) {
+            log.debug("[배치] 조회수 데이터 정리 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("[배치] 오래된 조회수 데이터 정리 시작");
 
         try {

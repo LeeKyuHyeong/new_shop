@@ -7,6 +7,7 @@ import com.kh.shop.entity.User;
 import com.kh.shop.repository.OrderRepository;
 import com.kh.shop.repository.ProductRepository;
 import com.kh.shop.repository.UserRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,6 +26,7 @@ public class OrderCreateBatchScheduler {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final BatchStatusManager batchStatusManager;
     private final Random random = new Random();
 
     // 배송지 데이터
@@ -65,6 +67,10 @@ public class OrderCreateBatchScheduler {
     @Scheduled(cron = "0 15 * * * *")
     @Transactional
     public void createRandomOrder() {
+        if (!batchStatusManager.isEnabled("ORDER_CREATE")) {
+            log.debug("[배치] 랜덤 주문 생성 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 랜덤 주문 생성 시작 ==========");
 
         try {

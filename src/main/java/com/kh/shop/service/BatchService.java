@@ -17,6 +17,7 @@ import java.util.*;
 public class BatchService {
 
     private final BatchLogRepository batchLogRepository;
+    private final BatchStatusManager batchStatusManager;
 
     // 기존 스케줄러
     private final ProductBatchScheduler productBatchScheduler;
@@ -112,6 +113,9 @@ public class BatchService {
             batchData.put("batchName", info.batchName);
             batchData.put("schedule", info.schedule);
             batchData.put("description", info.description);
+
+            // 활성화 상태
+            batchData.put("enabled", batchStatusManager.isEnabled(info.batchId));
 
             // 마지막 로그 조회
             Optional<BatchLog> lastLog = batchLogRepository.findTopByBatchIdOrderByStartedAtDesc(info.batchId);
@@ -280,6 +284,24 @@ public class BatchService {
             default:
                 throw new IllegalArgumentException("알 수 없는 배치: " + batchId);
         }
+    }
+
+    /**
+     * 배치 활성화/비활성화 토글
+     */
+    public Map<String, Object> toggleBatch(String batchId, boolean enabled, String username) {
+        Map<String, Object> result = new HashMap<>();
+
+        if (!BATCH_INFO_MAP.containsKey(batchId)) {
+            result.put("success", false);
+            result.put("message", "존재하지 않는 배치입니다.");
+            return result;
+        }
+
+        batchStatusManager.setEnabled(batchId, enabled, username);
+        result.put("success", true);
+        result.put("message", BATCH_INFO_MAP.get(batchId).batchName + " 배치가 " + (enabled ? "활성화" : "비활성화") + " 되었습니다.");
+        return result;
     }
 
     /**

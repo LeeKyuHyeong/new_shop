@@ -1,5 +1,6 @@
 package com.kh.shop.scheduler;
 
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,8 @@ import java.time.temporal.ChronoUnit;
 @Component
 @RequiredArgsConstructor
 public class BackupDatabaseBatchScheduler {
+
+    private final BatchStatusManager batchStatusManager;
 
     @Value("${spring.datasource.url:jdbc:mariadb://localhost:3306/kh_shop}")
     private String datasourceUrl;
@@ -39,6 +42,10 @@ public class BackupDatabaseBatchScheduler {
      */
     @Scheduled(cron = "0 0 5 * * *")
     public void backupDatabase() {
+        if (!batchStatusManager.isEnabled("BACKUP_DATABASE")) {
+            log.debug("[배치] 데이터베이스 백업 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 데이터베이스 백업 시작 ==========");
 
         try {

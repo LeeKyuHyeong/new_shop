@@ -2,6 +2,7 @@ package com.kh.shop.scheduler;
 
 import com.kh.shop.entity.Cart;
 import com.kh.shop.repository.CartRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +18,7 @@ import java.util.List;
 public class CartCleanupBatchScheduler {
 
     private final CartRepository cartRepository;
+    private final BatchStatusManager batchStatusManager;
 
     // 방치 기준 일수 (7일)
     private static final int ABANDONED_DAYS = 7;
@@ -28,6 +30,10 @@ public class CartCleanupBatchScheduler {
     @Scheduled(cron = "0 0 3 * * *")
     @Transactional
     public void cleanupAbandonedCarts() {
+        if (!batchStatusManager.isEnabled("CART_CLEANUP")) {
+            log.debug("[배치] 장바구니 정리 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 장바구니 정리 시작 ==========");
 
         try {

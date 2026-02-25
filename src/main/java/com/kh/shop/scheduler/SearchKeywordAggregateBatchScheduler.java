@@ -1,6 +1,7 @@
 package com.kh.shop.scheduler;
 
 import com.kh.shop.repository.SearchKeywordRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,6 +17,7 @@ import java.util.List;
 public class SearchKeywordAggregateBatchScheduler {
 
     private final SearchKeywordRepository searchKeywordRepository;
+    private final BatchStatusManager batchStatusManager;
 
     // 인기 검색어 집계 기간 (최근 7일)
     private static final int AGGREGATE_DAYS = 7;
@@ -29,6 +31,10 @@ public class SearchKeywordAggregateBatchScheduler {
     @Scheduled(cron = "0 0 * * * *")
     @Transactional(readOnly = true)
     public void aggregatePopularKeywords() {
+        if (!batchStatusManager.isEnabled("SEARCH_KEYWORD_AGGREGATE")) {
+            log.debug("[배치] 인기 검색어 집계 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 인기 검색어 집계 시작 ==========");
 
         try {
@@ -65,6 +71,10 @@ public class SearchKeywordAggregateBatchScheduler {
     @Scheduled(cron = "0 0 3 * * *")
     @Transactional
     public void cleanupOldKeywords() {
+        if (!batchStatusManager.isEnabled("SEARCH_KEYWORD_AGGREGATE")) {
+            log.debug("[배치] 검색어 데이터 정리 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("[배치] 오래된 검색어 데이터 정리 시작");
 
         try {

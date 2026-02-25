@@ -1,6 +1,7 @@
 package com.kh.shop.scheduler;
 
 import com.kh.shop.repository.CouponRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 public class ExpiredCouponBatchScheduler {
 
     private final CouponRepository couponRepository;
+    private final BatchStatusManager batchStatusManager;
 
     /**
      * 매일 00:30에 만료된 쿠폰 비활성화 처리
@@ -22,6 +24,10 @@ public class ExpiredCouponBatchScheduler {
     @Scheduled(cron = "0 30 0 * * *")
     @Transactional
     public void deactivateExpiredCoupons() {
+        if (!batchStatusManager.isEnabled("EXPIRED_COUPON")) {
+            log.debug("[배치] 쿠폰 만료 처리 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 쿠폰 만료 처리 시작 ==========");
 
         try {

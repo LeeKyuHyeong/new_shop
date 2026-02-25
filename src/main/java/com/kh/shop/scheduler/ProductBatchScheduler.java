@@ -6,6 +6,7 @@ import com.kh.shop.entity.ProductTemplate;
 import com.kh.shop.repository.CategoryRepository;
 import com.kh.shop.repository.ProductRepository;
 import com.kh.shop.repository.ProductTemplateRepository;
+import com.kh.shop.service.BatchStatusManager;
 import com.kh.shop.service.ImageGenerationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class ProductBatchScheduler {
     private final CategoryRepository categoryRepository;
     private final ProductTemplateRepository templateRepository;
     private final ImageGenerationService imageGenerationService;
+    private final BatchStatusManager batchStatusManager;
     private final Random random = new Random();
 
     // ==================== 공통 데이터 (DB에 없을 때 기본값) ====================
@@ -51,6 +53,10 @@ public class ProductBatchScheduler {
      */
     @Scheduled(cron = "0 10 8 * * *")
     public void createRandomProductMorning() {
+        if (!batchStatusManager.isEnabled("PRODUCT_CREATE")) {
+            log.debug("[배치] 랜덤 상품 등록 - 비활성화 상태, 스킵");
+            return;
+        }
         createRandomProductWithImage();
     }
 
@@ -59,6 +65,10 @@ public class ProductBatchScheduler {
      */
     @Scheduled(cron = "0 10 14 * * *")
     public void createRandomProductAfternoon() {
+        if (!batchStatusManager.isEnabled("PRODUCT_CREATE")) {
+            log.debug("[배치] 랜덤 상품 등록 - 비활성화 상태, 스킵");
+            return;
+        }
         createRandomProductWithImage();
     }
 
@@ -67,6 +77,10 @@ public class ProductBatchScheduler {
      */
     @Scheduled(cron = "0 10 20 * * *")
     public void createRandomProductEvening() {
+        if (!batchStatusManager.isEnabled("PRODUCT_CREATE")) {
+            log.debug("[배치] 랜덤 상품 등록 - 비활성화 상태, 스킵");
+            return;
+        }
         createRandomProductWithImage();
     }
 

@@ -63,6 +63,39 @@ function executeBatch(batchId) {
     });
 }
 
+// 배치 활성화/비활성화 토글
+function toggleBatch(batchId, enabled) {
+    const card = document.querySelector(`[data-batch-id="${batchId}"]`);
+    const toggle = card.querySelector('.batch-toggle');
+
+    fetch(`${window.contextPath}/api/admin/batch/${batchId}/toggle?enabled=${enabled}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (enabled) {
+                card.classList.remove('disabled');
+            } else {
+                card.classList.add('disabled');
+            }
+        } else {
+            // 실패 시 체크박스 원복
+            toggle.checked = !enabled;
+            alert('배치 상태 변경 실패: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // 실패 시 체크박스 원복
+        toggle.checked = !enabled;
+        alert('배치 상태 변경 중 오류가 발생했습니다.');
+    });
+}
+
 // 이미지 생성 사용량 조회
 function loadImageUsageStatus() {
     fetch(`${window.contextPath}/api/admin/batch/image-usage`)
@@ -129,6 +162,18 @@ setInterval(() => {
 
                 const statusBadge = card.querySelector('.batch-status');
                 const button = card.querySelector('.btn-execute');
+                const toggle = card.querySelector('.batch-toggle');
+
+                // enabled 상태 동기화
+                if (toggle) {
+                    const isEnabled = batch.enabled !== false;
+                    toggle.checked = isEnabled;
+                    if (isEnabled) {
+                        card.classList.remove('disabled');
+                    } else {
+                        card.classList.add('disabled');
+                    }
+                }
 
                 if (batch.isRunning) {
                     statusBadge.className = 'batch-status status-running';

@@ -3,6 +3,7 @@ package com.kh.shop.scheduler;
 import com.kh.shop.entity.Order;
 import com.kh.shop.repository.OrderRepository;
 import com.kh.shop.repository.ReviewRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +20,7 @@ public class ReviewRequestBatchScheduler {
 
     private final OrderRepository orderRepository;
     private final ReviewRepository reviewRepository;
+    private final BatchStatusManager batchStatusManager;
 
     // 리뷰 요청 기준 일수 (배송완료 후 7일)
     private static final int REVIEW_REQUEST_DAYS = 7;
@@ -29,6 +31,10 @@ public class ReviewRequestBatchScheduler {
     @Scheduled(cron = "0 0 10 * * *")
     @Transactional(readOnly = true)
     public void sendReviewRequests() {
+        if (!batchStatusManager.isEnabled("REVIEW_REQUEST")) {
+            log.debug("[배치] 리뷰 작성 요청 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 리뷰 작성 요청 시작 ==========");
 
         try {

@@ -2,6 +2,7 @@ package com.kh.shop.scheduler;
 
 import com.kh.shop.entity.Point;
 import com.kh.shop.repository.PointRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +18,7 @@ import java.util.List;
 public class PointExpiryBatchScheduler {
 
     private final PointRepository pointRepository;
+    private final BatchStatusManager batchStatusManager;
 
     /**
      * 매일 00:00에 유효기간 지난 적립금 소멸
@@ -24,6 +26,10 @@ public class PointExpiryBatchScheduler {
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void expirePoints() {
+        if (!batchStatusManager.isEnabled("POINT_EXPIRY")) {
+            log.debug("[배치] 포인트 만료 처리 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 포인트 만료 처리 시작 ==========");
 
         try {

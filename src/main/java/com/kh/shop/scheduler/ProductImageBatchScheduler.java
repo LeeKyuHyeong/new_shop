@@ -4,6 +4,7 @@ import com.kh.shop.entity.BatchLog;
 import com.kh.shop.entity.Product;
 import com.kh.shop.repository.BatchLogRepository;
 import com.kh.shop.repository.ProductRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,7 @@ public class ProductImageBatchScheduler {
 
     private final ProductRepository productRepository;
     private final BatchLogRepository batchLogRepository;
+    private final BatchStatusManager batchStatusManager;
 
     @Value("${batch.export.dir:./list}")
     private String outputDir;
@@ -43,6 +45,10 @@ public class ProductImageBatchScheduler {
      */
     @Scheduled(cron = "0 0 6 * * *")
     public void exportDefaultImageProducts() {
+        if (!batchStatusManager.isEnabled("PRODUCT_IMAGE_GENERATE")) {
+            log.debug("[배치] 기본 이미지 상품 목록 추출 - 비활성화 상태, 스킵");
+            return;
+        }
         executeExport("SCHEDULED_06:00");
     }
 

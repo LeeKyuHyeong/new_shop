@@ -3,6 +3,7 @@ package com.kh.shop.scheduler;
 import com.kh.shop.entity.Product;
 import com.kh.shop.repository.ProductRepository;
 import com.kh.shop.repository.WishlistRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +20,7 @@ public class RestockAlertBatchScheduler {
 
     private final ProductRepository productRepository;
     private final WishlistRepository wishlistRepository;
+    private final BatchStatusManager batchStatusManager;
 
     /**
      * 매시 10분에 품절 상품 재입고 시 알림 발송
@@ -26,6 +28,10 @@ public class RestockAlertBatchScheduler {
     @Scheduled(cron = "0 10 * * * *")
     @Transactional(readOnly = true)
     public void sendRestockAlerts() {
+        if (!batchStatusManager.isEnabled("RESTOCK_ALERT")) {
+            log.debug("[배치] 재입고 알림 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 재입고 알림 시작 ==========");
 
         try {

@@ -1,6 +1,7 @@
 package com.kh.shop.scheduler;
 
 import com.kh.shop.repository.BatchLogRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 public class LogArchiveBatchScheduler {
 
     private final BatchLogRepository batchLogRepository;
+    private final BatchStatusManager batchStatusManager;
 
     // 로그 보관 기간 (30일)
     private static final int LOG_RETENTION_DAYS = 30;
@@ -25,6 +27,10 @@ public class LogArchiveBatchScheduler {
     @Scheduled(cron = "0 0 3 * * SUN")
     @Transactional
     public void archiveOldLogs() {
+        if (!batchStatusManager.isEnabled("LOG_ARCHIVE")) {
+            log.debug("[배치] 로그 아카이브 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 로그 아카이브 시작 ==========");
 
         try {

@@ -2,6 +2,7 @@ package com.kh.shop.scheduler;
 
 import com.kh.shop.entity.DailyStats;
 import com.kh.shop.repository.*;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,6 +23,7 @@ public class StatsAggregateBatchScheduler {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
+    private final BatchStatusManager batchStatusManager;
 
     /**
      * 매일 01:00에 전일 통계 데이터 집계
@@ -29,6 +31,10 @@ public class StatsAggregateBatchScheduler {
     @Scheduled(cron = "0 0 1 * * *")
     @Transactional
     public void aggregateDailyStats() {
+        if (!batchStatusManager.isEnabled("STATS_AGGREGATE")) {
+            log.debug("[배치] 통계 데이터 집계 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 통계 데이터 집계 시작 ==========");
 
         try {

@@ -2,6 +2,7 @@ package com.kh.shop.scheduler;
 
 import com.kh.shop.entity.Order;
 import com.kh.shop.repository.OrderRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +18,7 @@ import java.util.List;
 public class OrderCancelBatchScheduler {
 
     private final OrderRepository orderRepository;
+    private final BatchStatusManager batchStatusManager;
 
     // 미결제 기준 시간 (24시간)
     private static final int UNPAID_HOURS = 24;
@@ -28,6 +30,10 @@ public class OrderCancelBatchScheduler {
     @Scheduled(cron = "0 30 * * * *")
     @Transactional
     public void cancelUnpaidOrders() {
+        if (!batchStatusManager.isEnabled("ORDER_CANCEL")) {
+            log.debug("[배치] 미결제 주문 취소 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 미결제 주문 취소 시작 ==========");
 
         try {

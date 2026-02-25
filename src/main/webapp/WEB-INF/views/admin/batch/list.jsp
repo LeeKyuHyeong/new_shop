@@ -32,9 +32,17 @@
             <div class="batch-grid">
                 <c:forEach var="batch" items="${batches}">
                     <c:if test="${batch.batchId eq 'PRODUCT_CREATE' or batch.batchId eq 'ORDER_STATUS_UPDATE' or batch.batchId eq 'ORDER_CREATE' or batch.batchId eq 'USER_SIGNUP'}">
-                        <div class="batch-card" data-batch-id="${batch.batchId}">
+                        <div class="batch-card${batch.enabled == false ? ' disabled' : ''}" data-batch-id="${batch.batchId}">
                             <div class="batch-header">
-                                <h3 class="batch-name">${batch.batchName}</h3>
+                                <div class="batch-header-left">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" class="batch-toggle"
+                                               ${batch.enabled == false ? '' : 'checked'}
+                                               onchange="toggleBatch('${batch.batchId}', this.checked)">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <h3 class="batch-name">${batch.batchName}</h3>
+                                </div>
                                 <span class="batch-status status-${batch.lastStatus != null ? batch.lastStatus.toLowerCase() : 'none'}">
                                     <c:choose>
                                         <c:when test="${batch.lastStatus eq 'SUCCESS'}">성공</c:when>
@@ -109,9 +117,17 @@
             <div class="batch-grid">
                 <c:forEach var="batch" items="${batches}">
                     <c:if test="${batch.batchId eq 'CART_CLEANUP' or batch.batchId eq 'ORDER_CANCEL' or batch.batchId eq 'DORMANT_USER' or batch.batchId eq 'TEMP_FILE_CLEANUP' or batch.batchId eq 'SESSION_CLEANUP' or batch.batchId eq 'LOG_ARCHIVE' or batch.batchId eq 'BACKUP_DATABASE' or batch.batchId eq 'EXPIRED_COUPON'}">
-                        <div class="batch-card" data-batch-id="${batch.batchId}">
+                        <div class="batch-card${batch.enabled == false ? ' disabled' : ''}" data-batch-id="${batch.batchId}">
                             <div class="batch-header">
-                                <h3 class="batch-name">${batch.batchName}</h3>
+                                <div class="batch-header-left">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" class="batch-toggle"
+                                               ${batch.enabled == false ? '' : 'checked'}
+                                               onchange="toggleBatch('${batch.batchId}', this.checked)">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <h3 class="batch-name">${batch.batchName}</h3>
+                                </div>
                                 <span class="batch-status status-${batch.lastStatus != null ? batch.lastStatus.toLowerCase() : 'none'}">
                                     <c:choose>
                                         <c:when test="${batch.lastStatus eq 'SUCCESS'}">성공</c:when>
@@ -186,9 +202,17 @@
             <div class="batch-grid">
                 <c:forEach var="batch" items="${batches}">
                     <c:if test="${batch.batchId eq 'BEST_PRODUCT_UPDATE' or batch.batchId eq 'STATS_AGGREGATE' or batch.batchId eq 'SEARCH_KEYWORD_AGGREGATE' or batch.batchId eq 'PRODUCT_VIEW_STATS'}">
-                        <div class="batch-card" data-batch-id="${batch.batchId}">
+                        <div class="batch-card${batch.enabled == false ? ' disabled' : ''}" data-batch-id="${batch.batchId}">
                             <div class="batch-header">
-                                <h3 class="batch-name">${batch.batchName}</h3>
+                                <div class="batch-header-left">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" class="batch-toggle"
+                                               ${batch.enabled == false ? '' : 'checked'}
+                                               onchange="toggleBatch('${batch.batchId}', this.checked)">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <h3 class="batch-name">${batch.batchName}</h3>
+                                </div>
                                 <span class="batch-status status-${batch.lastStatus != null ? batch.lastStatus.toLowerCase() : 'none'}">
                                     <c:choose>
                                         <c:when test="${batch.lastStatus eq 'SUCCESS'}">성공</c:when>
@@ -263,9 +287,17 @@
             <div class="batch-grid">
                 <c:forEach var="batch" items="${batches}">
                     <c:if test="${batch.batchId eq 'LOW_STOCK_ALERT' or batch.batchId eq 'REVIEW_REQUEST' or batch.batchId eq 'WISHLIST_PRICE_ALERT' or batch.batchId eq 'RESTOCK_ALERT' or batch.batchId eq 'COUPON_EXPIRY_ALERT' or batch.batchId eq 'POINT_EXPIRY'}">
-                        <div class="batch-card" data-batch-id="${batch.batchId}">
+                        <div class="batch-card${batch.enabled == false ? ' disabled' : ''}" data-batch-id="${batch.batchId}">
                             <div class="batch-header">
-                                <h3 class="batch-name">${batch.batchName}</h3>
+                                <div class="batch-header-left">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" class="batch-toggle"
+                                               ${batch.enabled == false ? '' : 'checked'}
+                                               onchange="toggleBatch('${batch.batchId}', this.checked)">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <h3 class="batch-name">${batch.batchName}</h3>
+                                </div>
                                 <span class="batch-status status-${batch.lastStatus != null ? batch.lastStatus.toLowerCase() : 'none'}">
                                     <c:choose>
                                         <c:when test="${batch.lastStatus eq 'SUCCESS'}">성공</c:when>
@@ -337,7 +369,7 @@
         <div class="batch-section">
             <h2 class="section-title">🤖 AI 이미지 생성 (1개)</h2>
             <p class="section-desc">Google AI Studio 무료 티어 (일일 40장 제한)</p>
-            
+
             <!-- 일일 사용량 표시 -->
             <div class="usage-status-box">
                 <div class="usage-info">
@@ -348,13 +380,21 @@
                     🔄 카운터 리셋
                 </button>
             </div>
-            
+
             <div class="batch-grid">
                 <c:forEach var="batch" items="${batches}">
                     <c:if test="${batch.batchId eq 'PRODUCT_IMAGE_GENERATE'}">
-                        <div class="batch-card batch-ai" data-batch-id="${batch.batchId}">
+                        <div class="batch-card batch-ai${batch.enabled == false ? ' disabled' : ''}" data-batch-id="${batch.batchId}">
                             <div class="batch-header">
-                                <h3 class="batch-name">${batch.batchName}</h3>
+                                <div class="batch-header-left">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" class="batch-toggle"
+                                               ${batch.enabled == false ? '' : 'checked'}
+                                               onchange="toggleBatch('${batch.batchId}', this.checked)">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <h3 class="batch-name">${batch.batchName}</h3>
+                                </div>
                                 <span class="batch-status status-${batch.lastStatus != null ? batch.lastStatus.toLowerCase() : 'none'}">
                                     <c:choose>
                                         <c:when test="${batch.lastStatus eq 'SUCCESS'}">성공</c:when>

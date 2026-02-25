@@ -3,6 +3,7 @@ package com.kh.shop.scheduler;
 import com.kh.shop.entity.Product;
 import com.kh.shop.repository.OrderRepository;
 import com.kh.shop.repository.ProductRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,6 +21,7 @@ public class BestProductBatchScheduler {
 
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final BatchStatusManager batchStatusManager;
 
     // 베스트 상품 집계 기간 (30일)
     private static final int PERIOD_DAYS = 30;
@@ -33,6 +35,10 @@ public class BestProductBatchScheduler {
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void updateBestProducts() {
+        if (!batchStatusManager.isEnabled("BEST_PRODUCT_UPDATE")) {
+            log.debug("[배치] 베스트 상품 갱신 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 베스트 상품 갱신 시작 ==========");
 
         try {

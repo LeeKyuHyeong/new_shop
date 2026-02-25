@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpSession;
+
 import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -38,6 +40,19 @@ public class AdminBatchApiController {
     @PostMapping("/{batchId}/execute")
     public ResponseEntity<Map<String, Object>> executeBatch(@PathVariable String batchId) {
         Map<String, Object> result = batchService.executeBatch(batchId, "MANUAL");
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 배치 활성화/비활성화 토글
+     */
+    @PostMapping("/{batchId}/toggle")
+    public ResponseEntity<Map<String, Object>> toggleBatch(
+            @PathVariable String batchId,
+            @RequestParam boolean enabled,
+            HttpSession session) {
+        String username = (String) session.getAttribute("loggedInUser");
+        Map<String, Object> result = batchService.toggleBatch(batchId, enabled, username);
         return ResponseEntity.ok(result);
     }
 

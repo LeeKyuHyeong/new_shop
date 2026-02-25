@@ -4,6 +4,7 @@ import com.kh.shop.entity.Product;
 import com.kh.shop.entity.Wishlist;
 import com.kh.shop.repository.ProductRepository;
 import com.kh.shop.repository.WishlistRepository;
+import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,6 +21,7 @@ public class WishlistPriceAlertBatchScheduler {
 
     private final WishlistRepository wishlistRepository;
     private final ProductRepository productRepository;
+    private final BatchStatusManager batchStatusManager;
 
     /**
      * 매일 08:00에 찜한 상품 할인 시작 알림
@@ -27,6 +29,10 @@ public class WishlistPriceAlertBatchScheduler {
     @Scheduled(cron = "0 0 8 * * *")
     @Transactional(readOnly = true)
     public void sendWishlistPriceAlerts() {
+        if (!batchStatusManager.isEnabled("WISHLIST_PRICE_ALERT")) {
+            log.debug("[배치] 위시리스트 가격 알림 - 비활성화 상태, 스킵");
+            return;
+        }
         log.info("========== [배치] 위시리스트 가격 알림 시작 ==========");
 
         try {
