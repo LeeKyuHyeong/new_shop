@@ -44,7 +44,6 @@ public class BatchService {
     private final CouponExpiryAlertBatchScheduler couponExpiryAlertBatchScheduler;
     private final SearchKeywordAggregateBatchScheduler searchKeywordAggregateBatchScheduler;
     private final ProductViewStatsBatchScheduler productViewStatsBatchScheduler;
-    private final ProductImageBatchScheduler productImageBatchScheduler;
 
     // 배치 정보 맵
     private static final Map<String, BatchInfo> BATCH_INFO_MAP = new LinkedHashMap<>();
@@ -97,8 +96,6 @@ public class BatchService {
                 "LOG_ARCHIVE", "로그 아카이브", "매주 일요일 03:00", "30일 이상 된 로그 아카이브 처리"));
         BATCH_INFO_MAP.put("BACKUP_DATABASE", new BatchInfo(
                 "BACKUP_DATABASE", "데이터베이스 백업", "매일 05:00", "DB 자동 백업 및 오래된 백업 정리"));
-        BATCH_INFO_MAP.put("PRODUCT_IMAGE_GENERATE", new BatchInfo(
-                "PRODUCT_IMAGE_GENERATE", "기본 이미지 상품 목록 추출", "매일 06:00", "기본 이미지 상품 ID와 상품명을 txt 파일로 저장"));
     }
 
     /**
@@ -205,7 +202,7 @@ public class BatchService {
             // 기존 배치
             case "PRODUCT_CREATE":
                 productBatchScheduler.createRandomProductWithImage();
-                return "랜덤 상품 1개가 등록되었습니다. (이미지 포함)";
+                return "랜덤 상품 1개가 등록되었습니다.";
 
             case "ORDER_STATUS_UPDATE":
                 orderStatusBatchScheduler.updateOrderStatus();
@@ -277,9 +274,6 @@ public class BatchService {
 
             case "PRODUCT_VIEW_STATS":
                 return productViewStatsBatchScheduler.aggregateProductViewStatsManual();
-
-            case "PRODUCT_IMAGE_GENERATE":
-                return productImageBatchScheduler.generateAllMissingImagesManual();
 
             default:
                 throw new IllegalArgumentException("알 수 없는 배치: " + batchId);

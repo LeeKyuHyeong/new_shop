@@ -14,7 +14,7 @@
 | **Database** | MariaDB 10.11 |
 | **Frontend** | JSP, JSTL, JavaScript (ES6+), CSS3 |
 | **Infra** | Docker, Docker Compose, GitHub Actions CI/CD, Nginx |
-| **외부 연동** | Portone 결제(KG이니시스), 소셜 로그인(Kakao/Naver/Google), Google Gemini API |
+| **외부 연동** | Portone 결제(KG이니시스), 소셜 로그인(Kakao/Naver/Google) |
 
 <br>
 
@@ -33,7 +33,7 @@
 - **콘텐츠** — 홈 슬라이드 배너, 팝업 관리
 - **리뷰** — 리뷰 모더레이션, 비속어 필터 관리
 - **통계** — 매출·방문·상품별 통계 대시보드
-- **배치 관리** — 23개 스케줄러 실시간 On/Off 제어
+- **배치 관리** — 22개 스케줄러 실시간 On/Off 제어
 
 <br>
 
@@ -49,7 +49,7 @@ Client (Browser)
   Spring Boot App (WAR)
     ├── Controller ── Service ── Repository ── Entity
     ├── Security (CSRF, XSS, Session)
-    └── Scheduler (23 Batch Jobs)
+    └── Scheduler (22 Batch Jobs)
     │
     ▼
   MariaDB
@@ -65,7 +65,7 @@ com.kh.shop
 ├── service/        # 비즈니스 로직 (17개)
 ├── repository/     # Spring Data JPA (25개)
 ├── entity/         # JPA 엔티티 (25개)
-├── scheduler/      # 배치 스케줄러 (23개)
+├── scheduler/      # 배치 스케줄러 (22개)
 ├── security/       # 보안 필터 및 인터셉터
 ├── config/         # 설정 빈
 ├── common/dto/     # 페이지네이션 DTO
@@ -86,13 +86,13 @@ com.kh.shop
 
 <br>
 
-## 배치 스케줄러 (23개)
+## 배치 스케줄러 (22개)
 
 관리자 대시보드에서 개별 또는 일괄 활성화/비활성화 가능
 
 | 카테고리 | 스케줄러 |
 |---------|---------|
-| **상품** | 상품 처리, AI 이미지 생성(Gemini), 베스트 상품 랭킹, 조회수 통계 |
+| **상품** | 상품 처리, 베스트 상품 랭킹, 조회수 통계 |
 | **주문** | 주문 상태 업데이트, 주문 생성 처리, 자동 취소 |
 | **회원** | 신규 가입 처리, 휴면 계정 전환 |
 | **알림** | 재입고 알림, 재고 부족 알림, 리뷰 요청, 위시리스트 가격 변동 |

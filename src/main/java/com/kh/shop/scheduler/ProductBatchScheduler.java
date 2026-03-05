@@ -7,7 +7,6 @@ import com.kh.shop.repository.CategoryRepository;
 import com.kh.shop.repository.ProductRepository;
 import com.kh.shop.repository.ProductTemplateRepository;
 import com.kh.shop.service.BatchStatusManager;
-import com.kh.shop.service.ImageGenerationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,7 +24,6 @@ public class ProductBatchScheduler {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductTemplateRepository templateRepository;
-    private final ImageGenerationService imageGenerationService;
     private final BatchStatusManager batchStatusManager;
     private final Random random = new Random();
 
@@ -142,15 +140,6 @@ public class ProductBatchScheduler {
                     saved.getProductName(),
                     selectedCategory.getCategoryName(),
                     saved.getProductPrice());
-
-            // 이미지 생성
-            log.info("[배치] 상품 이미지 생성 시작 - ID: {}", saved.getProductId());
-            boolean imageGenerated = imageGenerationService.generateImagesForProduct(saved);
-            if (imageGenerated) {
-                log.info("[배치] 상품 이미지 생성 완료 - ID: {}", saved.getProductId());
-            } else {
-                log.warn("[배치] 상품 이미지 생성 실패 - ID: {}", saved.getProductId());
-            }
 
         } catch (Exception e) {
             log.error("[배치] 상품 등록 실패: {}", e.getMessage(), e);

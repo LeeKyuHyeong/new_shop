@@ -39,7 +39,7 @@ Controller → Service → Repository → Entity
 - `service/` - Business logic (16 services)
 - `repository/` - Spring Data JPA repositories (24)
 - `entity/` - JPA entities (24)
-- `scheduler/` - Batch schedulers (23)
+- `scheduler/` - Batch schedulers (22)
 - `config/` - Configuration beans
 - `util/` - Utilities (ProfanityFilter)
 - `common/dto/` - PageRequestDTO/PageResponseDTO for pagination
@@ -68,12 +68,11 @@ User, Product, ProductImage, Category, Order, OrderItem, Cart, Review, Wishlist,
 
 - **Payment**: Portone (KG이니시스)
 - **OAuth**: Kakao, Naver, Google
-- **AI**: Google Gemini API for image generation
 
 ## Batch Scheduling
 
-23 scheduled batch jobs handle background processing:
-- Product management (rankings, image generation)
+22 scheduled batch jobs handle background processing:
+- Product management (rankings)
 - Order processing (status updates, auto-cancellation)
 - User management (dormant users)
 - Cleanup (carts, temp files, sessions, logs)
