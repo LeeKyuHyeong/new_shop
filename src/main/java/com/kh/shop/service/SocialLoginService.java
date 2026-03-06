@@ -17,6 +17,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +41,7 @@ public class SocialLoginService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // ==================== 카카오 ====================
 
@@ -299,7 +302,7 @@ public class SocialLoginService {
         // 1. User 생성
         User user = User.builder()
                 .userId(userId)
-                .userPassword(UUID.randomUUID().toString()) // 랜덤 비밀번호 (소셜 로그인이므로 사용 안함)
+                .userPassword(passwordEncoder.encode(UUID.randomUUID().toString())) // 랜덤 비밀번호 암호화
                 .userName(userName)
                 .email(email)
                 .gender(gender)

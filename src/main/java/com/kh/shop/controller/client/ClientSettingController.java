@@ -181,7 +181,7 @@ public class ClientSettingController {
         }
 
         // 현재 비밀번호 확인
-        Optional<User> userOpt = userService.loginUser(userId, currentPassword);
+        Optional<User> userOpt = userService.verifyPassword(userId, currentPassword);
         if (userOpt.isEmpty()) {
             response.put("success", false);
             response.put("message", "현재 비밀번호가 올바르지 않습니다");

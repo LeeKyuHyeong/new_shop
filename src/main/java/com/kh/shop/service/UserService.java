@@ -6,6 +6,7 @@ import com.kh.shop.entity.UserSetting;
 import com.kh.shop.repository.UserRepository;
 import com.kh.shop.repository.UserSettingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,8 @@ public class UserService {
     @Autowired
     private UserSettingRepository userSettingRepository;
 
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     public boolean isDuplicateUserId(String userId) {
         return userRepository.findByUserId(userId).isPresent();
     }
@@ -35,7 +38,7 @@ public class UserService {
                              String email, String gender, LocalDate birth) {
         User user = User.builder()
                 .userId(userId)
-                .userPassword(userPassword)
+                .userPassword(passwordEncoder.encode(userPassword))
                 .userName(userName)
                 .email(email)
                 .gender(gender)
@@ -63,11 +66,46 @@ public class UserService {
     }
 
     public Optional<User> loginUser(String userId, String userPassword) {
-        Optional<User> user = userRepository.findByUserId(userId);
-        if (user.isPresent() && user.get().getUserPassword().equals(userPassword)) {
-            return user;
+        Optional<User> userOpt = userRepository.findByUserId(userId);
+        if (userOpt.isEmpty()) {
+            return Optional.empty();
         }
+
+        User user = userOpt.get();
+        String storedPassword = user.getUserPassword();
+
+        if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$")) {
+            // BCrypt 해시된 비밀번호 → BCrypt 검증
+            if (passwordEncoder.matches(userPassword, storedPassword)) {
+                return userOpt;
+            }
+        } else {
+            // 평문 비밀번호 (기존 유저) → 평문 비교 후 BCrypt로 마이그레이션
+            if (storedPassword.equals(userPassword)) {
+                user.setUserPassword(passwordEncoder.encode(userPassword));
+                userRepository.save(user);
+                return userOpt;
+            }
+        }
+
         return Optional.empty();
+    }
+
+    // 비밀번호 검증 (마이그레이션 없이 검증만)
+    public Optional<User> verifyPassword(String userId, String rawPassword) {
+        Optional<User> userOpt = userRepository.findByUserId(userId);
+        if (userOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User user = userOpt.get();
+        String storedPassword = user.getUserPassword();
+
+        if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$")) {
+            return passwordEncoder.matches(rawPassword, storedPassword) ? userOpt : Optional.empty();
+        } else {
+            return storedPassword.equals(rawPassword) ? userOpt : Optional.empty();
+        }
     }
 
     // ==================== 관리자용 메서드 ====================
@@ -134,7 +172,7 @@ public class UserService {
         Optional<User> userOpt = userRepository.findByUserId(userId);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            user.setUserPassword(newPassword);
+            user.setUserPassword(passwordEncoder.encode(newPassword));
             return userRepository.save(user);
         }
         return null;

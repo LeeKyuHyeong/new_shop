@@ -9,6 +9,7 @@ import com.kh.shop.service.BatchStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class UserSignupBatchScheduler {
     private final UserRepository userRepository;
     private final UserSettingRepository userSettingRepository;
     private final BatchStatusManager batchStatusManager;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Random random = new Random();
 
     // 성씨 데이터
@@ -68,7 +70,7 @@ public class UserSignupBatchScheduler {
             // 2. 회원 정보 생성
             String userName = generateUserName();
             String email = generateUniqueEmail(userId);
-            String password = "test1234!";  // 테스트용 기본 비밀번호
+            String password = passwordEncoder.encode("test1234!");  // 테스트용 기본 비밀번호 (BCrypt 암호화)
             String gender = random.nextBoolean() ? "M" : "F";
             LocalDate birth = generateBirthDate();
 
