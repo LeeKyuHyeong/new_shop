@@ -38,9 +38,9 @@
     --badge-best: #f39c12;
 
     /* 카테고리 네비게이션 */
-    --nav-bg: #2c3e50;
-    --nav-bg-hover: #34495e;
-    --nav-border: #34495e;
+    --nav-bg: #1a252f;
+    --nav-bg-hover: #2c3e50;
+    --nav-border: #2c3e50;
 
     /* 오버레이 */
     --overlay-bg: rgba(0, 0, 0, 0.5);
@@ -260,11 +260,12 @@ body {
 .category-menu > li > a {
     display: block;
     padding: 15px 20px;
-    color: var(--text-white);
+    color: #ffffff;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
     transition: background 0.3s;
     white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .category-menu > li > a:hover,
