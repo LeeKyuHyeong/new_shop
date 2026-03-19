@@ -98,3 +98,7 @@ CI/CD via GitHub Actions (`.github/workflows/deploy.yml`):
 - UI is in Korean (한국어)
 - Session-based authentication with `loggedInUser` session attribute
 - Review system requires purchase with DELIVERED order status before writing
+
+## Commit Rules
+
+- 커밋 메시지에 Co-Authored-By 등 Claude와 함께 했다는 내용을 포함하지 않는다

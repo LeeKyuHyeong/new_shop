@@ -51,9 +51,19 @@
                         <label for="email">이메일 <span class="required">*</span></label>
                         <div class="input-with-btn">
                             <input type="email" name="email" id="email" placeholder="example@email.com" required>
-                            <button type="button" class="btn-check" onclick="checkEmail()">중복확인</button>
+                            <button type="button" class="btn-check" id="btnSendCode" onclick="sendVerificationCode()">인증코드 발송</button>
                         </div>
                         <span id="emailMsg" class="msg"></span>
+                    </div>
+
+                    <div class="form-group" id="verificationGroup" style="display: none;">
+                        <label for="verificationCode">인증코드 <span class="required">*</span></label>
+                        <div class="input-with-btn">
+                            <input type="text" id="verificationCode" placeholder="6자리 인증코드 입력" maxlength="6">
+                            <button type="button" class="btn-check" onclick="verifyEmailCode()">인증확인</button>
+                        </div>
+                        <span id="verificationMsg" class="msg"></span>
+                        <span id="verificationTimer" class="msg" style="color: var(--text-secondary);"></span>
                     </div>
 
                     <div class="form-row">

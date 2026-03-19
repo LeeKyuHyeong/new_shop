@@ -4,6 +4,7 @@ import com.kh.shop.entity.Category;
 import com.kh.shop.entity.User;
 import com.kh.shop.security.SessionRegistry;
 import com.kh.shop.service.CategoryService;
+import com.kh.shop.service.EmailVerificationService;
 import com.kh.shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,6 +36,9 @@ public class LoginController {
 
     @Autowired
     private SessionRegistry sessionRegistry;
+
+    @Autowired
+    private EmailVerificationService emailVerificationService;
 
     @GetMapping("/login")
     public String loginPage(Model model) {
@@ -157,6 +161,13 @@ public class LoginController {
         if (userService.isDuplicateEmail(email)) {
             response.put("success", false);
             response.put("message", "이미 사용 중인 이메일입니다");
+            return response;
+        }
+
+        // 이메일 인증 확인
+        if (!emailVerificationService.isEmailVerified(email)) {
+            response.put("success", false);
+            response.put("message", "이메일 인증을 완료해주세요");
             return response;
         }
 
