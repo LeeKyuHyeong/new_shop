@@ -6,7 +6,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <%@ include file="/WEB-INF/views/common/security-headers.jsp" %>
     <title>KH Shop - <c:choose><c:when test="${not empty selectedCategory}">${selectedCategory.categoryName}</c:when><c:otherwise>메인</c:otherwise></c:choose></title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/client/main.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/pagination.css">
@@ -298,7 +297,7 @@
 
     <!-- 푸터 -->
     <footer class="footer">
-        <p>&copy; 2024 KH SHOP. All rights reserved.</p>
+        <p>&copy; 2025 KH SHOP. All rights reserved.</p>
     </footer>
 
 
