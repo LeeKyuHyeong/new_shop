@@ -1,10 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <c:set var="activeMenu" value="dashboard"/>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%@ include file="/WEB-INF/views/common/security-headers.jsp" %>
     <title>관리자 대시보드 - KH Shop</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/admin.css">
 </head>

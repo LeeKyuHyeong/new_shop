@@ -6,6 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%@ include file="/WEB-INF/views/common/security-headers.jsp" %>
     <title>주문 관리 - KH Shop</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/admin.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/category.css">
@@ -151,6 +152,35 @@
                     </table>
                     <c:if test="${empty orders}">
                         <div class="empty-message">주문 내역이 없습니다.</div>
+                    </c:if>
+
+                    <%-- 페이징 --%>
+                    <c:if test="${totalPages > 1}">
+                        <c:set var="statusParam" value=""/>
+                        <c:if test="${not empty selectedStatus}">
+                            <c:set var="statusParam" value="&status=${selectedStatus}"/>
+                        </c:if>
+                        <div class="pagination" style="display:flex; justify-content:center; gap:6px; margin-top:20px;">
+                            <c:if test="${currentPage > 0}">
+                                <a href="${pageContext.request.contextPath}/admin/order?page=${currentPage - 1}&size=${pageSize}${statusParam}">이전</a>
+                            </c:if>
+                            <c:forEach begin="0" end="${totalPages - 1}" var="i">
+                                <c:choose>
+                                    <c:when test="${i == currentPage}">
+                                        <span class="current"><strong>${i + 1}</strong></span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="${pageContext.request.contextPath}/admin/order?page=${i}&size=${pageSize}${statusParam}">${i + 1}</a>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:forEach>
+                            <c:if test="${currentPage < totalPages - 1}">
+                                <a href="${pageContext.request.contextPath}/admin/order?page=${currentPage + 1}&size=${pageSize}${statusParam}">다음</a>
+                            </c:if>
+                        </div>
+                        <div style="text-align:center; color: var(--text-secondary); margin-top:8px; font-size: 12px;">
+                            총 ${totalElements}건 · ${currentPage + 1} / ${totalPages} 페이지
+                        </div>
                     </c:if>
                 </div>
             </div>

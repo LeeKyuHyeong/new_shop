@@ -231,6 +231,94 @@ public class ClientOrderController {
         return "client/checkout";
     }
 
+    // ==================== 결제 연동용 API ====================
+    // 결제 전에 Order를 PENDING 상태로 미리 생성하여 server-generated orderNumber를
+    // Portone merchant_uid로 사용하게 한다. 이후 /api/payment/verify 에서 DB Order와
+    // 포트원 결제 정보를 양쪽 검증하여 PAID로 전환한다.
+    @PostMapping("/api/order/prepare")
+    @ResponseBody
+    public Map<String, Object> prepareOrder(
+            @RequestParam(required = false) List<Long> cartIds,
+            @RequestParam(required = false) Long productId,
+            @RequestParam(required = false) Integer quantity,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) String size,
+            @RequestParam String receiverName,
+            @RequestParam String receiverPhone,
+            @RequestParam String postalCode,
+            @RequestParam String receiverAddress,
+            @RequestParam(required = false) String receiverAddressDetail,
+            @RequestParam(required = false) String orderMemo,
+            @RequestParam String paymentMethod,
+            HttpSession session) {
+
+        Map<String, Object> result = new HashMap<>();
+        String userId = (String) session.getAttribute("loggedInUser");
+        if (userId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
+        try {
+            Order order;
+            if (productId != null && quantity != null) {
+                order = orderService.createDirectOrder(userId, productId, quantity, color, size,
+                        receiverName, receiverPhone, postalCode, receiverAddress,
+                        receiverAddressDetail, orderMemo, paymentMethod);
+            } else if (cartIds != null && !cartIds.isEmpty()) {
+                order = orderService.createOrderFromCart(userId, cartIds,
+                        receiverName, receiverPhone, postalCode, receiverAddress,
+                        receiverAddressDetail, orderMemo, paymentMethod);
+            } else {
+                result.put("success", false);
+                result.put("message", "주문 정보가 누락되었습니다.");
+                return result;
+            }
+
+            result.put("success", true);
+            result.put("orderId", order.getOrderId());
+            result.put("orderNumber", order.getOrderNumber());
+            result.put("finalPrice", order.getFinalPrice());
+            return result;
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+            return result;
+        }
+    }
+
+    // Portone 결제 창에서 사용자가 취소했을 때, 미리 생성된 PENDING 주문을 정리한다.
+    // 본인 주문만 취소 가능 (IDOR 방지).
+    @PostMapping("/api/order/cancel-pending/{orderId}")
+    @ResponseBody
+    public Map<String, Object> cancelPendingOrder(@PathVariable Long orderId, HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+        String userId = (String) session.getAttribute("loggedInUser");
+        if (userId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
+        Order order = orderService.getOrderById(orderId).orElse(null);
+        if (order == null || order.getUser() == null
+                || !userId.equals(order.getUser().getUserId())) {
+            result.put("success", false);
+            result.put("message", "주문을 찾을 수 없습니다.");
+            return result;
+        }
+
+        try {
+            orderService.cancelPendingOrder(orderId, "사용자 결제 취소");
+            result.put("success", true);
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
+        return result;
+    }
+
     // 주문 처리 - 옵션 포함
     @PostMapping("/order/submit")
     public String submitOrder(
@@ -282,7 +370,7 @@ public class ClientOrderController {
         }
 
         Order order = orderService.getOrderById(orderId).orElse(null);
-        if (order == null || !order.getUser().getUserId().equals(userId)) {
+        if (order == null || order.getUser() == null || !userId.equals(order.getUser().getUserId())) {
             return "redirect:/";
         }
 
@@ -316,7 +404,7 @@ public class ClientOrderController {
         }
 
         Order order = orderService.getOrderById(orderId).orElse(null);
-        if (order == null || !order.getUser().getUserId().equals(userId)) {
+        if (order == null || order.getUser() == null || !userId.equals(order.getUser().getUserId())) {
             return "redirect:/mypage/orders";
         }
 
@@ -345,7 +433,7 @@ public class ClientOrderController {
 
         try {
             Order order = orderService.getOrderById(orderId).orElse(null);
-            if (order == null || !order.getUser().getUserId().equals(userId)) {
+            if (order == null || order.getUser() == null || !userId.equals(order.getUser().getUserId())) {
                 response.put("success", false);
                 response.put("message", "주문을 찾을 수 없습니다.");
                 return ResponseEntity.ok(response);

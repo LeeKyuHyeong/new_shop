@@ -25,6 +25,12 @@ public class UserService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    // Timing attack 방지용 더미 해시. 존재하지 않는 userId 로그인 시도에도 bcrypt 를 한 번 돌려
+    // "사용자 없음" 과 "비밀번호 틀림" 의 응답 시간 차이를 제거한다.
+    // 어떤 평문도 이 해시와 매치되지 않으므로 인증으로 통과될 위험은 없다.
+    private static final String DUMMY_BCRYPT_HASH =
+            "$2a$10$N9qo8uLOickgx2ZMRZoMye.IjPeMRoRgYnRsQHRH8YDXjf3Vw5Q9G";
+
     public boolean isDuplicateUserId(String userId) {
         return userRepository.findByUserId(userId).isPresent();
     }
@@ -68,6 +74,9 @@ public class UserService {
     public Optional<User> loginUser(String userId, String userPassword) {
         Optional<User> userOpt = userRepository.findByUserId(userId);
         if (userOpt.isEmpty()) {
+            // Timing parity: 존재하지 않는 userId 에도 bcrypt 한 번 수행하여 응답 시간 차이로
+            // 계정 enumeration 되지 않도록 한다.
+            passwordEncoder.matches(userPassword, DUMMY_BCRYPT_HASH);
             return Optional.empty();
         }
 

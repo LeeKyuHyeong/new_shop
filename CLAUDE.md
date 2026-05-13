@@ -102,3 +102,7 @@ CI/CD via GitHub Actions (`.github/workflows/deploy.yml`):
 ## Commit Rules
 
 - 커밋 메시지에 Co-Authored-By 등 Claude와 함께 했다는 내용을 포함하지 않는다
+
+## Outstanding Security Work
+
+- 진행 중인 보안 / 품질 개선 항목은 레포 루트의 `SECURITY_TODO.md` 에 정리되어 있다. 새 audit 결과는 이 파일에 추가하고, 완료된 항목은 `[x]` 로 체크한다.

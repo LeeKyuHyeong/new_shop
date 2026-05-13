@@ -22,7 +22,8 @@ public class AdminSlideApiController {
 
     private boolean isAdmin(HttpSession session) {
         Object loggedInUser = session.getAttribute("loggedInUser");
-        return loggedInUser != null;
+        Object userRole = session.getAttribute("userRole");
+        return loggedInUser != null && "ADMIN".equals(userRole);
     }
 
     @PostMapping("/create")

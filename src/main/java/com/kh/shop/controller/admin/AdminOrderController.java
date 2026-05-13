@@ -3,6 +3,7 @@ package com.kh.shop.controller.admin;
 import com.kh.shop.entity.Order;
 import com.kh.shop.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -20,9 +20,12 @@ public class AdminOrderController {
     @Autowired
     private OrderService orderService;
 
-    // 주문 목록
+    // 주문 목록 (페이징 적용 - 전체 메모리 로드 방지)
     @GetMapping
-    public String orderList(@RequestParam(required = false) String status, Model model, HttpSession session) {
+    public String orderList(@RequestParam(required = false) String status,
+                            @RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "20") int size,
+                            Model model, HttpSession session) {
         String loggedInUser = (String) session.getAttribute("loggedInUser");
         String userRole = (String) session.getAttribute("userRole");
 
@@ -30,14 +33,23 @@ public class AdminOrderController {
             return "redirect:/login";
         }
 
-        List<Order> orders;
+        // page size 상한 (악의적 거대 size 요청 차단)
+        if (size > 100) size = 100;
+        if (size < 1) size = 20;
+        if (page < 0) page = 0;
+
+        Page<Order> ordersPage;
         if (status != null && !status.isEmpty()) {
-            orders = orderService.getOrdersByStatus(status);
+            ordersPage = orderService.getOrdersByStatusPaged(status, page, size);
         } else {
-            orders = orderService.getAllOrders();
+            ordersPage = orderService.getAllOrdersPaged(page, size);
         }
 
-        model.addAttribute("orders", orders);
+        model.addAttribute("orders", ordersPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalPages", ordersPage.getTotalPages());
+        model.addAttribute("totalElements", ordersPage.getTotalElements());
         model.addAttribute("selectedStatus", status);
         model.addAttribute("activeMenu", "order");
 

@@ -33,8 +33,8 @@ build/
 .vscode/
 
 ### api key ###
-# Secret 설정 파일
-application.properties
+# 시크릿 파일 (실제 시크릿 값 보관, 절대 커밋 금지)
+# application.properties 는 시크릿 없이 기본값/구조만 보관하므로 커밋 가능
 /src/main/resources/application-secret.properties
 .env
 .env.comp

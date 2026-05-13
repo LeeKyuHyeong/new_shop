@@ -146,6 +146,17 @@
                     <skipTests>${skipTests}</skipTests>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <!-- 시크릿은 배포 산출물(WAR)에 포함되지 않아야 함. 로컬 dev에는 target/classes/ 에 남아 있음 -->
+                    <packagingExcludes>
+                        WEB-INF/classes/application-secret.properties,
+                        WEB-INF/classes/application-secret.properties.example
+                    </packagingExcludes>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 

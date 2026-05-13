@@ -1,9 +1,11 @@
 package com.kh.shop.repository;
 
 import com.kh.shop.entity.Product;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,6 +27,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByIdWithImages(@Param("productId") Long productId);
 
     Optional<Product> findByProductNameAndUseYn(String productName, String useYn);
+
+    // 재고 차감/복구용 - PESSIMISTIC_WRITE 락으로 동시 트랜잭션 차단 (overselling 방지).
+    // 호출 측에서 productId 오름차순으로 호출하여 데드락 회피할 것.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Product p WHERE p.productId = :productId")
+    Optional<Product> findByIdForUpdate(@Param("productId") Long productId);
 
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn ORDER BY p.createdDate DESC")
     List<Product> findNewProducts(@Param("useYn") String useYn);

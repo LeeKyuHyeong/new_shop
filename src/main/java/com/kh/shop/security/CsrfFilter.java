@@ -57,19 +57,18 @@ public class CsrfFilter implements Filter {
             return;
         }
 
-        // API 요청은 별도 처리 (API는 주로 토큰 인증 사용)
+        // API 요청은 CSRF 토큰을 항상 검증한다.
+        // (이전에는 X-Requested-With 헤더가 없으면 통과시켰지만, 공격자가 header 를 누락한
+        //  교차 출처 form submit 으로 우회 가능했음. 모든 state-changing /api/* 호출은 토큰 필수.)
+        // 외부 시스템(웹훅, OAuth 콜백)은 EXCLUDED_PATHS 에 등록해 면제한다.
         if (path.startsWith("/api/")) {
-            // X-Requested-With 헤더가 있으면 AJAX 요청으로 간주하고 통과
-            String xRequestedWith = httpRequest.getHeader("X-Requested-With");
-            if ("XMLHttpRequest".equals(xRequestedWith)) {
-                // AJAX 요청의 경우 CSRF 토큰 검증
-                if (!csrfTokenManager.validateToken(httpRequest)) {
-                    log.warn("[CSRF] 토큰 검증 실패 - Path: {}, Method: {}", path, method);
-                    httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    httpResponse.setContentType("application/json;charset=UTF-8");
-                    httpResponse.getWriter().write("{\"error\":\"CSRF token validation failed\",\"message\":\"잘못된 요청입니다. 페이지를 새로고침 후 다시 시도해주세요.\"}");
-                    return;
-                }
+            if (!csrfTokenManager.validateToken(httpRequest)) {
+                log.warn("[CSRF] 토큰 검증 실패 - Path: {}, Method: {}, RemoteAddr: {}",
+                        path, method, httpRequest.getRemoteAddr());
+                httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                httpResponse.setContentType("application/json;charset=UTF-8");
+                httpResponse.getWriter().write("{\"error\":\"CSRF token validation failed\",\"message\":\"잘못된 요청입니다. 페이지를 새로고침 후 다시 시도해주세요.\"}");
+                return;
             }
             chain.doFilter(request, response);
             return;

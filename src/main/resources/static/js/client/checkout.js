@@ -63,6 +63,7 @@ function searchAddress() {
 }
 
 // 폼 제출
+// 흐름: Order 먼저 서버에 미리 생성(PENDING) -> 그 orderNumber 로 Portone 결제 -> 서버 검증 -> 완료 페이지
 document.getElementById('orderForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -84,30 +85,52 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
     // 선택된 결제 수단 확인
     const paymentMethod = document.querySelector('[name="paymentMethod"]:checked').value;
 
-    // 포트원 결제 실행
-    requestPayment(paymentMethod);
+    // 1) Order PENDING 으로 미리 생성
+    prepareOrder(paymentMethod);
 });
 
-// 포트원 결제 요청
-function requestPayment(method) {
-    // 결제 설정 가져오기
+// 1단계: 서버에 Order 생성 요청 (PENDING) -> server-generated orderNumber 받기
+function prepareOrder(paymentMethod) {
+    const form = document.getElementById('orderForm');
+    const formData = new FormData(form);
+    // 결제 수단 보장
+    formData.set('paymentMethod', paymentMethod);
+
+    fetch(contextPath + '/api/order/prepare', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) {
+            alert(data.message || '주문 생성에 실패했습니다.');
+            return;
+        }
+        // 2단계: server orderNumber 를 merchant_uid 로 사용하여 결제
+        requestPayment(paymentMethod, data.orderId, data.orderNumber, data.finalPrice);
+    })
+    .catch(err => {
+        console.error('주문 생성 실패:', err);
+        alert('주문 생성 중 오류가 발생했습니다.');
+    });
+}
+
+// 2단계: 포트원 결제 요청
+function requestPayment(method, orderId, orderNumber, finalPriceFromServer) {
     fetch(contextPath + '/api/payment/config')
         .then(response => response.json())
         .then(config => {
-            // IMP 초기화
             const IMP = window.IMP;
             IMP.init(config.impCode);
 
-            // 주문번호 생성
-            const merchantUid = 'ORDER_' + new Date().getTime();
-
             // 결제 요청 데이터 (V2 방식 - channelKey 사용)
+            // 주의: merchant_uid 와 amount 는 서버에서 받은 값을 사용 (클라이언트 변조 방지)
             let payData = {
-                channelKey: getChannelKey(method),  // pg 대신 channelKey 사용
+                channelKey: getChannelKey(method),
                 pay_method: getPayMethod(method),
-                merchant_uid: merchantUid,
+                merchant_uid: orderNumber,
                 name: getOrderName(),
-                amount: finalPrice,
+                amount: finalPriceFromServer,
                 buyer_name: document.querySelector('[name="receiverName"]').value,
                 buyer_tel: document.querySelector('[name="receiverPhone"]').value,
                 buyer_addr: document.getElementById('receiverAddress').value,
@@ -116,34 +139,30 @@ function requestPayment(method) {
 
             // 카드사 지정 (카드 결제 시)
             if (method === 'CARD' && selectedCardCompany && cardCodes[selectedCardCompany]) {
-                payData.card = {
-                    direct: {
-                        code: cardCodes[selectedCardCompany]
-                    }
-                };
+                payData.card = { direct: { code: cardCodes[selectedCardCompany] } };
             }
 
-            // 테스트 모드 안내
             if (config.testMode) {
                 console.log('테스트 모드로 결제를 진행합니다.');
                 console.log('결제 데이터:', payData);
             }
 
-            // 결제 요청
             IMP.request_pay(payData, function(response) {
                 if (response.success) {
-                    // 결제 성공 - 서버에서 검증
-                    verifyPayment(response.imp_uid, merchantUid, finalPrice);
+                    // 3단계: 서버 검증
+                    verifyPayment(response.imp_uid, orderNumber, orderId);
                 } else {
-                    // 결제 실패/취소
-                    alert('결제가 취소되었습니다.\n' + response.error_msg);
+                    // 결제 실패/취소 -> PENDING Order 정리 (재고 복구)
+                    cancelPreparedOrder(orderId);
+                    alert('결제가 취소되었습니다.\n' + (response.error_msg || ''));
                 }
             });
         })
         .catch(error => {
             console.error('결제 설정 로드 실패:', error);
-            // 설정 로드 실패 시 테스트 모드로 진행
-            simulatePayment();
+            // 결제 진행 불가 -> 미리 생성한 Order 취소
+            cancelPreparedOrder(orderId);
+            alert('결제 설정을 불러올 수 없습니다.');
         });
 }
 
@@ -176,71 +195,42 @@ function getOrderName() {
     return 'KH SHOP 주문';
 }
 
-// 결제 검증
-function verifyPayment(impUid, merchantUid, amount) {
+// 3단계: 결제 검증 (서버가 DB Order 와 포트원 응답을 양쪽 검증)
+function verifyPayment(impUid, merchantUid, orderId) {
     fetch(contextPath + '/api/payment/verify', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             imp_uid: impUid,
-            merchant_uid: merchantUid,
-            amount: amount
+            merchant_uid: merchantUid
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // 검증 성공 - 주문 완료 처리
-            completeOrder(impUid, merchantUid);
+            // 검증 통과 -> 완료 페이지로 이동
+            window.location.href = contextPath + '/order/complete/' + data.orderId;
         } else {
+            // 서버가 이미 환불/취소 처리함 (catch 로 우회 불가)
             alert('결제 검증에 실패했습니다: ' + data.message);
+            window.location.href = contextPath + '/cart';
         }
     })
     .catch(error => {
-        console.error('결제 검증 오류:', error);
-        // 검증 실패해도 주문 진행 (테스트 모드)
-        completeOrder(impUid, merchantUid);
+        // 네트워크 오류 등 - 서버 응답 확인 불가. 사용자가 다시 시도하도록 안내.
+        // (서버는 백그라운드에서 미결제 Order 자동 정리 스케줄러가 처리)
+        console.error('결제 검증 통신 오류:', error);
+        alert('결제 검증 통신 중 오류가 발생했습니다. 잠시 후 주문 내역에서 상태를 확인해주세요.');
+        window.location.href = contextPath + '/my-orders';
     });
 }
 
-// 주문 완료 처리
-function completeOrder(impUid, merchantUid) {
-    // hidden input에 결제 정보 추가
-    const form = document.getElementById('orderForm');
-
-    let impUidInput = document.createElement('input');
-    impUidInput.type = 'hidden';
-    impUidInput.name = 'impUid';
-    impUidInput.value = impUid || '';
-    form.appendChild(impUidInput);
-
-    let merchantUidInput = document.createElement('input');
-    merchantUidInput.type = 'hidden';
-    merchantUidInput.name = 'merchantUid';
-    merchantUidInput.value = merchantUid || '';
-    form.appendChild(merchantUidInput);
-
-    // 폼 제출
-    form.submit();
-}
-
-// 테스트 모드 결제 시뮬레이션
-function simulatePayment() {
-    const paymentMethod = document.querySelector('[name="paymentMethod"]:checked').value;
-    let methodName = '';
-    switch(paymentMethod) {
-        case 'CARD': methodName = '신용카드'; break;
-        case 'BANK': methodName = '계좌이체'; break;
-        case 'KAKAO': methodName = '카카오페이'; break;
-        case 'NAVER': methodName = '네이버페이'; break;
-    }
-
-    if (confirm(methodName + ' 결제를 진행하시겠습니까?\n\n⚠️ 테스트 모드: 실제 결제가 진행되지 않습니다.')) {
-        const merchantUid = 'TEST_' + new Date().getTime();
-        completeOrder('test_imp_uid', merchantUid);
-    }
+// 결제 실패/취소 시 미리 생성된 Order 정리 (재고 복구)
+function cancelPreparedOrder(orderId) {
+    if (!orderId) return;
+    fetch(contextPath + '/api/order/cancel-pending/' + orderId, {
+        method: 'POST'
+    }).catch(err => console.warn('미결제 주문 정리 실패:', err));
 }
 
 // ESC 키로 모달 닫기
