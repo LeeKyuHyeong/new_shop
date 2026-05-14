@@ -1,5 +1,9 @@
 package com.kh.shop.controller.common;
 
+import com.kh.shop.security.FileUploadValidator;
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/upload")
 public class FileUploadController {
@@ -20,109 +25,89 @@ public class FileUploadController {
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
 
-    // 에디터 이미지 업로드
+    @Autowired
+    private FileUploadValidator fileUploadValidator;
+
+    // 에디터 이미지 업로드 (관리자 상품 등록/수정 페이지의 리치 텍스트 에디터용).
+    // 검증: ADMIN 권한 + FileUploadValidator (확장자 화이트리스트 + MIME + 매직 바이트).
     @PostMapping("/editor-image")
     public ResponseEntity<Map<String, Object>> uploadEditorImage(
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file,
+            HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
 
-        try {
-            // 이미지 타입 체크
-            String contentType = file.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                response.put("success", false);
-                response.put("message", "이미지 파일만 업로드 가능합니다.");
-                return ResponseEntity.ok(response);
-            }
-
-            // 파일 크기 체크 (10MB)
-            if (file.getSize() > 10 * 1024 * 1024) {
-                response.put("success", false);
-                response.put("message", "파일 크기는 10MB 이하만 가능합니다.");
-                return ResponseEntity.ok(response);
-            }
-
-            // 저장 경로 생성
-            String editorUploadDir = uploadDir + "/editor";
-            Path uploadPath = Paths.get(editorUploadDir);
-
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            // 파일명 생성
-            String originalName = file.getOriginalFilename();
-            String extension = originalName.substring(originalName.lastIndexOf("."));
-            String savedName = UUID.randomUUID().toString() + extension;
-
-            // 파일 저장
-            Path filePath = uploadPath.resolve(savedName);
-            Files.copy(file.getInputStream(), filePath);
-
-            String imageUrl = "/uploads/editor/" + savedName;
-
-            response.put("success", true);
-            response.put("url", imageUrl);
-
-        } catch (IOException e) {
+        // 권한 체크 - 에디터 이미지는 관리자만 업로드 가능
+        Object loggedInUser = session.getAttribute("loggedInUser");
+        Object userRole = session.getAttribute("userRole");
+        if (loggedInUser == null || !"ADMIN".equals(userRole)) {
             response.put("success", false);
-            response.put("message", "파일 업로드 중 오류가 발생했습니다.");
+            response.put("message", "권한이 없습니다.");
+            return ResponseEntity.status(403).body(response);
         }
 
-        return ResponseEntity.ok(response);
+        return doUpload(file, "editor", response);
     }
 
-    // 리뷰 이미지 업로드
+    // 리뷰 이미지 업로드 (작성 도중 임시 업로드 - 로그인 필수).
     @PostMapping("/review-image")
     public ResponseEntity<Map<String, Object>> uploadReviewImage(
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file,
+            HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
 
+        // 권한 체크 - 로그인 사용자만
+        Object loggedInUser = session.getAttribute("loggedInUser");
+        if (loggedInUser == null) {
+            response.put("success", false);
+            response.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.status(401).body(response);
+        }
+
+        return doUpload(file, "reviews/temp", response);
+    }
+
+    private ResponseEntity<Map<String, Object>> doUpload(MultipartFile file,
+                                                          String subDir,
+                                                          Map<String, Object> response) {
         try {
-            // 이미지 타입 체크
-            String contentType = file.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
+            // 보안 검증 - 확장자/MIME/매직 바이트/경로 조작 모두 체크
+            FileUploadValidator.ValidationResult result = fileUploadValidator.validateImage(file);
+            if (!result.isValid()) {
                 response.put("success", false);
-                response.put("message", "이미지 파일만 업로드 가능합니다.");
-                return ResponseEntity.ok(response);
+                response.put("message", result.getErrorMessage());
+                return ResponseEntity.badRequest().body(response);
             }
 
-            // 파일 크기 체크 (5MB)
-            if (file.getSize() > 5 * 1024 * 1024) {
+            // 안전한 확장자만 사용 (원본 파일명 사용하지 않음)
+            String safeExtension = fileUploadValidator.getSafeExtension(file.getOriginalFilename());
+            if (safeExtension.isEmpty()) {
                 response.put("success", false);
-                response.put("message", "파일 크기는 5MB 이하만 가능합니다.");
-                return ResponseEntity.ok(response);
+                response.put("message", "허용되지 않는 파일 형식입니다.");
+                return ResponseEntity.badRequest().body(response);
             }
 
-            // 저장 경로 생성
-            String reviewUploadDir = uploadDir + "/reviews/temp";
-            Path uploadPath = Paths.get(reviewUploadDir);
-
+            String targetDir = uploadDir + "/" + subDir;
+            Path uploadPath = Paths.get(targetDir);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            // 파일명 생성
-            String originalName = file.getOriginalFilename();
-            String extension = originalName.substring(originalName.lastIndexOf("."));
-            String savedName = UUID.randomUUID().toString() + extension;
-
-            // 파일 저장
+            String savedName = UUID.randomUUID().toString() + safeExtension;
             Path filePath = uploadPath.resolve(savedName);
             Files.copy(file.getInputStream(), filePath);
 
-            String imageUrl = "/uploads/reviews/temp/" + savedName;
-
+            String imageUrl = "/uploads/" + subDir + "/" + savedName;
             response.put("success", true);
             response.put("url", imageUrl);
+            return ResponseEntity.ok(response);
 
         } catch (IOException e) {
+            log.error("[UPLOAD] 파일 업로드 실패: subDir={}", subDir, e);
             response.put("success", false);
             response.put("message", "파일 업로드 중 오류가 발생했습니다.");
+            return ResponseEntity.internalServerError().body(response);
         }
-
-        return ResponseEntity.ok(response);
     }
 }

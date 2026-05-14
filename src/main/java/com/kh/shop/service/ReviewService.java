@@ -2,6 +2,7 @@ package com.kh.shop.service;
 
 import com.kh.shop.entity.*;
 import com.kh.shop.repository.*;
+import com.kh.shop.security.FileUploadValidator;
 import com.kh.shop.util.ProfanityFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +45,9 @@ public class ReviewService {
 
     @Autowired
     private ProfanityFilter profanityFilter;
+
+    @Autowired
+    private FileUploadValidator fileUploadValidator;
 
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
@@ -94,6 +98,8 @@ public class ReviewService {
     }
 
     // 리뷰 이미지 저장
+    // 각 파일을 FileUploadValidator 로 검증 (확장자 화이트리스트 + MIME + 매직 바이트).
+    // 검증 실패 시 IllegalArgumentException -> 전체 트랜잭션 롤백.
     private void saveReviewImages(Review review, List<MultipartFile> images) throws IOException {
         String reviewUploadDir = uploadDir + "/reviews/" + review.getReviewId();
         Path uploadPath = Paths.get(reviewUploadDir);
@@ -106,9 +112,17 @@ public class ReviewService {
         for (MultipartFile file : images) {
             if (file.isEmpty()) continue;
 
+            FileUploadValidator.ValidationResult result = fileUploadValidator.validateImage(file);
+            if (!result.isValid()) {
+                throw new IllegalArgumentException("리뷰 이미지: " + result.getErrorMessage());
+            }
+
             String originalName = file.getOriginalFilename();
-            String extension = originalName.substring(originalName.lastIndexOf("."));
-            String savedName = UUID.randomUUID().toString() + extension;
+            String safeExtension = fileUploadValidator.getSafeExtension(originalName);
+            if (safeExtension.isEmpty()) {
+                throw new IllegalArgumentException("리뷰 이미지: 허용되지 않는 파일 형식입니다.");
+            }
+            String savedName = UUID.randomUUID().toString() + safeExtension;
 
             Path filePath = uploadPath.resolve(savedName);
             Files.copy(file.getInputStream(), filePath);

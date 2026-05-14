@@ -122,11 +122,6 @@ public class SocialLoginController {
         session.setAttribute("loginTime", System.currentTimeMillis());
         session.setAttribute("socialLogin", provider);
 
-        // 계정 연동 알림
-        if (result.get("linked") != null && (Boolean) result.get("linked")) {
-            redirectAttributes.addFlashAttribute("message", provider + " 계정이 기존 회원 정보와 연동되었습니다.");
-        }
-
         return "redirect:/";
     }
 
@@ -140,12 +135,12 @@ public class SocialLoginController {
             return "redirect:/login";
         }
 
+        // accessToken 은 더 이상 form 으로 노출하지 않는다 (XSS exfiltration 위험 + 어차피 저장 안 함)
         model.addAttribute("provider", socialData.get("provider"));
         model.addAttribute("providerId", socialData.get("providerId"));
         model.addAttribute("email", socialData.get("email"));
         model.addAttribute("nickname", socialData.get("nickname"));
         model.addAttribute("profileImage", socialData.get("profileImage"));
-        model.addAttribute("accessToken", socialData.get("accessToken"));
 
         return "client/social-signup";
     }
@@ -153,7 +148,6 @@ public class SocialLoginController {
     @PostMapping("/signup")
     public String socialSignupProcess(@RequestParam String provider,
                                       @RequestParam String providerId,
-                                      @RequestParam String accessToken,
                                       @RequestParam String userId,
                                       @RequestParam String userName,
                                       @RequestParam String email,
@@ -162,6 +156,17 @@ public class SocialLoginController {
                                       @RequestParam(required = false) String profileImage,
                                       HttpSession session,
                                       RedirectAttributes redirectAttributes) {
+
+        // 세션의 socialSignup 데이터가 있어야 한다 (정상 OAuth 콜백 후의 흐름만 허용).
+        // 또한 클라이언트가 보낸 provider/providerId 가 서버 세션의 값과 일치해야 한다 -
+        // 이를 통해 임의의 (provider, providerId) 로 가짜 가입을 차단.
+        Map<String, Object> socialData = (Map<String, Object>) session.getAttribute("socialSignup");
+        if (socialData == null
+                || !provider.equals(socialData.get("provider"))
+                || !providerId.equals(socialData.get("providerId"))) {
+            redirectAttributes.addFlashAttribute("error", "잘못된 접근입니다. 다시 로그인해주세요.");
+            return "redirect:/login";
+        }
 
         try {
             // 중복 체크
@@ -175,9 +180,9 @@ public class SocialLoginController {
                 return "redirect:/oauth/signup";
             }
 
-            // 회원가입 완료
+            // 회원가입 완료 (accessToken 저장 안 함)
             User user = socialLoginService.completeSocialSignup(
-                    provider, providerId, accessToken,
+                    provider, providerId,
                     userId, userName, email, gender, birth, profileImage
             );
 

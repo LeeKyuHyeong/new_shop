@@ -2,6 +2,7 @@ package com.kh.shop.service;
 
 import com.kh.shop.entity.Slide;
 import com.kh.shop.repository.SlideRepository;
+import com.kh.shop.security.FileUploadValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,9 @@ public class SlideService {
 
     @Autowired
     private SlideRepository slideRepository;
+
+    @Autowired
+    private FileUploadValidator fileUploadValidator;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -107,9 +111,19 @@ public class SlideService {
 
     // 파일 저장
     private String saveFile(MultipartFile file) throws IOException {
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String savedFilename = UUID.randomUUID().toString() + extension;
+        // 보안 검증 (확장자 화이트리스트 + MIME + 매직 바이트 + 경로 조작 차단)
+        FileUploadValidator.ValidationResult result = fileUploadValidator.validateImage(file);
+        if (!result.isValid()) {
+            throw new IllegalArgumentException(result.getErrorMessage());
+        }
+
+        // 원본 파일명 무시, 검증된 안전한 확장자만 사용
+        String safeExtension = fileUploadValidator.getSafeExtension(file.getOriginalFilename());
+        if (safeExtension.isEmpty()) {
+            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+        }
+
+        String savedFilename = UUID.randomUUID().toString() + safeExtension;
 
         String dirPath = uploadDir + "/slide";
         File dir = new File(dirPath);

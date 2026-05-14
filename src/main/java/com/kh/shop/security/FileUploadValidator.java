@@ -96,25 +96,28 @@ public class FileUploadValidator {
      * 파일 시그니처(매직 넘버) 검증
      */
     private boolean validateFileSignature(MultipartFile file, String extension) throws IOException {
-        byte[] header = new byte[12];
+        // readNBytes 로 안정적으로 12 byte 읽기 (단일 read() 는 short read 가능성 있음).
+        byte[] header;
         try (InputStream is = file.getInputStream()) {
-            int bytesRead = is.read(header);
-            if (bytesRead < 2) {
-                return false;
-            }
+            header = is.readNBytes(12);
+        }
+        // BMP는 2 byte, GIF/JPEG/PNG/WEBP는 더 길게 필요하므로 최소 2 byte 확보 안 되면 무효
+        if (header.length < 2) {
+            return false;
         }
 
         switch (extension.toLowerCase()) {
             case "jpg":
             case "jpeg":
-                return startsWith(header, JPEG_SIGNATURE);
+                return header.length >= JPEG_SIGNATURE.length && startsWith(header, JPEG_SIGNATURE);
             case "png":
-                return startsWith(header, PNG_SIGNATURE);
+                return header.length >= PNG_SIGNATURE.length && startsWith(header, PNG_SIGNATURE);
             case "gif":
-                return startsWith(header, GIF_SIGNATURE);
+                return header.length >= GIF_SIGNATURE.length && startsWith(header, GIF_SIGNATURE);
             case "webp":
-                // WEBP: RIFF....WEBP
-                return startsWith(header, WEBP_SIGNATURE) &&
+                // WEBP: RIFF....WEBP (12 byte 필요)
+                return header.length >= 12 &&
+                       startsWith(header, WEBP_SIGNATURE) &&
                        header[8] == 'W' && header[9] == 'E' && header[10] == 'B' && header[11] == 'P';
             case "bmp":
                 return startsWith(header, BMP_SIGNATURE);

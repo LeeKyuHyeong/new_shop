@@ -2,6 +2,7 @@ package com.kh.shop.service;
 
 import com.kh.shop.entity.Popup;
 import com.kh.shop.repository.PopupRepository;
+import com.kh.shop.security.FileUploadValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,9 @@ public class PopupService {
 
     @Autowired
     private PopupRepository popupRepository;
+
+    @Autowired
+    private FileUploadValidator fileUploadValidator;
 
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
@@ -105,9 +109,19 @@ public class PopupService {
     }
 
     private String saveFile(MultipartFile file) throws IOException {
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String savedFilename = UUID.randomUUID().toString() + extension;
+        // 보안 검증 (확장자 화이트리스트 + MIME + 매직 바이트 + 경로 조작 차단)
+        FileUploadValidator.ValidationResult result = fileUploadValidator.validateImage(file);
+        if (!result.isValid()) {
+            throw new IllegalArgumentException(result.getErrorMessage());
+        }
+
+        // 원본 파일명 무시, 검증된 안전한 확장자만 사용
+        String safeExtension = fileUploadValidator.getSafeExtension(file.getOriginalFilename());
+        if (safeExtension.isEmpty()) {
+            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+        }
+
+        String savedFilename = UUID.randomUUID().toString() + safeExtension;
 
         String dirPath = uploadDir + "/popup";
         File dir = new File(dirPath);

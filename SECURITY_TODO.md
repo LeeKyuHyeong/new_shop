@@ -22,8 +22,12 @@
 - [x] **#1 시크릿 평문 노출** — `application.properties` 에 결제/OAuth 시크릿 하드코딩 → `application-secret.properties` 분리, WAR 패키징 제외, `.example` 템플릿 추가. 완료 (2026-05-14)
 - [x] **#4 결제 검증 누락** — `PaymentApiController.verifyPayment` 전면 재작성. Order 를 PENDING 으로 미리 생성(`/api/order/prepare`) → server-generated `orderNumber` 를 Portone `merchant_uid` 로 사용 → 검증 시 DB Order + 포트원 응답 양쪽 검증 (소유권/상태/금액/merchant_uid 일치) → PAID 전환. 검증 실패 시 포트원 자동 환불 + Order 취소(재고 복구). 완료 (2026-05-14)
 - [x] **#5 CSRF 우회** — `CsrfFilter` 가 `/api/*` 호출에서 `X-Requested-With` 헤더가 없으면 CSRF 검증을 skip 하던 버그 수정. 이제 모든 state-changing `/api/*` 호출에 토큰 필수 (webhook/OAuth callback 만 EXCLUDED_PATHS 로 면제). 또한 admin JSP 20개 + client JSP 3개에 `security-headers.jsp` include 추가하여 CSRF meta tag + `csrf.js` 가 모든 페이지에 로드되도록 함 → `window.fetch` wrapping 으로 자동 토큰 전송. 완료 (2026-05-14)
-- [ ] **#6 파일 업로드 검증 부실** — `FileUploadController.java:32-33, 85-86` MIME 만 검증, magic bytes / 확장자 화이트리스트 없음 → 악성 파일 업로드 가능
-- [ ] **#7 OAuth 토큰 평문 저장 + 자동 계정 연동** — `SocialLoginService.java:254, 269-277` accessToken 평문 DB 저장 + 이메일 기반 자동 연동 → **Account Takeover** 위험. 명시적 사용자 동의 후 연동, 토큰 AES 암호화
+- [x] **#6 파일 업로드 검증 부실** — `FileUploadValidator` (이미 있던 컴포넌트, 안 쓰이고 있었음) 를 모든 업로드 경로에 통합. `FileUploadController` (editor-image 는 ADMIN, review-image 는 로그인 필수 + 인증 체크), `PopupService.saveFile`, `SlideService.saveFile`, `ReviewService.saveReviewImages` 모두 validator 통과 후 저장. validator 자체도 `readNBytes(12)` 로 short-read 가능성 차단, 확장자별 헤더 길이 가드 추가. 완료 (2026-05-14)
+- [x] **#7 OAuth 토큰 평문 저장 + 자동 계정 연동** — `SocialAccount.accessToken` 이 어디서도 안 읽히는 dead data 였음을 확인 후 저장 자체를 중단 (DB 평문 위험 제거). 향후 사용 시 AES 암호화 권장 — 엔티티 필드는 backwards compat 위해 보존. 이메일 기반 자동 연동도 제거 → 기존 회원이 있으면 명시적 로그인 후 직접 연동 안내. 또한 `socialSignupProcess` 에 서버 세션 검증 추가 (임의 provider/providerId 가짜 가입 차단), `accessToken` form hidden field 제거 (XSS exfiltration 위험 제거). 완료 (2026-05-14)
+
+### 후속 작업 (지금 안 한 것)
+- [ ] **마이페이지 소셜 계정 연동 UI** — 기존 회원이 본인 로그인 후 소셜 계정을 명시적으로 연동/해제하는 화면 필요. `SocialLoginService.linkSocialAccount(user, provider, providerId, email, nickname, profileImage)` 는 이미 준비됨. 호출 측에서 세션 user == link 대상 user 검증 후 호출하면 됨.
+- [ ] **기존 DB 의 잔존 accessToken 정리 마이그레이션** — `UPDATE social_account SET access_token = NULL, refresh_token = NULL;` 한 번 실행 권장.
 - [x] **#11 결제 API 인증 누락** — `PaymentApiController.verifyPayment` 와 `/cancel` 에 세션 인증 추가 (`/cancel` 은 ADMIN 권한 요구). CSRF 는 csrf.js 가 fetch 래핑하여 `X-CSRF-TOKEN` + `X-Requested-With` 자동 전송 → CsrfFilter 통과. 완료 (2026-05-14)
 
 - [ ] **추가 발견: `/order/submit` 미인증 주문 생성** — 신규 흐름은 `/api/order/prepare` 사용. 기존 `/order/submit` 엔드포인트는 결제 검증 없이 PENDING 주문 생성 가능. 미결제 주문은 스케줄러가 정리하지만 스팸 가능성. 추후 제거 또는 페이먼트 게이트 강제 검토

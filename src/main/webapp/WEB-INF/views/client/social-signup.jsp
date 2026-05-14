@@ -70,7 +70,6 @@
                     <!-- Hidden fields -->
                     <input type="hidden" name="provider" value="${provider}">
                     <input type="hidden" name="providerId" value="${providerId}">
-                    <input type="hidden" name="accessToken" value="${accessToken}">
                     <input type="hidden" name="profileImage" value="${profileImage}">
 
                     <div class="form-group">

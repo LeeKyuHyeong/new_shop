@@ -240,18 +240,24 @@ public class SocialLoginService {
     // ==================== 공통 처리 ====================
 
     /**
-     * 소셜 로그인 처리 - 기존 회원이면 로그인, 신규면 회원가입 페이지로 이동
+     * 소셜 로그인 처리 - 기존 소셜 계정이면 로그인, 신규면 회원가입 페이지로 이동.
+     *
+     * 보안:
+     * - accessToken 은 DB 에 저장하지 않는다 (코드 어디서도 사용하지 않으므로 dead data + 유출 위험).
+     *   향후 API 호출 시 필요해지면 AES 암호화 후 저장할 것.
+     * - 이메일 기반 자동 계정 연동은 차단한다. 공격자가 victim 이메일로 소셜 계정을 만들면
+     *   기존 회원 계정을 탈취할 수 있음 (Account Takeover). 기존 회원이 있으면 로그인 후
+     *   설정에서 직접 연동하도록 안내한다.
      */
     public Map<String, Object> processOAuthLogin(String provider, String providerId, String email, String nickname, String profileImage, String accessToken) {
         Map<String, Object> result = new HashMap<>();
 
-        // 1. 기존 소셜 계정 확인
+        // 1. 기존 소셜 계정 확인 (providerId 매치 - 안전한 식별자)
         Optional<SocialAccount> existingSocial = socialAccountRepository.findByProviderAndProviderId(provider, providerId);
 
         if (existingSocial.isPresent()) {
-            // 기존 소셜 계정이 있으면 로그인 처리
+            // 기존 소셜 계정이 있으면 로그인 처리. accessToken 은 저장하지 않음.
             SocialAccount social = existingSocial.get();
-            social.setAccessToken(accessToken);
             social.setSocialName(nickname);
             social.setProfileImage(profileImage);
             socialAccountRepository.save(social);
@@ -262,23 +268,19 @@ public class SocialLoginService {
             return result;
         }
 
-        // 2. 이메일로 기존 회원 확인 (소셜 계정 연동 유도)
+        // 2. 이메일이 기존 회원과 겹치는지 확인. 겹치면 자동 연동을 거부하고 명시적 로그인 유도.
         if (email != null && !email.isEmpty()) {
             Optional<User> existingUser = userRepository.findByEmail(email);
             if (existingUser.isPresent()) {
-                // 기존 회원이 있으면 소셜 계정 연동
-                User user = existingUser.get();
-                linkSocialAccount(user, provider, providerId, email, nickname, profileImage, accessToken);
-
-                result.put("success", true);
-                result.put("isNewUser", false);
-                result.put("user", user);
-                result.put("linked", true); // 연동되었음을 표시
+                result.put("success", false);
+                result.put("message", "이 이메일(" + email + ")로 이미 가입된 계정이 있습니다. "
+                        + "기존 아이디/비밀번호로 로그인 후 마이페이지에서 " + provider + " 계정을 연동해주세요.");
                 return result;
             }
         }
 
-        // 3. 신규 회원 - 회원가입 페이지로 이동 필요
+        // 3. 신규 회원 - 회원가입 페이지로 이동 필요. accessToken 도 흘려보내지 않음
+        //    (signup 시점에 다시 OAuth code 교환을 하지 않으므로 providerId 기반으로만 연결).
         result.put("success", true);
         result.put("isNewUser", true);
         result.put("provider", provider);
@@ -286,16 +288,15 @@ public class SocialLoginService {
         result.put("email", email);
         result.put("nickname", nickname);
         result.put("profileImage", profileImage);
-        result.put("accessToken", accessToken);
 
         return result;
     }
 
     /**
-     * 소셜 회원가입 완료
+     * 소셜 회원가입 완료. accessToken 은 DB 에 저장하지 않는다 (보안 - processOAuthLogin 주석 참조).
      */
     @Transactional
-    public User completeSocialSignup(String provider, String providerId, String accessToken,
+    public User completeSocialSignup(String provider, String providerId,
                                      String userId, String userName, String email,
                                      String gender, String birth, String profileImage) {
 
@@ -328,7 +329,7 @@ public class SocialLoginService {
                 .build();
         userSettingRepository.save(setting);
 
-        // 3. SocialAccount 연결
+        // 3. SocialAccount 연결 (accessToken 저장 안 함)
         SocialAccount socialAccount = SocialAccount.builder()
                 .user(user)
                 .provider(provider)
@@ -336,7 +337,6 @@ public class SocialLoginService {
                 .socialEmail(email)
                 .socialName(userName)
                 .profileImage(profileImage)
-                .accessToken(accessToken)
                 .build();
 
         socialAccountRepository.save(socialAccount);
@@ -345,11 +345,20 @@ public class SocialLoginService {
     }
 
     /**
-     * 기존 회원에 소셜 계정 연동
+     * 인증된 사용자 본인이 소셜 계정을 명시적으로 연동 (마이페이지 등에서 호출).
+     * processOAuthLogin 의 자동 연동을 대체하는 안전한 경로.
+     * 호출 측에서 user 가 현재 세션의 본인임을 반드시 검증해야 한다.
      */
     @Transactional
     public void linkSocialAccount(User user, String provider, String providerId,
-                                  String email, String nickname, String profileImage, String accessToken) {
+                                  String email, String nickname, String profileImage) {
+        // 동일 provider 의 동일 providerId 가 다른 user 에 묶여있으면 거부
+        socialAccountRepository.findByProviderAndProviderId(provider, providerId).ifPresent(existing -> {
+            if (!existing.getUser().getUserId().equals(user.getUserId())) {
+                throw new IllegalStateException("해당 소셜 계정은 이미 다른 회원에 연동되어 있습니다.");
+            }
+        });
+
         SocialAccount socialAccount = SocialAccount.builder()
                 .user(user)
                 .provider(provider)
@@ -357,7 +366,6 @@ public class SocialLoginService {
                 .socialEmail(email)
                 .socialName(nickname)
                 .profileImage(profileImage)
-                .accessToken(accessToken)
                 .build();
 
         socialAccountRepository.save(socialAccount);
