@@ -4,6 +4,7 @@ import com.kh.shop.common.dto.PageRequestDTO;
 import com.kh.shop.common.dto.PageResponseDTO;
 import com.kh.shop.entity.Category;
 import com.kh.shop.repository.CategoryRepository;
+import com.kh.shop.util.LikeQueryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -113,7 +114,8 @@ public class CategoryService {
     public PageResponseDTO<Category> getListWithPaging(PageRequestDTO pageRequestDTO) {
         Pageable pageable = pageRequestDTO.getPageable("categoryOrder");
 
-        String searchKeyword = pageRequestDTO.getSearchKeyword();
+        // LIKE 와일드카드 이스케이프
+        String searchKeyword = LikeQueryUtil.escape(pageRequestDTO.getSearchKeyword());
         Integer categoryId = pageRequestDTO.getCategoryId();
         Integer parentCategoryId = pageRequestDTO.getParentCategoryId();
 

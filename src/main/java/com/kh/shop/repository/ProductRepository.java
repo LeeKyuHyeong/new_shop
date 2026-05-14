@@ -20,6 +20,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByUseYnOrderByProductOrderAsc(String useYn);
     List<Product> findByCategoryCategoryIdAndUseYnOrderByProductOrderAsc(Integer categoryId, String useYn);
 
+    // 연관 상품용: 카테고리 내에서 특정 productId 제외하고 N 개 - DB 단에서 LIMIT 적용.
+    @Query("SELECT p FROM Product p WHERE p.category.categoryId = :categoryId "
+            + "AND p.productId <> :excludeId AND p.useYn = :useYn "
+            + "ORDER BY p.productOrder ASC")
+    List<Product> findRelatedProducts(@Param("categoryId") Integer categoryId,
+                                      @Param("excludeId") Long excludeId,
+                                      @Param("useYn") String useYn,
+                                      Pageable pageable);
+
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn ORDER BY p.productOrder ASC")
     List<Product> findAllWithCategory(@Param("useYn") String useYn);
 
@@ -42,6 +51,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND p.productDiscount > 0 ORDER BY p.productDiscount DESC")
     List<Product> findDiscountProducts(@Param("useYn") String useYn);
+
+    // 메모리 효율 변형 - DB 에서 LIMIT 으로 잘라 가져옴 (전체 로드 후 stream.limit 보다 빠르고 메모리 절약).
+    // category 는 단일 ManyToOne 이므로 JOIN FETCH 와 Pageable 병행 안전.
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn ORDER BY p.createdDate DESC")
+    List<Product> findNewProducts(@Param("useYn") String useYn, Pageable pageable);
+
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn ORDER BY p.productOrder DESC")
+    List<Product> findBestProducts(@Param("useYn") String useYn, Pageable pageable);
+
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.useYn = :useYn AND p.productDiscount > 0 ORDER BY p.productDiscount DESC")
+    List<Product> findDiscountProducts(@Param("useYn") String useYn, Pageable pageable);
 
     // ==================== 페이징 메서드 추가 ====================
 

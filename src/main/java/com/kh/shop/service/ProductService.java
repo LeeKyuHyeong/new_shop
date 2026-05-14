@@ -9,10 +9,12 @@ import com.kh.shop.repository.CategoryRepository;
 import com.kh.shop.repository.ProductImageRepository;
 import com.kh.shop.repository.ProductRepository;
 import com.kh.shop.security.FileUploadValidator;
+import com.kh.shop.util.LikeQueryUtil;
 import com.kh.shop.util.ProfanityFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -62,34 +63,25 @@ public class ProductService {
         return productRepository.findByIdWithImages(productId);
     }
 
+    // DB 에서 LIMIT 으로 잘라옴 (이전엔 전체 로드 후 stream.limit -> 메모리 낭비).
     @Transactional(readOnly = true)
     public List<Product> getNewProducts(int limit) {
-        return productRepository.findNewProducts("Y").stream()
-                .limit(limit)
-                .collect(Collectors.toList());
+        return productRepository.findNewProducts("Y", PageRequest.of(0, limit));
     }
 
     @Transactional(readOnly = true)
     public List<Product> getBestProducts(int limit) {
-        return productRepository.findBestProducts("Y").stream()
-                .limit(limit)
-                .collect(Collectors.toList());
+        return productRepository.findBestProducts("Y", PageRequest.of(0, limit));
     }
 
     @Transactional(readOnly = true)
     public List<Product> getDiscountProducts(int limit) {
-        return productRepository.findDiscountProducts("Y").stream()
-                .limit(limit)
-                .collect(Collectors.toList());
+        return productRepository.findDiscountProducts("Y", PageRequest.of(0, limit));
     }
 
     @Transactional(readOnly = true)
     public List<Product> getRelatedProducts(Integer categoryId, Long excludeProductId, int limit) {
-        return productRepository.findByCategoryCategoryIdAndUseYnOrderByProductOrderAsc(categoryId, "Y")
-                .stream()
-                .filter(p -> !p.getProductId().equals(excludeProductId))
-                .limit(limit)
-                .collect(Collectors.toList());
+        return productRepository.findRelatedProducts(categoryId, excludeProductId, "Y", PageRequest.of(0, limit));
     }
 
     // ==================== 페이징 메서드 추가 ====================
@@ -101,7 +93,8 @@ public class ProductService {
     public PageResponseDTO<Product> getProductListWithPaging(PageRequestDTO pageRequestDTO) {
         Pageable pageable = pageRequestDTO.getPageable("productOrder");
 
-        String searchKeyword = pageRequestDTO.getSearchKeyword();
+        // LIKE 와일드카드(%, _, \) 이스케이프 - 의도치 않은 광범위 매치 및 패턴 DoS 방지.
+        String searchKeyword = LikeQueryUtil.escape(pageRequestDTO.getSearchKeyword());
         Integer categoryId = pageRequestDTO.getCategoryId();
         Integer parentCategoryId = pageRequestDTO.getParentCategoryId();
 
@@ -156,7 +149,8 @@ public class ProductService {
     public PageResponseDTO<Product> getAllProductsWithPaging(PageRequestDTO pageRequestDTO) {
         Pageable pageable = pageRequestDTO.getPageable("createdDate");
 
-        String searchKeyword = pageRequestDTO.getSearchKeyword();
+        // LIKE 와일드카드 이스케이프
+        String searchKeyword = LikeQueryUtil.escape(pageRequestDTO.getSearchKeyword());
 
         Page<Product> result;
 

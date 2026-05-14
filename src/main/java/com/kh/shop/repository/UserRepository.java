@@ -32,6 +32,11 @@ public interface UserRepository extends JpaRepository<User, String> {
     // 상태별 사용자 수
     long countByUserStatusAndUseYn(String userStatus, String useYn);
 
+    // BCrypt 마이그레이션 진단: 아직 평문 비밀번호로 남아있는 사용자 수.
+    // 0 이 되면 UserService.loginUser 의 평문 분기 + DUMMY_BCRYPT_HASH 분기를 정리해도 된다.
+    @Query("SELECT COUNT(u) FROM User u WHERE u.userPassword NOT LIKE '$2a$%' AND u.userPassword NOT LIKE '$2b$%'")
+    long countPlainPasswordUsers();
+
     // 검색 조건으로 사용자 조회
     @Query("SELECT u FROM User u WHERE " +
            "(:userId IS NULL OR :userId = '' OR u.userId LIKE CONCAT('%', :userId, '%')) AND " +

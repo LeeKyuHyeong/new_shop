@@ -50,9 +50,12 @@
 
 ## 🟡 MEDIUM — 점진적 개선
 
-- [ ] **#17 비효율 정렬/제한** — `ProductService.java:66-76` `getNewProducts()` / `getBestProducts()` / `getDiscountProducts()` 가 전체 로드 후 Java stream 에서 `limit()` → repository 쿼리에서 LIMIT
-- [ ] **#18 LIKE 와일드카드 미이스케이프** — `ProductRepository` 검색 메서드들이 사용자 입력의 `%`, `_` 를 이스케이프하지 않음
-- [ ] **#19 BCrypt 마이그레이션 마무리** — `User.java:24` 평문/BCrypt 혼재 마이그레이션 완료 후 평문 처리 코드 제거
+- [x] **#17 비효율 정렬/제한** — `ProductRepository` 의 `findNewProducts`/`findBestProducts`/`findDiscountProducts` 에 `Pageable` 인자 받는 변형 추가. `ProductService` 가 `PageRequest.of(0, limit)` 로 호출하여 DB 가 LIMIT 으로 잘라 가져옴. `getRelatedProducts` 도 전용 쿼리 `findRelatedProducts` 신규 추가 (`productId <> :excludeId` 포함). `Collectors` import 제거. 완료 (2026-05-14)
+- [x] **#18 LIKE 와일드카드 미이스케이프** — `LikeQueryUtil.escape()` 신규. `%`, `_`, `\` 를 백슬래시로 이스케이프. `ProductService`, `CategoryService`, `UserService.searchUsers` 의 검색어 입력에 모두 적용 → 의도치 않은 광범위 매치 / DoS 패턴 차단. 완료 (2026-05-14)
+- [x] **#19 BCrypt 마이그레이션 마무리** — `UserRepository.countPlainPasswordUsers()` 진단 쿼리 추가. `loginUser` 에서 평문 마이그레이션 발생 시 WARN 로그 (`[BCRYPT-MIGRATION] ...userId=X`). `UserService.countPlainPasswordUsers()` + admin API `GET /api/admin/user/migration/plain-password-count` 노출. 코드에 sunset 가이드 주석 추가 (count 가 0 이 되면 평문 분기 + DUMMY_BCRYPT_HASH 제거). 완료 (2026-05-14)
+
+### 후속 작업 (자동화는 보류)
+- [ ] **남은 평문 비밀번호 사용자 강제 마이그레이션** — count 가 일정 기간 0 으로 줄지 않으면 비밀번호 재설정 강제 메일 발송 + 평문 분기 코드 제거
 
 ---
 

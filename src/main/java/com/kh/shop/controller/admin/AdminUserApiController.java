@@ -22,6 +22,21 @@ public class AdminUserApiController {
         return loggedInUser != null && "ADMIN".equals(userRole);
     }
 
+    // BCrypt 마이그레이션 진단 - 평문 비밀번호 남은 사용자 수.
+    // 0 에 도달하면 UserService.loginUser 의 평문 분기 정리 가능.
+    @GetMapping("/migration/plain-password-count")
+    public Map<String, Object> getPlainPasswordCount(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        if (!isAdmin(session)) {
+            response.put("success", false);
+            response.put("message", "권한이 없습니다");
+            return response;
+        }
+        response.put("success", true);
+        response.put("count", userService.countPlainPasswordUsers());
+        return response;
+    }
+
     @PostMapping("/role/{userId}")
     public Map<String, Object> updateUserRole(
             @PathVariable String userId,

@@ -5,6 +5,8 @@ import com.kh.shop.entity.User;
 import com.kh.shop.entity.UserSetting;
 import com.kh.shop.repository.UserRepository;
 import com.kh.shop.repository.UserSettingRepository;
+import com.kh.shop.util.LikeQueryUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -89,15 +92,25 @@ public class UserService {
                 return userOpt;
             }
         } else {
-            // 평문 비밀번호 (기존 유저) → 평문 비교 후 BCrypt로 마이그레이션
+            // 평문 비밀번호 (기존 유저) → 평문 비교 후 BCrypt로 마이그레이션.
+            // TODO: countPlainPasswordUsers() 가 0 이 되면 이 분기와 DUMMY_BCRYPT_HASH 분기를 함께 제거.
+            //       남은 사용자는 비밀번호 재설정으로 강제 마이그레이션 권장.
             if (storedPassword.equals(userPassword)) {
                 user.setUserPassword(passwordEncoder.encode(userPassword));
                 userRepository.save(user);
+                log.warn("[BCRYPT-MIGRATION] 평문 비밀번호를 BCrypt 로 자동 마이그레이션. userId={}", userId);
                 return userOpt;
             }
         }
 
         return Optional.empty();
+    }
+
+    // BCrypt 마이그레이션 진단 - 평문 비밀번호로 남아있는 사용자 수.
+    // 운영자가 주기적으로 확인하여 0 에 가까워지면 평문 분기를 정리한다.
+    @Transactional(readOnly = true)
+    public long countPlainPasswordUsers() {
+        return userRepository.countPlainPasswordUsers();
     }
 
     // 비밀번호 검증 (마이그레이션 없이 검증만)
@@ -124,15 +137,15 @@ public class UserService {
         return userRepository.findAllByOrderByCreatedDateDesc();
     }
 
-    // 조건 검색으로 사용자 조회
+    // 조건 검색으로 사용자 조회. LIKE 와일드카드(%, _, \) 는 이스케이프하여 의도치 않은 광범위 매치 차단.
     public List<User> searchUsers(UserSearchDTO searchDTO) {
         if (searchDTO == null || !searchDTO.hasSearchCondition()) {
             return getAllUsers();
         }
         return userRepository.searchUsers(
-                searchDTO.getUserId(),
-                searchDTO.getUserName(),
-                searchDTO.getEmail(),
+                LikeQueryUtil.escape(searchDTO.getUserId()),
+                LikeQueryUtil.escape(searchDTO.getUserName()),
+                LikeQueryUtil.escape(searchDTO.getEmail()),
                 searchDTO.getGender(),
                 searchDTO.getUserRole(),
                 searchDTO.getUseYn(),
