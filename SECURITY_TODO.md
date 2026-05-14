@@ -6,12 +6,12 @@
 
 ## 🔥 즉시 처리해야 할 운영 작업 (코드 변경 외)
 
-- [ ] **시크릿 회전(rotation)** — 시크릿 값들이 로컬 디스크에 평문 존재했고, 운영자가 아닌 사람이 접근 가능했을 수 있음. 발급처에서 재발급 권장:
-  - [ ] Portone API key / secret (https://admin.portone.io)
-  - [ ] Kakao client secret (https://developers.kakao.com)
-  - [ ] Naver client secret (https://developers.naver.com)
-  - [ ] Google client secret (https://console.cloud.google.com)
-  - [ ] Gmail 앱 비밀번호 (Google 계정 → 보안 → 앱 비밀번호)
+- [ ] **시크릿 회전(rotation)** — 시크릿 값들이 로컬 디스크에 평문 존재했고, 운영자가 아닌 사람이 접근 가능했을 수 있음. 발급처에서 재발급 권장. **자세한 절차는 [SECRETS_ROTATION.md](SECRETS_ROTATION.md) 참고**:
+  - [ ] Gmail 앱 비밀번호 (영향 최소, 가장 먼저)
+  - [ ] Kakao client secret
+  - [ ] Naver client secret
+  - [ ] Google client secret
+  - [ ] Portone API secret (결제 직결, 가장 신중하게)
 - [ ] `application-dev.properties` 의 DB 비밀번호 `1234` 가 git 에 노출됨 — 로컬 dev 한정이지만 env 변수화 검토
 
 ---
