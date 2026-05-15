@@ -17,7 +17,13 @@
     <div class="checkout-container">
         <h1 class="page-title">주문서 작성</h1>
 
-        <form id="orderForm" action="${pageContext.request.contextPath}/order/submit" method="post">
+        <noscript>
+            <div style="background:#fdecea;color:#b71c1c;padding:12px;border-radius:6px;margin-bottom:16px;">
+                결제를 진행하려면 JavaScript를 활성화해주세요.
+            </div>
+        </noscript>
+
+        <form id="orderForm" method="post" onsubmit="return false;">
             <!-- 장바구니 주문인 경우 -->
             <c:if test="${not empty cartIds}">
                 <c:forEach var="cartId" items="${cartIds}">

@@ -319,48 +319,6 @@ public class ClientOrderController {
         return result;
     }
 
-    // 주문 처리 - 옵션 포함
-    @PostMapping("/order/submit")
-    public String submitOrder(
-            @RequestParam(required = false) List<Long> cartIds,
-            @RequestParam(required = false) Long productId,
-            @RequestParam(required = false) Integer quantity,
-            @RequestParam(required = false) String color,
-            @RequestParam(required = false) String size,
-            @RequestParam String receiverName,
-            @RequestParam String receiverPhone,
-            @RequestParam String postalCode,
-            @RequestParam String receiverAddress,
-            @RequestParam(required = false) String receiverAddressDetail,
-            @RequestParam(required = false) String orderMemo,
-            @RequestParam String paymentMethod,
-            HttpSession session) {
-
-        String userId = (String) session.getAttribute("loggedInUser");
-        if (userId == null) {
-            return "redirect:/login";
-        }
-
-        try {
-            Order order;
-            if (productId != null && quantity != null) {
-                // 바로 구매
-                order = orderService.createDirectOrder(userId, productId, quantity, color, size,
-                        receiverName, receiverPhone, postalCode, receiverAddress,
-                        receiverAddressDetail, orderMemo, paymentMethod);
-            } else {
-                // 장바구니 주문
-                order = orderService.createOrderFromCart(userId, cartIds,
-                        receiverName, receiverPhone, postalCode, receiverAddress,
-                        receiverAddressDetail, orderMemo, paymentMethod);
-            }
-
-            return "redirect:/order/complete/" + order.getOrderId();
-        } catch (Exception e) {
-            return "redirect:/cart?error=" + e.getMessage();
-        }
-    }
-
     // 주문 완료 페이지
     @GetMapping("/order/complete/{orderId}")
     public String orderComplete(@PathVariable Long orderId, Model model, HttpSession session) {

@@ -30,7 +30,7 @@
 - [ ] **기존 DB 의 잔존 accessToken 정리 마이그레이션** — `UPDATE social_account SET access_token = NULL, refresh_token = NULL;` 한 번 실행 권장.
 - [x] **#11 결제 API 인증 누락** — `PaymentApiController.verifyPayment` 와 `/cancel` 에 세션 인증 추가 (`/cancel` 은 ADMIN 권한 요구). CSRF 는 csrf.js 가 fetch 래핑하여 `X-CSRF-TOKEN` + `X-Requested-With` 자동 전송 → CsrfFilter 통과. 완료 (2026-05-14)
 
-- [ ] **추가 발견: `/order/submit` 미인증 주문 생성** — 신규 흐름은 `/api/order/prepare` 사용. 기존 `/order/submit` 엔드포인트는 결제 검증 없이 PENDING 주문 생성 가능. 미결제 주문은 스케줄러가 정리하지만 스팸 가능성. 추후 제거 또는 페이먼트 게이트 강제 검토
+- [x] **추가 발견: `/order/submit` 미인증 주문 생성** — `ClientOrderController.submitOrder` 핸들러 삭제. `checkout.jsp` form 의 `action` 속성 제거 + `onsubmit="return false;"` + `<noscript>` JS 활성화 안내 추가. 이제 결제는 `/api/order/prepare` → 포트원 → `/api/payment/verify` 흐름만 가능. 완료 (2026-05-15)
 
 ---
 
