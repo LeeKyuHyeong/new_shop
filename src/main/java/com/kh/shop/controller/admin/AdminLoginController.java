@@ -1,6 +1,5 @@
 package com.kh.shop.controller.admin;
 
-import com.kh.shop.entity.User;
 import com.kh.shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin")
@@ -37,23 +35,35 @@ public class AdminLoginController {
                              HttpSession session,
                              RedirectAttributes redirectAttributes) {
 
-        Optional<User> user = userService.loginUser(userId, userPassword);
+        UserService.LoginResult result = userService.attemptLogin(userId, userPassword);
 
-        if (user.isPresent()) {
-            // ADMIN 권한 체크
-            if ("ADMIN".equals(user.get().getUserRole())) {
-                session.setAttribute("loggedInUser", userId);
-                session.setAttribute("userRole", user.get().getUserRole());
-                session.setAttribute("loginTime", System.currentTimeMillis());
-                return "redirect:/admin";
-            } else {
-                redirectAttributes.addFlashAttribute("loginError", "관리자 권한이 없습니다");
-                return "redirect:/admin/login";
-            }
-        } else {
+        if (result.isPlainSunsetBlocked()) {
+            redirectAttributes.addFlashAttribute("loginError",
+                    "보안 정책 변경으로 기존 비밀번호 사용이 중단되었습니다. 관리자에게 비밀번호 초기화를 요청해주세요.");
+            return "redirect:/admin/login";
+        }
+
+        if (!result.isSuccess()) {
             redirectAttributes.addFlashAttribute("loginError", "아이디 또는 비밀번호를 확인하세요");
             return "redirect:/admin/login";
         }
+
+        // ADMIN 권한 체크
+        if (!"ADMIN".equals(result.user().getUserRole())) {
+            redirectAttributes.addFlashAttribute("loginError", "관리자 권한이 없습니다");
+            return "redirect:/admin/login";
+        }
+
+        session.setAttribute("loggedInUser", userId);
+        session.setAttribute("userRole", result.user().getUserRole());
+        session.setAttribute("loginTime", System.currentTimeMillis());
+
+        if (result.wasPlainMigrated()) {
+            session.setAttribute("passwordMigrationWarning", true);
+            session.setAttribute("passwordSunsetDate", result.sunsetDate());
+        }
+
+        return "redirect:/admin";
     }
 
     @GetMapping("/logout")

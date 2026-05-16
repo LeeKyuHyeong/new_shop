@@ -2,6 +2,7 @@ package com.kh.shop.controller.client;
 
 import com.kh.shop.entity.User;
 import com.kh.shop.service.SocialLoginService;
+import com.kh.shop.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Controller
@@ -19,6 +22,11 @@ public class SocialLoginController {
 
     @Autowired
     private SocialLoginService socialLoginService;
+
+    @Autowired
+    private UserService userService;
+
+    private static final Set<String> SUPPORTED_PROVIDERS = Set.of("KAKAO", "NAVER", "GOOGLE");
 
     // ==================== 카카오 ====================
 
@@ -34,8 +42,12 @@ public class SocialLoginController {
                                 RedirectAttributes redirectAttributes) {
 
         if (error != null || code == null) {
-            redirectAttributes.addFlashAttribute("loginError", "카카오 로그인이 취소되었습니다.");
-            return "redirect:/login";
+            return cancelOrLoginError(session, redirectAttributes, "카카오 로그인이 취소되었습니다.");
+        }
+
+        // 마이페이지 연동 모드라면 로그인/회원가입 흐름 대신 linkOAuthByCode 호출
+        if (isLinkMode(session, "KAKAO")) {
+            return finishLink(session, redirectAttributes, "KAKAO", code, null);
         }
 
         Map<String, Object> result = socialLoginService.kakaoLogin(code);
@@ -59,17 +71,26 @@ public class SocialLoginController {
                                 RedirectAttributes redirectAttributes) {
 
         if (error != null || code == null) {
-            redirectAttributes.addFlashAttribute("loginError", "네이버 로그인이 취소되었습니다.");
-            return "redirect:/login";
+            return cancelOrLoginError(session, redirectAttributes, "네이버 로그인이 취소되었습니다.");
         }
 
         // state 검증
         String savedState = (String) session.getAttribute("naverState");
         if (savedState == null || !savedState.equals(state)) {
+            // 연동 모드의 state 검증 실패도 같은 메시지로
+            if (isLinkMode(session, "NAVER")) {
+                session.removeAttribute("socialLinkMode");
+                redirectAttributes.addFlashAttribute("settingError", "잘못된 요청입니다.");
+                return "redirect:/mypage/setting";
+            }
             redirectAttributes.addFlashAttribute("loginError", "잘못된 요청입니다.");
             return "redirect:/login";
         }
         session.removeAttribute("naverState");
+
+        if (isLinkMode(session, "NAVER")) {
+            return finishLink(session, redirectAttributes, "NAVER", code, state);
+        }
 
         Map<String, Object> result = socialLoginService.naverLogin(code, state);
         return handleOAuthResult(result, "NAVER", session, redirectAttributes);
@@ -89,15 +110,120 @@ public class SocialLoginController {
                                  RedirectAttributes redirectAttributes) {
 
         if (error != null || code == null) {
-            redirectAttributes.addFlashAttribute("loginError", "구글 로그인이 취소되었습니다.");
-            return "redirect:/login";
+            return cancelOrLoginError(session, redirectAttributes, "구글 로그인이 취소되었습니다.");
+        }
+
+        if (isLinkMode(session, "GOOGLE")) {
+            return finishLink(session, redirectAttributes, "GOOGLE", code, null);
         }
 
         Map<String, Object> result = socialLoginService.googleLogin(code);
         return handleOAuthResult(result, "GOOGLE", session, redirectAttributes);
     }
 
+    // ==================== 마이페이지 연동 시작 ====================
+
+    /**
+     * 마이페이지에서 소셜 계정 연동 시작.
+     * 로그인된 본인이 명시적으로 호출하는 경로. 세션에 link mode 마킹 후 OAuth 진입.
+     * 콜백은 기존 callback 핸들러를 재사용한다 (콜백 URL 재설정 비용 회피).
+     */
+    @GetMapping("/link/{provider}")
+    public String startLink(@PathVariable String provider,
+                            HttpSession session,
+                            RedirectAttributes redirectAttributes) {
+        String userId = (String) session.getAttribute("loggedInUser");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+
+        String upper = provider == null ? "" : provider.toUpperCase();
+        if (!SUPPORTED_PROVIDERS.contains(upper)) {
+            redirectAttributes.addFlashAttribute("settingError", "지원하지 않는 소셜 제공자입니다.");
+            return "redirect:/mypage/setting";
+        }
+
+        // 이미 연동되어 있으면 진입하지 않음
+        if (socialLoginService.getLinkedAccountsByProvider(userId).containsKey(upper)) {
+            redirectAttributes.addFlashAttribute("settingError", "이미 " + providerLabel(upper) + " 계정이 연동되어 있습니다.");
+            return "redirect:/mypage/setting";
+        }
+
+        // 콜백 핸들러가 link 모드를 인지하도록 세션 플래그 설정 + 사용자 고정
+        session.setAttribute("socialLinkMode", upper);
+        session.setAttribute("socialLinkUserId", userId);
+
+        switch (upper) {
+            case "KAKAO":
+                return "redirect:" + socialLoginService.getKakaoAuthUrl();
+            case "NAVER":
+                String state = UUID.randomUUID().toString();
+                session.setAttribute("naverState", state);
+                return "redirect:" + socialLoginService.getNaverAuthUrl(state);
+            case "GOOGLE":
+                return "redirect:" + socialLoginService.getGoogleAuthUrl();
+            default:
+                return "redirect:/mypage/setting";
+        }
+    }
+
     // ==================== 공통 처리 ====================
+
+    private boolean isLinkMode(HttpSession session, String provider) {
+        Object mode = session.getAttribute("socialLinkMode");
+        return mode != null && provider.equals(mode.toString());
+    }
+
+    private String cancelOrLoginError(HttpSession session, RedirectAttributes redirectAttributes, String message) {
+        if (session.getAttribute("socialLinkMode") != null) {
+            session.removeAttribute("socialLinkMode");
+            session.removeAttribute("socialLinkUserId");
+            redirectAttributes.addFlashAttribute("settingError", message);
+            return "redirect:/mypage/setting";
+        }
+        redirectAttributes.addFlashAttribute("loginError", message);
+        return "redirect:/login";
+    }
+
+    private String finishLink(HttpSession session, RedirectAttributes redirectAttributes,
+                              String provider, String code, String state) {
+        // 세션의 현재 사용자와 link 시작 시점 사용자가 동일해야 함 (세션 탈취/사용자 전환 방어)
+        String currentUserId = (String) session.getAttribute("loggedInUser");
+        Object linkUserIdObj = session.getAttribute("socialLinkUserId");
+        session.removeAttribute("socialLinkMode");
+        session.removeAttribute("socialLinkUserId");
+
+        if (currentUserId == null || linkUserIdObj == null || !currentUserId.equals(linkUserIdObj.toString())) {
+            redirectAttributes.addFlashAttribute("settingError", "세션이 만료되었습니다. 다시 시도해주세요.");
+            return "redirect:/mypage/setting";
+        }
+
+        Optional<User> userOpt = userService.getUserByUserId(currentUserId);
+        if (userOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("settingError", "사용자 정보를 찾을 수 없습니다.");
+            return "redirect:/mypage/setting";
+        }
+
+        try {
+            socialLoginService.linkOAuthByCode(userOpt.get(), provider, code, state);
+            redirectAttributes.addFlashAttribute("settingMessage", providerLabel(provider) + " 계정이 연동되었습니다.");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("settingError", e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("settingError", providerLabel(provider) + " 연동 처리 중 오류가 발생했습니다.");
+        }
+        return "redirect:/mypage/setting";
+    }
+
+    private String providerLabel(String provider) {
+        switch (provider) {
+            case "KAKAO":  return "카카오";
+            case "NAVER":  return "네이버";
+            case "GOOGLE": return "구글";
+            default:       return provider;
+        }
+    }
 
     private String handleOAuthResult(Map<String, Object> result, String provider,
                                      HttpSession session, RedirectAttributes redirectAttributes) {

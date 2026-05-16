@@ -1758,3 +1758,57 @@ body.dark-mode .mobile-admin-btn:visited,
 body.dark-mode .mobile-admin-btn:link {
     color: #ffffff !important;
 }
+
+/* ===========================================
+   BCrypt sunset 경고 배너 (header.jsp 에서 표시)
+   =========================================== */
+.bcrypt-sunset-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: #fff8e1;
+    border-bottom: 1px solid #ffe082;
+    color: #5d4037;
+    font-size: 14px;
+    line-height: 1.4;
+}
+.bcrypt-sunset-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.bcrypt-sunset-text {
+    flex: 1;
+}
+.bcrypt-sunset-link {
+    color: #c2410c;
+    font-weight: 600;
+    margin-left: 6px;
+    text-decoration: underline;
+}
+.bcrypt-sunset-link:hover {
+    color: #9a3412;
+}
+.bcrypt-sunset-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: #6d6d6d;
+    cursor: pointer;
+    padding: 0 6px;
+    flex-shrink: 0;
+}
+.bcrypt-sunset-close:hover {
+    color: #2c2c2c;
+}
+body.dark-mode .bcrypt-sunset-banner {
+    background: #3e2f0c;
+    border-bottom-color: #5a4515;
+    color: #ffe7a8;
+}
+body.dark-mode .bcrypt-sunset-link {
+    color: #ffb070;
+}
+body.dark-mode .bcrypt-sunset-close {
+    color: #c9c1ad;
+}

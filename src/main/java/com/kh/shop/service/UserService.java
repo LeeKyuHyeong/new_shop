@@ -8,6 +8,7 @@ import com.kh.shop.repository.UserSettingRepository;
 import com.kh.shop.util.LikeQueryUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,31 @@ public class UserService {
     // 어떤 평문도 이 해시와 매치되지 않으므로 인증으로 통과될 위험은 없다.
     private static final String DUMMY_BCRYPT_HASH =
             "$2a$10$N9qo8uLOickgx2ZMRZoMye.IjPeMRoRgYnRsQHRH8YDXjf3Vw5Q9G";
+
+    // 평문 비밀번호 sunset 날짜. 이 날짜 이후로 평문 분기는 자동 마이그레이션 대신 로그인을 거부한다.
+    @Value("${bcrypt.sunset.date:2026-08-15}")
+    private LocalDate bcryptSunsetDate;
+
+    /**
+     * 로그인 시도 결과. status 에 따라 호출자가 후처리한다.
+     * - SUCCESS_BCRYPT:       정상 (이미 BCrypt)
+     * - SUCCESS_PLAIN_MIGRATED: 평문이었으나 이번 로그인에서 BCrypt 로 자동 마이그레이션됨 — 사용자에게 경고 배너 표시 권장
+     * - BLOCKED_PLAIN_SUNSET: 평문 사용자인데 sunset 날짜가 도래해 로그인 거부 — 비밀번호 찾기로 재설정 안내
+     * - INVALID:              아이디/비밀번호 불일치
+     */
+    public record LoginResult(Status status, User user, LocalDate sunsetDate) {
+        public enum Status { SUCCESS_BCRYPT, SUCCESS_PLAIN_MIGRATED, BLOCKED_PLAIN_SUNSET, INVALID }
+
+        public boolean isSuccess() {
+            return status == Status.SUCCESS_BCRYPT || status == Status.SUCCESS_PLAIN_MIGRATED;
+        }
+        public boolean wasPlainMigrated() {
+            return status == Status.SUCCESS_PLAIN_MIGRATED;
+        }
+        public boolean isPlainSunsetBlocked() {
+            return status == Status.BLOCKED_PLAIN_SUNSET;
+        }
+    }
 
     public boolean isDuplicateUserId(String userId) {
         return userRepository.findByUserId(userId).isPresent();
@@ -74,13 +100,17 @@ public class UserService {
         userSettingRepository.save(setting);
     }
 
-    public Optional<User> loginUser(String userId, String userPassword) {
+    /**
+     * 로그인 시도. 평문 비밀번호 마이그레이션 / sunset 차단을 포함한 전체 상태를 반환한다.
+     * 단순 boolean 가 필요한 호출자는 {@link #loginUser(String, String)} 를 사용.
+     */
+    public LoginResult attemptLogin(String userId, String userPassword) {
         Optional<User> userOpt = userRepository.findByUserId(userId);
         if (userOpt.isEmpty()) {
             // Timing parity: 존재하지 않는 userId 에도 bcrypt 한 번 수행하여 응답 시간 차이로
             // 계정 enumeration 되지 않도록 한다.
             passwordEncoder.matches(userPassword, DUMMY_BCRYPT_HASH);
-            return Optional.empty();
+            return new LoginResult(LoginResult.Status.INVALID, null, bcryptSunsetDate);
         }
 
         User user = userOpt.get();
@@ -89,21 +119,53 @@ public class UserService {
         if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$")) {
             // BCrypt 해시된 비밀번호 → BCrypt 검증
             if (passwordEncoder.matches(userPassword, storedPassword)) {
-                return userOpt;
+                return new LoginResult(LoginResult.Status.SUCCESS_BCRYPT, user, bcryptSunsetDate);
             }
-        } else {
-            // 평문 비밀번호 (기존 유저) → 평문 비교 후 BCrypt로 마이그레이션.
-            // TODO: countPlainPasswordUsers() 가 0 이 되면 이 분기와 DUMMY_BCRYPT_HASH 분기를 함께 제거.
-            //       남은 사용자는 비밀번호 재설정으로 강제 마이그레이션 권장.
-            if (storedPassword.equals(userPassword)) {
-                user.setUserPassword(passwordEncoder.encode(userPassword));
-                userRepository.save(user);
-                log.warn("[BCRYPT-MIGRATION] 평문 비밀번호를 BCrypt 로 자동 마이그레이션. userId={}", userId);
-                return userOpt;
-            }
+            return new LoginResult(LoginResult.Status.INVALID, null, bcryptSunsetDate);
         }
 
-        return Optional.empty();
+        // 평문 비밀번호 (기존 유저) — sunset 정책 적용
+        // TODO: countPlainPasswordUsers() 가 0 이 되면 이 분기와 DUMMY_BCRYPT_HASH 분기를 함께 제거.
+        if (!storedPassword.equals(userPassword)) {
+            return new LoginResult(LoginResult.Status.INVALID, null, bcryptSunsetDate);
+        }
+
+        // 비밀번호는 일치. sunset 날짜 도래 여부에 따라 마이그레이션 vs 차단
+        if (bcryptSunsetDate != null && !LocalDate.now().isBefore(bcryptSunsetDate)) {
+            log.warn("[BCRYPT-SUNSET] 평문 비밀번호 사용자가 sunset 이후 로그인 시도 - 차단. userId={}", userId);
+            return new LoginResult(LoginResult.Status.BLOCKED_PLAIN_SUNSET, null, bcryptSunsetDate);
+        }
+
+        // sunset 전 → BCrypt 로 자동 마이그레이션
+        user.setUserPassword(passwordEncoder.encode(userPassword));
+        userRepository.save(user);
+        log.warn("[BCRYPT-MIGRATION] 평문 비밀번호를 BCrypt 로 자동 마이그레이션. userId={}, sunsetDate={}",
+                userId, bcryptSunsetDate);
+        return new LoginResult(LoginResult.Status.SUCCESS_PLAIN_MIGRATED, user, bcryptSunsetDate);
+    }
+
+    /**
+     * 단순 인증 결과만 필요한 경우의 어댑터. (예: 중복 로그인 체크)
+     * Sunset 으로 차단된 경우도 empty 로 반환되므로 추가 분기가 필요한 호출자는 attemptLogin 을 사용할 것.
+     */
+    public Optional<User> loginUser(String userId, String userPassword) {
+        LoginResult result = attemptLogin(userId, userPassword);
+        return result.isSuccess() ? Optional.of(result.user()) : Optional.empty();
+    }
+
+    /**
+     * 평문 비밀번호 sunset 날짜 (운영자 안내용).
+     */
+    public LocalDate getBcryptSunsetDate() {
+        return bcryptSunsetDate;
+    }
+
+    /**
+     * 평문 비밀번호로 남아있는 사용자 목록 (운영자 권고 메일 발송용).
+     */
+    @Transactional(readOnly = true)
+    public List<User> findPlainPasswordUsers() {
+        return userRepository.findPlainPasswordUsers();
     }
 
     // BCrypt 마이그레이션 진단 - 평문 비밀번호로 남아있는 사용자 수.

@@ -80,35 +80,49 @@ public class LoginController {
                         HttpSession session,
                         RedirectAttributes redirectAttributes) {
 
-        Optional<User> user = userService.loginUser(userId, userPassword);
+        UserService.LoginResult result = userService.attemptLogin(userId, userPassword);
 
-        if (user.isPresent()) {
-            // 중복 로그인 체크
-            boolean isAlreadyLoggedIn = sessionRegistry.isUserLoggedIn(userId);
+        if (result.isPlainSunsetBlocked()) {
+            // 평문 비밀번호 sunset 도래 → 자동 마이그레이션 거부. 관리자/비밀번호찾기로 안내.
+            redirectAttributes.addFlashAttribute("loginError",
+                    "보안 정책 변경으로 기존 비밀번호 사용이 중단되었습니다. 관리자에게 비밀번호 초기화를 요청해주세요.");
+            return "redirect:/login";
+        }
 
-            if (isAlreadyLoggedIn && !forceLogin) {
-                // 강제 로그인이 아니면 확인 요청
-                redirectAttributes.addFlashAttribute("confirmDuplicateLogin", true);
-                redirectAttributes.addFlashAttribute("pendingUserId", userId);
-                return "redirect:/login";
-            }
-
-            // 기존 세션 무효화하고 새 세션 등록
-            boolean hadExistingSession = sessionRegistry.registerSession(userId, session);
-            if (hadExistingSession) {
-                // 로그아웃된 사용자에게 알림을 위해 기록
-                sessionRegistry.recordForcedLogout(userId);
-            }
-
-            session.setAttribute("loggedInUser", userId);
-            session.setAttribute("userRole", user.get().getUserRole());
-            session.setAttribute("loginTime", System.currentTimeMillis());
-
-            return "redirect:/";
-        } else {
+        if (!result.isSuccess()) {
             redirectAttributes.addFlashAttribute("loginError", "아이디 또는 비밀번호를 확인하세요");
             return "redirect:/login";
         }
+
+        // 중복 로그인 체크
+        boolean isAlreadyLoggedIn = sessionRegistry.isUserLoggedIn(userId);
+
+        if (isAlreadyLoggedIn && !forceLogin) {
+            // 강제 로그인이 아니면 확인 요청
+            redirectAttributes.addFlashAttribute("confirmDuplicateLogin", true);
+            redirectAttributes.addFlashAttribute("pendingUserId", userId);
+            return "redirect:/login";
+        }
+
+        // 기존 세션 무효화하고 새 세션 등록
+        boolean hadExistingSession = sessionRegistry.registerSession(userId, session);
+        if (hadExistingSession) {
+            // 로그아웃된 사용자에게 알림을 위해 기록
+            sessionRegistry.recordForcedLogout(userId);
+        }
+
+        session.setAttribute("loggedInUser", userId);
+        session.setAttribute("userRole", result.user().getUserRole());
+        session.setAttribute("loginTime", System.currentTimeMillis());
+
+        // 평문 → BCrypt 자동 마이그레이션 발생 시: 비밀번호 변경 권고 배너 노출용 세션 플래그.
+        // 비밀번호 변경 후에는 ClientSettingController.changePassword 에서 제거된다.
+        if (result.wasPlainMigrated()) {
+            session.setAttribute("passwordMigrationWarning", true);
+            session.setAttribute("passwordSunsetDate", result.sunsetDate());
+        }
+
+        return "redirect:/";
     }
 
     @GetMapping("/logout")

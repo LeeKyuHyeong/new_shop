@@ -37,6 +37,10 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query("SELECT COUNT(u) FROM User u WHERE u.userPassword NOT LIKE '$2a$%' AND u.userPassword NOT LIKE '$2b$%'")
     long countPlainPasswordUsers();
 
+    // sunset 권고 메일 발송 대상 (평문 비밀번호 사용자 목록).
+    @Query("SELECT u FROM User u WHERE u.userPassword NOT LIKE '$2a$%' AND u.userPassword NOT LIKE '$2b$%' AND u.useYn = 'Y'")
+    List<User> findPlainPasswordUsers();
+
     // 검색 조건으로 사용자 조회
     @Query("SELECT u FROM User u WHERE " +
            "(:userId IS NULL OR :userId = '' OR u.userId LIKE CONCAT('%', :userId, '%')) AND " +

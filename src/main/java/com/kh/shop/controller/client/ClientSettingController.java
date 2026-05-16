@@ -1,9 +1,11 @@
 package com.kh.shop.controller.client;
 
 import com.kh.shop.entity.Category;
+import com.kh.shop.entity.SocialAccount;
 import com.kh.shop.entity.User;
 import com.kh.shop.entity.UserSetting;
 import com.kh.shop.service.CategoryService;
+import com.kh.shop.service.SocialLoginService;
 import com.kh.shop.service.UserService;
 import com.kh.shop.service.UserSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,12 @@ public class ClientSettingController {
 
     @Autowired
     private UserSettingService userSettingService;
+
+    @Autowired
+    private SocialLoginService socialLoginService;
+
+    private static final java.util.List<String> SUPPORTED_PROVIDERS =
+            java.util.List.of("KAKAO", "NAVER", "GOOGLE");
 
     // 마이페이지 메인 (주문내역으로 리다이렉트)
     @GetMapping("/mypage")
@@ -59,7 +67,58 @@ public class ClientSettingController {
         UserSetting setting = userSettingService.getOrCreateSetting(userId);
         model.addAttribute("setting", setting);
 
+        // 소셜 계정 연동 상태 (provider → SocialAccount)
+        Map<String, SocialAccount> linkedSocials = socialLoginService.getLinkedAccountsByProvider(userId);
+        model.addAttribute("linkedSocials", linkedSocials);
+        model.addAttribute("supportedProviders", SUPPORTED_PROVIDERS);
+
         return "client/mypage/setting";
+    }
+
+    // 소셜 계정 연동 해제 API
+    @PostMapping("/api/setting/social/unlink")
+    @ResponseBody
+    public Map<String, Object> unlinkSocialAccount(
+            @RequestParam String provider,
+            @RequestParam String password,
+            HttpSession session) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        String userId = (String) session.getAttribute("loggedInUser");
+        if (userId == null) {
+            response.put("success", false);
+            response.put("message", "로그인이 필요합니다");
+            return response;
+        }
+
+        if (provider == null || !SUPPORTED_PROVIDERS.contains(provider)) {
+            response.put("success", false);
+            response.put("message", "지원하지 않는 소셜 제공자입니다");
+            return response;
+        }
+
+        // 본인 확인 - 비밀번호 검증 통과 = 비밀번호 로그인 가능 = 해제 후에도 로그인 가능
+        Optional<User> verified = userService.verifyPassword(userId, password);
+        if (verified.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "비밀번호가 올바르지 않습니다. 비밀번호를 모른다면 먼저 비밀번호 찾기로 재설정 후 시도해주세요.");
+            return response;
+        }
+
+        try {
+            socialLoginService.unlinkSocialAccount(userId, provider);
+            response.put("success", true);
+            response.put("message", "연동이 해제되었습니다");
+        } catch (IllegalStateException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "연동 해제 중 오류가 발생했습니다");
+        }
+
+        return response;
     }
 
     // 테마 변경 API
@@ -190,6 +249,9 @@ public class ClientSettingController {
 
         try {
             userService.resetPassword(userId, newPassword);
+            // 평문 → BCrypt 자동 마이그레이션 배너 제거 (이제 사용자가 본인 비밀번호를 직접 재설정함)
+            session.removeAttribute("passwordMigrationWarning");
+            session.removeAttribute("passwordSunsetDate");
             response.put("success", true);
             response.put("message", "비밀번호가 변경되었습니다");
         } catch (Exception e) {

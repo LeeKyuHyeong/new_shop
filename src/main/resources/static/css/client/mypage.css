@@ -655,3 +655,175 @@ body.dark-mode .toast {
 body.dark-mode .empty-state {
     color: #7f8c8d;
 }
+
+/* ===========================================
+   소셜 계정 연동
+   =========================================== */
+.section-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: -8px 0 16px;
+}
+
+.social-link-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.social-link-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 10px;
+    background: var(--bg-secondary, #fff);
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.social-link-item:hover {
+    border-color: var(--btn-primary-bg);
+}
+
+.social-link-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.social-link-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 56px;
+}
+
+.social-link-status {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.social-link-status.linked {
+    color: #1e7e34;
+    background: #d4edda;
+}
+
+.social-link-status.unlinked {
+    color: #6c757d;
+    background: #e9ecef;
+}
+
+.social-link-meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.btn-sm {
+    padding: 6px 14px;
+    font-size: 13px;
+}
+
+/* provider 색상 강조 (좌측 border) */
+.social-link-item.social-KAKAO  { border-left: 4px solid #fee500; }
+.social-link-item.social-NAVER  { border-left: 4px solid #03c75a; }
+.social-link-item.social-GOOGLE { border-left: 4px solid #4285f4; }
+
+/* 알림 박스 (settingMessage / settingError) */
+.alert {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 14px;
+}
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ===========================================
+   해제 확인 모달
+   =========================================== */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-backdrop[hidden] {
+    display: none;
+}
+
+.modal-panel {
+    background: var(--bg-secondary, #fff);
+    border-radius: 12px;
+    padding: 24px;
+    width: min(420px, calc(100% - 32px));
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--text-primary);
+}
+
+.modal-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 16px;
+}
+
+.modal-form .form-group {
+    margin-bottom: 16px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* 다크 모드 */
+body.dark-mode .social-link-item {
+    background: #2c3e50;
+    border-color: #34495e;
+}
+body.dark-mode .social-link-item:hover {
+    border-color: #3498db;
+}
+body.dark-mode .social-link-status.linked {
+    color: #b6e8c2;
+    background: #205c2e;
+}
+body.dark-mode .social-link-status.unlinked {
+    color: #bdc3c7;
+    background: #34495e;
+}
+body.dark-mode .modal-panel {
+    background: #2c3e50;
+}
+body.dark-mode .alert-success {
+    background: #1e4d2b;
+    color: #b6e8c2;
+    border-color: #2d6e3d;
+}
+body.dark-mode .alert-error {
+    background: #5a1f25;
+    color: #f5b7b1;
+    border-color: #78282f;
+}

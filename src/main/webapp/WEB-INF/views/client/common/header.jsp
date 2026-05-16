@@ -83,6 +83,24 @@
     </nav>
 </header>
 
+<!-- 평문 비밀번호 → BCrypt 자동 마이그레이션 경고 배너.
+     로그인 시 LoginController 가 세션에 플래그를 set, 비밀번호 변경 시 제거.
+     사용자에게 sunset 날짜 전에 비밀번호 변경을 권고. -->
+<c:if test="${sessionScope.passwordMigrationWarning == true}">
+    <div class="bcrypt-sunset-banner" id="bcryptSunsetBanner" role="status">
+        <span class="bcrypt-sunset-icon">🔐</span>
+        <span class="bcrypt-sunset-text">
+            보안 강화를 위해 비밀번호 재설정을 권장드립니다.
+            <c:if test="${not empty sessionScope.passwordSunsetDate}">
+                <strong>${sessionScope.passwordSunsetDate}</strong> 이후로는 기존 비밀번호로 로그인할 수 없습니다.
+            </c:if>
+            <a href="${pageContext.request.contextPath}/mypage/setting#passwordForm" class="bcrypt-sunset-link">지금 변경하기 →</a>
+        </span>
+        <button type="button" class="bcrypt-sunset-close" aria-label="닫기"
+                onclick="document.getElementById('bcryptSunsetBanner').remove();">×</button>
+    </div>
+</c:if>
+
 <!-- 모바일 메뉴 오버레이 -->
 <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
 

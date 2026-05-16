@@ -3,18 +3,28 @@ package com.kh.shop.controller.admin;
 import com.kh.shop.entity.User;
 import com.kh.shop.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/admin/user")
 public class AdminUserApiController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     private boolean isAdmin(HttpSession session) {
         Object loggedInUser = session.getAttribute("loggedInUser");
@@ -34,7 +44,80 @@ public class AdminUserApiController {
         }
         response.put("success", true);
         response.put("count", userService.countPlainPasswordUsers());
+        response.put("sunsetDate", userService.getBcryptSunsetDate());
         return response;
+    }
+
+    /**
+     * 평문 비밀번호 사용자에게 비밀번호 변경 권고 메일을 일괄 발송.
+     * 운영자 수동 트리거. 일정 기간 후 재발송 가능.
+     */
+    @PostMapping("/migration/send-warning-emails")
+    public Map<String, Object> sendPlainPasswordWarningEmails(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        if (!isAdmin(session)) {
+            response.put("success", false);
+            response.put("message", "권한이 없습니다");
+            return response;
+        }
+
+        LocalDate sunsetDate = userService.getBcryptSunsetDate();
+        List<User> targets = userService.findPlainPasswordUsers();
+
+        int sent = 0;
+        int failed = 0;
+        for (User user : targets) {
+            String email = user.getEmail();
+            if (email == null || email.isBlank()) {
+                failed++;
+                continue;
+            }
+            try {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setTo(email);
+                message.setSubject("[KH SHOP] 보안 정책 변경 안내 - 비밀번호 재설정 권고");
+                message.setText(buildWarningEmailBody(user, sunsetDate));
+                mailSender.send(message);
+                sent++;
+            } catch (Exception e) {
+                log.warn("[BCRYPT-SUNSET] 권고 메일 발송 실패. userId={}, email={}, cause={}",
+                        user.getUserId(), email, e.getMessage());
+                failed++;
+            }
+        }
+
+        log.info("[BCRYPT-SUNSET] 권고 메일 발송 완료. 대상={}, 성공={}, 실패={}, sunsetDate={}",
+                targets.size(), sent, failed, sunsetDate);
+
+        response.put("success", true);
+        response.put("targetCount", targets.size());
+        response.put("sentCount", sent);
+        response.put("failedCount", failed);
+        response.put("sunsetDate", sunsetDate);
+        return response;
+    }
+
+    private String buildWarningEmailBody(User user, LocalDate sunsetDate) {
+        long daysLeft = sunsetDate == null ? -1L
+                : ChronoUnit.DAYS.between(LocalDate.now(), sunsetDate);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("안녕하세요, ").append(user.getUserName() == null ? user.getUserId() : user.getUserName()).append("님.\n\n");
+        sb.append("KH SHOP 보안 정책 변경에 따라 기존 비밀번호의 사용이 곧 중단됩니다.\n\n");
+        if (sunsetDate != null) {
+            sb.append("- 사용 중단 예정일: ").append(sunsetDate).append("\n");
+            if (daysLeft >= 0) {
+                sb.append("- 남은 기간: 약 ").append(daysLeft).append("일\n");
+            }
+        }
+        sb.append("- 대상 아이디: ").append(user.getUserId()).append("\n\n");
+        sb.append("아래 안내에 따라 사용 중단 전에 비밀번호를 변경해주시기 바랍니다.\n");
+        sb.append("  1) KH SHOP 에 로그인합니다 (현재 비밀번호로 가능).\n");
+        sb.append("  2) [마이페이지] → [개인설정] → [비밀번호 변경] 에서 새 비밀번호를 설정합니다.\n\n");
+        sb.append("사용 중단일이 지나면 현재 비밀번호로 더 이상 로그인할 수 없으며, 관리자에게 비밀번호 초기화를 요청해야 합니다.\n\n");
+        sb.append("문의: KH SHOP 고객센터\n");
+        sb.append("본인이 KH SHOP 계정을 만든 적이 없다면 이 메일을 무시해주세요.\n");
+        return sb.toString();
     }
 
     @PostMapping("/role/{userId}")

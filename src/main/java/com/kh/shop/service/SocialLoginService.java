@@ -54,71 +54,81 @@ public class SocialLoginService {
 
     public Map<String, Object> kakaoLogin(String code) {
         Map<String, Object> result = new HashMap<>();
-
         try {
-            // 1. 액세스 토큰 받기
-            String tokenUrl = "https://kauth.kakao.com/oauth/token";
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("grant_type", "authorization_code");
-            params.add("client_id", socialLoginConfig.getKakaoClientId());
-            params.add("redirect_uri", socialLoginConfig.getKakaoRedirectUri());
-            params.add("code", code);
-            if (socialLoginConfig.getKakaoClientSecret() != null && !socialLoginConfig.getKakaoClientSecret().isEmpty()) {
-                params.add("client_secret", socialLoginConfig.getKakaoClientSecret());
-            }
-
-            HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(params, headers);
-            ResponseEntity<String> tokenResponse = restTemplate.postForEntity(tokenUrl, tokenRequest, String.class);
-
-            JsonNode tokenJson = objectMapper.readTree(tokenResponse.getBody());
-            String accessToken = tokenJson.get("access_token").asText();
-
-            // 2. 사용자 정보 가져오기
-            String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
-
-            HttpHeaders userHeaders = new HttpHeaders();
-            userHeaders.setBearerAuth(accessToken);
-
-            HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
-            ResponseEntity<String> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, String.class);
-
-            JsonNode userJson = objectMapper.readTree(userResponse.getBody());
-
-            String providerId = userJson.get("id").asText();
-            String nickname = "";
-            String email = "";
-            String profileImage = "";
-
-            if (userJson.has("kakao_account")) {
-                JsonNode account = userJson.get("kakao_account");
-                if (account.has("email")) {
-                    email = account.get("email").asText();
-                }
-                if (account.has("profile")) {
-                    JsonNode profile = account.get("profile");
-                    if (profile.has("nickname")) {
-                        nickname = profile.get("nickname").asText();
-                    }
-                    if (profile.has("profile_image_url")) {
-                        profileImage = profile.get("profile_image_url").asText();
-                    }
-                }
-            }
-
-            // 3. 사용자 처리
-            return processOAuthLogin("KAKAO", providerId, email, nickname, profileImage, accessToken);
-
+            Map<String, String> info = fetchKakaoUserInfo(code);
+            return processOAuthLogin("KAKAO",
+                    info.get("providerId"), info.get("email"),
+                    info.get("nickname"), info.get("profileImage"),
+                    info.get("accessToken"));
         } catch (Exception e) {
             e.printStackTrace();
             result.put("success", false);
             result.put("message", "카카오 로그인 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
-
         return result;
+    }
+
+    private Map<String, String> fetchKakaoUserInfo(String code) throws Exception {
+        // 1. 액세스 토큰 받기
+        String tokenUrl = "https://kauth.kakao.com/oauth/token";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", socialLoginConfig.getKakaoClientId());
+        params.add("redirect_uri", socialLoginConfig.getKakaoRedirectUri());
+        params.add("code", code);
+        if (socialLoginConfig.getKakaoClientSecret() != null && !socialLoginConfig.getKakaoClientSecret().isEmpty()) {
+            params.add("client_secret", socialLoginConfig.getKakaoClientSecret());
+        }
+
+        HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(params, headers);
+        ResponseEntity<String> tokenResponse = restTemplate.postForEntity(tokenUrl, tokenRequest, String.class);
+
+        JsonNode tokenJson = objectMapper.readTree(tokenResponse.getBody());
+        String accessToken = tokenJson.get("access_token").asText();
+
+        // 2. 사용자 정보 가져오기
+        String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
+
+        HttpHeaders userHeaders = new HttpHeaders();
+        userHeaders.setBearerAuth(accessToken);
+
+        HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
+        ResponseEntity<String> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, String.class);
+
+        JsonNode userJson = objectMapper.readTree(userResponse.getBody());
+
+        String providerId = userJson.get("id").asText();
+        String nickname = "";
+        String email = "";
+        String profileImage = "";
+
+        if (userJson.has("kakao_account")) {
+            JsonNode account = userJson.get("kakao_account");
+            if (account.has("email")) {
+                email = account.get("email").asText();
+            }
+            if (account.has("profile")) {
+                JsonNode profile = account.get("profile");
+                if (profile.has("nickname")) {
+                    nickname = profile.get("nickname").asText();
+                }
+                if (profile.has("profile_image_url")) {
+                    profileImage = profile.get("profile_image_url").asText();
+                }
+            }
+        }
+
+        Map<String, String> info = new HashMap<>();
+        info.put("providerId", providerId);
+        info.put("email", email);
+        info.put("nickname", nickname);
+        info.put("profileImage", profileImage);
+        info.put("accessToken", accessToken);
+        return info;
     }
 
     // ==================== 네이버 ====================
@@ -133,47 +143,57 @@ public class SocialLoginService {
 
     public Map<String, Object> naverLogin(String code, String state) {
         Map<String, Object> result = new HashMap<>();
-
         try {
-            // 1. 액세스 토큰 받기
-            String tokenUrl = "https://nid.naver.com/oauth2.0/token" +
-                    "?grant_type=authorization_code" +
-                    "&client_id=" + socialLoginConfig.getNaverClientId() +
-                    "&client_secret=" + socialLoginConfig.getNaverClientSecret() +
-                    "&code=" + code +
-                    "&state=" + state;
-
-            ResponseEntity<String> tokenResponse = restTemplate.getForEntity(tokenUrl, String.class);
-            JsonNode tokenJson = objectMapper.readTree(tokenResponse.getBody());
-            String accessToken = tokenJson.get("access_token").asText();
-
-            // 2. 사용자 정보 가져오기
-            String userInfoUrl = "https://openapi.naver.com/v1/nid/me";
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(accessToken);
-
-            HttpEntity<String> userRequest = new HttpEntity<>(headers);
-            ResponseEntity<String> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, String.class);
-
-            JsonNode userJson = objectMapper.readTree(userResponse.getBody());
-            JsonNode response = userJson.get("response");
-
-            String providerId = response.get("id").asText();
-            String nickname = response.has("nickname") ? response.get("nickname").asText() : "";
-            String email = response.has("email") ? response.get("email").asText() : "";
-            String profileImage = response.has("profile_image") ? response.get("profile_image").asText() : "";
-
-            // 3. 사용자 처리
-            return processOAuthLogin("NAVER", providerId, email, nickname, profileImage, accessToken);
-
+            Map<String, String> info = fetchNaverUserInfo(code, state);
+            return processOAuthLogin("NAVER",
+                    info.get("providerId"), info.get("email"),
+                    info.get("nickname"), info.get("profileImage"),
+                    info.get("accessToken"));
         } catch (Exception e) {
             e.printStackTrace();
             result.put("success", false);
             result.put("message", "네이버 로그인 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
-
         return result;
+    }
+
+    private Map<String, String> fetchNaverUserInfo(String code, String state) throws Exception {
+        // 1. 액세스 토큰 받기
+        String tokenUrl = "https://nid.naver.com/oauth2.0/token" +
+                "?grant_type=authorization_code" +
+                "&client_id=" + socialLoginConfig.getNaverClientId() +
+                "&client_secret=" + socialLoginConfig.getNaverClientSecret() +
+                "&code=" + code +
+                "&state=" + state;
+
+        ResponseEntity<String> tokenResponse = restTemplate.getForEntity(tokenUrl, String.class);
+        JsonNode tokenJson = objectMapper.readTree(tokenResponse.getBody());
+        String accessToken = tokenJson.get("access_token").asText();
+
+        // 2. 사용자 정보 가져오기
+        String userInfoUrl = "https://openapi.naver.com/v1/nid/me";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+
+        HttpEntity<String> userRequest = new HttpEntity<>(headers);
+        ResponseEntity<String> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, String.class);
+
+        JsonNode userJson = objectMapper.readTree(userResponse.getBody());
+        JsonNode response = userJson.get("response");
+
+        String providerId = response.get("id").asText();
+        String nickname = response.has("nickname") ? response.get("nickname").asText() : "";
+        String email = response.has("email") ? response.get("email").asText() : "";
+        String profileImage = response.has("profile_image") ? response.get("profile_image").asText() : "";
+
+        Map<String, String> info = new HashMap<>();
+        info.put("providerId", providerId);
+        info.put("email", email);
+        info.put("nickname", nickname);
+        info.put("profileImage", profileImage);
+        info.put("accessToken", accessToken);
+        return info;
     }
 
     // ==================== 구글 ====================
@@ -188,53 +208,63 @@ public class SocialLoginService {
 
     public Map<String, Object> googleLogin(String code) {
         Map<String, Object> result = new HashMap<>();
-
         try {
-            // 1. 액세스 토큰 받기
-            String tokenUrl = "https://oauth2.googleapis.com/token";
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("grant_type", "authorization_code");
-            params.add("client_id", socialLoginConfig.getGoogleClientId());
-            params.add("client_secret", socialLoginConfig.getGoogleClientSecret());
-            params.add("redirect_uri", socialLoginConfig.getGoogleRedirectUri());
-            params.add("code", code);
-
-            HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(params, headers);
-            ResponseEntity<String> tokenResponse = restTemplate.postForEntity(tokenUrl, tokenRequest, String.class);
-
-            JsonNode tokenJson = objectMapper.readTree(tokenResponse.getBody());
-            String accessToken = tokenJson.get("access_token").asText();
-
-            // 2. 사용자 정보 가져오기
-            String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
-
-            HttpHeaders userHeaders = new HttpHeaders();
-            userHeaders.setBearerAuth(accessToken);
-
-            HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
-            ResponseEntity<String> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, String.class);
-
-            JsonNode userJson = objectMapper.readTree(userResponse.getBody());
-
-            String providerId = userJson.get("id").asText();
-            String email = userJson.has("email") ? userJson.get("email").asText() : "";
-            String nickname = userJson.has("name") ? userJson.get("name").asText() : "";
-            String profileImage = userJson.has("picture") ? userJson.get("picture").asText() : "";
-
-            // 3. 사용자 처리
-            return processOAuthLogin("GOOGLE", providerId, email, nickname, profileImage, accessToken);
-
+            Map<String, String> info = fetchGoogleUserInfo(code);
+            return processOAuthLogin("GOOGLE",
+                    info.get("providerId"), info.get("email"),
+                    info.get("nickname"), info.get("profileImage"),
+                    info.get("accessToken"));
         } catch (Exception e) {
             e.printStackTrace();
             result.put("success", false);
             result.put("message", "구글 로그인 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
-
         return result;
+    }
+
+    private Map<String, String> fetchGoogleUserInfo(String code) throws Exception {
+        // 1. 액세스 토큰 받기
+        String tokenUrl = "https://oauth2.googleapis.com/token";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", socialLoginConfig.getGoogleClientId());
+        params.add("client_secret", socialLoginConfig.getGoogleClientSecret());
+        params.add("redirect_uri", socialLoginConfig.getGoogleRedirectUri());
+        params.add("code", code);
+
+        HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(params, headers);
+        ResponseEntity<String> tokenResponse = restTemplate.postForEntity(tokenUrl, tokenRequest, String.class);
+
+        JsonNode tokenJson = objectMapper.readTree(tokenResponse.getBody());
+        String accessToken = tokenJson.get("access_token").asText();
+
+        // 2. 사용자 정보 가져오기
+        String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
+
+        HttpHeaders userHeaders = new HttpHeaders();
+        userHeaders.setBearerAuth(accessToken);
+
+        HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
+        ResponseEntity<String> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, String.class);
+
+        JsonNode userJson = objectMapper.readTree(userResponse.getBody());
+
+        String providerId = userJson.get("id").asText();
+        String email = userJson.has("email") ? userJson.get("email").asText() : "";
+        String nickname = userJson.has("name") ? userJson.get("name").asText() : "";
+        String profileImage = userJson.has("picture") ? userJson.get("picture").asText() : "";
+
+        Map<String, String> info = new HashMap<>();
+        info.put("providerId", providerId);
+        info.put("email", email);
+        info.put("nickname", nickname);
+        info.put("profileImage", profileImage);
+        info.put("accessToken", accessToken);
+        return info;
     }
 
     // ==================== 공통 처리 ====================
@@ -359,6 +389,11 @@ public class SocialLoginService {
             }
         });
 
+        // 본인이 이미 같은 provider 로 연동되어 있으면 중복 저장 방지
+        if (socialAccountRepository.findByUser_UserIdAndProvider(user.getUserId(), provider).isPresent()) {
+            throw new IllegalStateException("이미 " + provider + " 계정이 연동되어 있습니다.");
+        }
+
         SocialAccount socialAccount = SocialAccount.builder()
                 .user(user)
                 .provider(provider)
@@ -369,6 +404,54 @@ public class SocialLoginService {
                 .build();
 
         socialAccountRepository.save(socialAccount);
+    }
+
+    /**
+     * OAuth 콜백에서 받은 code 로 소셜 정보를 가져온 뒤 현재 로그인 사용자에 연동.
+     * 자동 로그인/회원가입 분기 없이 연동만 수행한다. providerId 기준으로 매칭하며
+     * 이메일 충돌은 무시 (본인이 명시적으로 진행하는 흐름이므로 ATO 위험 없음).
+     */
+    @Transactional
+    public void linkOAuthByCode(User user, String provider, String code, String state) throws Exception {
+        Map<String, String> info;
+        switch (provider) {
+            case "KAKAO":
+                info = fetchKakaoUserInfo(code);
+                break;
+            case "NAVER":
+                info = fetchNaverUserInfo(code, state);
+                break;
+            case "GOOGLE":
+                info = fetchGoogleUserInfo(code);
+                break;
+            default:
+                throw new IllegalArgumentException("지원하지 않는 소셜 제공자: " + provider);
+        }
+        linkSocialAccount(user, provider,
+                info.get("providerId"), info.get("email"),
+                info.get("nickname"), info.get("profileImage"));
+    }
+
+    /**
+     * 현재 사용자의 (provider) 소셜 연동을 해제.
+     * 호출 측에서 비밀번호 확인 등 본인 검증을 반드시 선행할 것.
+     */
+    @Transactional
+    public void unlinkSocialAccount(String userId, String provider) {
+        SocialAccount account = socialAccountRepository.findByUser_UserIdAndProvider(userId, provider)
+                .orElseThrow(() -> new IllegalStateException("연동된 " + provider + " 계정이 없습니다."));
+        socialAccountRepository.delete(account);
+    }
+
+    /**
+     * 사용자의 연동된 소셜 계정 목록 (provider → SocialAccount 매핑).
+     */
+    public Map<String, SocialAccount> getLinkedAccountsByProvider(String userId) {
+        Map<String, SocialAccount> result = new HashMap<>();
+        for (SocialAccount account : socialAccountRepository.findByUser_UserId(userId)) {
+            result.put(account.getProvider(), account);
+        }
+        return result;
     }
 
     /**

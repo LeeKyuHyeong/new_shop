@@ -130,6 +130,77 @@
                     </div>
                 </section>
 
+                <!-- 소셜 계정 연동 -->
+                <section class="mypage-section">
+                    <h3 class="section-title">소셜 계정 연동</h3>
+                    <p class="section-desc">연동된 소셜 계정으로 빠르게 로그인할 수 있습니다. 해제 시 본인 비밀번호 확인이 필요합니다.</p>
+
+                    <c:if test="${not empty settingMessage}">
+                        <div class="alert alert-success" role="status">${settingMessage}</div>
+                    </c:if>
+                    <c:if test="${not empty settingError}">
+                        <div class="alert alert-error" role="alert">${settingError}</div>
+                    </c:if>
+
+                    <div class="social-link-list">
+                        <c:forEach var="provider" items="${supportedProviders}">
+                            <c:set var="account" value="${linkedSocials[provider]}" />
+                            <c:set var="label" value="${provider == 'KAKAO' ? '카카오' : (provider == 'NAVER' ? '네이버' : '구글')}" />
+                            <div class="social-link-item social-${provider}">
+                                <div class="social-link-info">
+                                    <span class="social-link-name">${label}</span>
+                                    <c:choose>
+                                        <c:when test="${not empty account}">
+                                            <span class="social-link-status linked">연동됨</span>
+                                            <c:if test="${not empty account.socialEmail}">
+                                                <span class="social-link-meta">${account.socialEmail}</span>
+                                            </c:if>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="social-link-status unlinked">미연동</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <div class="social-link-action">
+                                    <c:choose>
+                                        <c:when test="${not empty account}">
+                                            <button type="button" class="btn btn-secondary btn-sm"
+                                                    onclick="openUnlinkDialog('${provider}', '${label}')">
+                                                해제
+                                            </button>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="${pageContext.request.contextPath}/oauth/link/${provider}"
+                                               class="btn btn-primary btn-sm">연동</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </section>
+
+                <!-- 연동 해제 모달 -->
+                <div id="unlinkDialog" class="modal-backdrop" hidden>
+                    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="unlinkDialogTitle">
+                        <h4 id="unlinkDialogTitle" class="modal-title">
+                            <span id="unlinkProviderLabel"></span> 연동 해제
+                        </h4>
+                        <p class="modal-desc">계정 보안을 위해 현재 비밀번호를 입력해주세요.</p>
+                        <form id="unlinkForm" class="modal-form">
+                            <input type="hidden" id="unlinkProvider" name="provider" value="">
+                            <div class="form-group">
+                                <label for="unlinkPassword">비밀번호</label>
+                                <input type="password" id="unlinkPassword" name="password" required autocomplete="current-password">
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeUnlinkDialog()">취소</button>
+                                <button type="submit" class="btn btn-primary">해제</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
                 <!-- 비밀번호 변경 -->
                 <section class="mypage-section">
                     <h3 class="section-title">비밀번호 변경</h3>
@@ -270,6 +341,63 @@
             .catch(err => {
                 console.error('Password change error:', err);
                 showToast('비밀번호 변경 중 오류가 발생했습니다', 'error');
+            });
+        });
+
+        // ===== 소셜 계정 연동 해제 =====
+        function openUnlinkDialog(provider, label) {
+            document.getElementById('unlinkProvider').value = provider;
+            document.getElementById('unlinkProviderLabel').textContent = label;
+            document.getElementById('unlinkPassword').value = '';
+            const dialog = document.getElementById('unlinkDialog');
+            dialog.hidden = false;
+            // 비밀번호 입력에 포커스
+            setTimeout(() => document.getElementById('unlinkPassword').focus(), 50);
+        }
+
+        function closeUnlinkDialog() {
+            document.getElementById('unlinkDialog').hidden = true;
+        }
+
+        // 배경 클릭 시 닫기 (패널 영역 클릭은 닫지 않음)
+        document.getElementById('unlinkDialog').addEventListener('click', function(e) {
+            if (e.target === this) closeUnlinkDialog();
+        });
+
+        document.getElementById('unlinkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const provider = document.getElementById('unlinkProvider').value;
+            const password = document.getElementById('unlinkPassword').value;
+
+            if (!password) {
+                showToast('비밀번호를 입력해주세요', 'error');
+                return;
+            }
+
+            const body = new URLSearchParams();
+            body.append('provider', provider);
+            body.append('password', password);
+
+            fetch(contextPath + '/api/setting/social/unlink', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString()
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message || '연동이 해제되었습니다');
+                    closeUnlinkDialog();
+                    // 상태 반영을 위해 새로고침
+                    setTimeout(() => window.location.reload(), 600);
+                } else {
+                    showToast(data.message || '연동 해제 실패', 'error');
+                }
+            })
+            .catch(err => {
+                console.error('Unlink error:', err);
+                showToast('연동 해제 중 오류가 발생했습니다', 'error');
             });
         });
 
