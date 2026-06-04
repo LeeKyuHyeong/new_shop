@@ -7,6 +7,7 @@ services:
     container_name: khshop-db
     restart: unless-stopped
     environment:
+      TZ: Asia/Seoul  # app 은 KST 인데 db 가 UTC 라 NOW() 류 타임스탬프 9시간 엇갈림
       MYSQL_ROOT_PASSWORD: Olympus2426!
       MYSQL_DATABASE: new_kh_shop
       MYSQL_USER: root
