@@ -14,8 +14,8 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 # Run production profile (port 8080)
 mvn spring-boot:run -Dspring-boot.run.profiles=prod
 
-# Docker deployment
-docker-compose up -d
+# Docker deployment (compose v2 — 서버에 v1 docker-compose 바이너리 없음)
+docker compose up -d
 ```
 
 ## Technology Stack

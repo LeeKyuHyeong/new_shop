@@ -74,17 +74,19 @@ jobs:
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/shop-app:${{ github.sha }}
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/shop-app:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/shop-app:latest
 
+          # 서버엔 compose v1(docker-compose) 바이너리가 없음 — v2 플러그인(docker compose)만 존재.
+          # v1 호출은 command not found 로 전부 실패해 pull만 되고 컨테이너 교체가 안 되고 있었음 (2026-06-06 발견)
           echo "2. 기존 앱 컨테이너 중지"
-          docker-compose stop app
-          docker-compose rm -f app
-          
+          docker compose stop app
+          docker compose rm -f app
+
           echo "3. 새 컨테이너 시작"
-          docker-compose up -d app
-          
+          docker compose up -d app
+
           echo "4. 사용하지 않는 이미지 정리"
           docker image prune -f
-          
+
           echo "5. 컨테이너 상태 확인"
-          docker-compose ps
+          docker compose ps
           
           echo "========== 배포 완료 =========="
