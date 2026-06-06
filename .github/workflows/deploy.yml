@@ -66,12 +66,14 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_PORT }}
         script: |
+          set -e  # 중간 명령(pull 등) 실패 시 즉시 중단 — 실패해도 마지막 명령만 성공하면 job 이 초록이 되는 문제 방지
           echo "========== 배포 시작 =========="
           cd /root/shop
-          
-          echo "1. 최신 이미지 Pull"
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/shop-app:latest
-          
+
+          echo "1. 이미지 Pull (커밋 SHA 태그 — :latest 전파 지연으로 옛 이미지를 받는 레이스 방지)"
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/shop-app:${{ github.sha }}
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/shop-app:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/shop-app:latest
+
           echo "2. 기존 앱 컨테이너 중지"
           docker-compose stop app
           docker-compose rm -f app
