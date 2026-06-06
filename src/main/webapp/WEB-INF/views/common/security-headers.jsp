@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%-- Favicon (?v=2: 배포 파이프라인 침묵 실패 기간에 브라우저가 캐시한 '파비콘 없음' 상태 무력화) --%>
-<link rel="icon" href="${pageContext.request.contextPath}/images/favicon.ico?v=2" type="image/x-icon">
-<link rel="shortcut icon" href="${pageContext.request.contextPath}/images/favicon.ico?v=2" type="image/x-icon">
+<%-- Favicon (?v=N: 아이콘 변경 시 버전을 올려 브라우저 파비콘 캐시 무력화) --%>
+<link rel="icon" href="${pageContext.request.contextPath}/images/favicon.ico?v=3" type="image/x-icon">
+<link rel="shortcut icon" href="${pageContext.request.contextPath}/images/favicon.ico?v=3" type="image/x-icon">
 <%-- CSRF 토큰 메타 태그 --%>
 <c:if test="${not empty _csrf}">
     <meta name="_csrf" content="${_csrf}">
