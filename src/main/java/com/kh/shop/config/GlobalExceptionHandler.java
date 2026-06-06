@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -86,9 +88,11 @@ public class GlobalExceptionHandler {
         return isAdmin ? "admin/error" : "client/error";
     }
 
-    // 404 에러 처리
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public String handleNotFound(NoHandlerFoundException e, HttpServletRequest request, Model model) {
+    // 404 에러 처리 (매핑 없는 URL + 존재하지 않는 정적 리소스)
+    // NoResourceFoundException 을 여기서 안 받으면 Exception 핸들러로 흘러가 ERROR 로그 + 200 응답이 됨
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleNotFound(Exception e, HttpServletRequest request, Model model) {
         log.warn("[404] URI: {}", request.getRequestURI());
 
         model.addAttribute("errorTitle", "페이지를 찾을 수 없습니다");
