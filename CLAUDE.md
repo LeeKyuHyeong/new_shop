@@ -107,3 +107,9 @@ CI/CD via GitHub Actions (`.github/workflows/deploy.yml`):
 
 - 진행 중인 보안 / 품질 개선 항목은 레포 루트의 `SECURITY_TODO.md` 에 정리되어 있다. 새 audit 결과는 이 파일에 추가하고, 완료된 항목은 `[x]` 로 체크한다.
 - 외부 시크릿(Portone / OAuth 3종 / Gmail) 회전 절차는 `SECRETS_ROTATION.md` 에 정리되어 있다.
+
+## 서버 인프라 (SSOT 참조)
+
+- **서버/배포 인프라 SSOT: `D:\server-infra.md`** (로컬 전용, git 미추적 — 리포·운영서버에 없음)
+- 포트·도메인·방화벽·컨테이너 TZ 규칙(`Asia/Seoul` 의무)·배포 반영 매트릭스(푸시 시 서버 자동/수동 반영 범위)·트러블슈팅은 전부 그 문서 참조.
+- 리포별 `server-infra-*.md`는 폐지됨(2026-06-06). **인프라(compose/nginx/포트/배포) 변경 시 `D:\server-infra.md`를 함께 최신화할 것.**
