@@ -13,7 +13,7 @@ on:
   workflow_dispatch:  # 수동 실행 버튼 활성화
 
 env:
-  IMAGE_NAME: khshop-app
+  IMAGE_NAME: shop-app
 
 jobs:
   build-and-push:
@@ -67,10 +67,10 @@ jobs:
         port: ${{ secrets.SERVER_PORT }}
         script: |
           echo "========== 배포 시작 =========="
-          cd /root/new_shop
+          cd /root/shop
           
           echo "1. 최신 이미지 Pull"
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/khshop-app:latest
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/shop-app:latest
           
           echo "2. 기존 앱 컨테이너 중지"
           docker-compose stop app

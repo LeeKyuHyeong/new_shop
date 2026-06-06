@@ -4,7 +4,7 @@ services:
     image: mariadb:10.11
     ports:
       - "3307:3306"
-    container_name: khshop-db
+    container_name: shop-db
     restart: unless-stopped
     environment:
       TZ: Asia/Seoul  # app 은 KST 인데 db 가 UTC 라 NOW() 류 타임스탬프 9시간 엇갈림
@@ -13,7 +13,7 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: Olympus2426!
     volumes:
-      - khshop-db-data:/var/lib/mysql
+      - db-data:/var/lib/mysql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
       # healthcheck.sh 는 볼륨 init 때 생성되는 전용 계정 필요 — 구버전 init 볼륨이라 항상 unhealthy
@@ -30,8 +30,8 @@ services:
 
   # Spring Boot App
   app:
-    image: positivelee/khshop-app:latest
-    container_name: khshop-app
+    image: positivelee/shop-app:latest
+    container_name: shop-app
     restart: unless-stopped
     ports:
       - "127.0.0.1:8081:8080"
@@ -41,7 +41,7 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       TZ: Asia/Seoul
     volumes:
-      - khshop-uploads:/app/uploads
+      - uploads:/app/uploads
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     depends_on:
@@ -53,5 +53,5 @@ services:
           memory: 512M
 
 volumes:
-  khshop-db-data:
-  khshop-uploads:
+  db-data:
+  uploads:
